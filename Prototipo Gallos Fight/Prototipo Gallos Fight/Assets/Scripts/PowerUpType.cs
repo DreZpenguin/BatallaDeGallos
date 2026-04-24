@@ -1,11 +1,12 @@
-// PowerUpType.cs — NUEVO ARCHIVO
-// Enum independiente para que tanto PowerUpManager como PowerUpUI puedan
-// referenciarlo sin depender el uno del otro.
-// Colócalo en la misma carpeta que los demás scripts (Assets/Scripts/).
-
+// ============================================================
+//  PowerUpType.cs  — MODIFICADO
+//  Se añadieron: Health y Shoot
+// ============================================================
 public enum PowerUpType
 {
     Range,
     Damage,
-    Speed
+    Speed,
+    Health,   // NUEVO: aumenta la vida máxima del jugador
+    Shoot     // NUEVO: mejora el proyectil (daño, velocidad, tiempo de vida)
 }

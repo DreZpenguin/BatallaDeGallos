@@ -1,12 +1,17 @@
+// ============================================================
+//  AttackController.cs  — MODIFICADO
+//  Cambios v2:
+//   · OnHitboxTriggerEnter pasa la dirección del golpe a TakeDamage
+//     para activar el knockback en HealthSystem.
+// ============================================================
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class AttackController : MonoBehaviour
 {
     [Header("Ataque")]
     [SerializeField] private KeyCode attackKey = KeyCode.Mouse0;
-    [SerializeField] private float attackDamage = 25f;   // <- Daño BASE (no modificar en runtime)
+    [SerializeField] private float attackDamage = 25f;
     [SerializeField] private float attackCooldown = 0.4f;
 
     [Header("Hitbox")]
@@ -19,11 +24,9 @@ public class AttackController : MonoBehaviour
     private float _cooldownTimer = 0f;
     private Vector2 _facingDirection = Vector2.up;
 
-    
-    public float BaseDamage => attackDamage;
+    public float BaseDamage    => attackDamage;
     public float CurrentDamage => attackDamage * (1f + _damageBonus);
 
-    
     private void Awake()
     {
         if (frontHitbox == null)
@@ -48,30 +51,27 @@ public class AttackController : MonoBehaviour
             StartAttack();
     }
 
-    // API Pública
+    // ── API Pública ────────────────────────────────────────────
     public void TriggerAttack()
     {
         if (_cooldownTimer <= 0f)
             StartAttack();
     }
+
     public void SetFacingDirection(Vector2 direction)
     {
         if (direction != Vector2.zero)
             _facingDirection = direction.normalized;
     }
 
-  
     /// Añade un porcentaje de bonus al daño base.
-    /// Ejemplo: AddDamageBonus(0.25f) → +25% del daño base.
-   
     public void AddDamageBonus(float percent)
     {
         _damageBonus += percent;
         Debug.Log($"[AttackController] Daño aumentado. Bonus total: {_damageBonus * 100f:F0}% | Daño actual: {CurrentDamage:F1}");
     }
 
-    // Ataque 
-
+    // ── Ataque ─────────────────────────────────────────────────
     private void StartAttack()
     {
         _cooldownTimer = attackCooldown;
@@ -96,15 +96,18 @@ public class AttackController : MonoBehaviour
         HealthSystem health = other.GetComponent<HealthSystem>();
         if (health != null)
         {
-            float dmg = CurrentDamage;   // usa el daño con bonus aplicado
-            bool hit = health.TakeDamage(dmg);
+            float dmg = CurrentDamage;
+
+            // Dirección del golpe: desde el atacante hacia la víctima
+            Vector2 hitDir = ((Vector2)other.transform.position - (Vector2)transform.position).normalized;
+
+            bool hit = health.TakeDamage(dmg, hitDir);
             if (hit)
-                Debug.Log($"[AttackController] {gameObject.name} golpeó a {other.name} por {dmg:F1} (base: {attackDamage}, bonus: {_damageBonus * 100f:F0}%).");
+                Debug.Log($"[AttackController] {gameObject.name} golpeó a {other.name} por {dmg:F1}.");
         }
     }
 
-    // Debug GUI
-
+    // ── Debug GUI ──────────────────────────────────────────────
     private void OnGUI()
     {
         if (!gameObject.CompareTag("Player")) return;

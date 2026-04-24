@@ -1,132 +1,176 @@
+// ============================================================
+//  PowerUpManager.cs  — v3
+//  Cambios:
+//   · ApplySavedData usa SetBulletUpgradeStacks(total) en lugar de
+//     ApplyBulletUpgrade(n) — evita acumulación doble entre escenas.
+//   · ApplyPowerUp usa AddBulletStack() para sumar de uno en uno
+//     cuando el jugador elige el powerup en partida.
+//   · Shuffle Fisher-Yates sin cambios.
+// ============================================================
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PowerUpManager : MonoBehaviour
 {
-    
-
     [Header("Bonus por powerup")]
-    [Tooltip("Cantidad FLAT sumada al tamaño del collider de la hitbox. Ej: 0.5 = +0.5 unidades")]
-    [SerializeField] private float rangeBonus = 0.5f;
-
-    [Tooltip("Porcentaje del daño base que se añade. Ej: 0.25 = +25% del daño base")]
+    [SerializeField] private float rangeBonus  = 0.5f;
     [SerializeField] private float damageBonus = 0.25f;
-
-    [Tooltip("Porcentaje de la velocidad base que se añade. Ej: 0.30 = +30% de la velocidad base")]
-    [SerializeField] private float speedBonus = 0.30f;
-
-    // Referencias 
+    [SerializeField] private float speedBonus  = 0.30f;
+    [SerializeField] private float healthBonus = 50f;
 
     [Header("Referencias")]
-    [SerializeField] private PowerUpUI powerUpUI;
+    [SerializeField] private PowerUpUICanvas powerUpUICanvas;
     [SerializeField] private HitboxFront hitboxFront;
 
-    private AttackController _attackController;
-    private PlayerMovement2D _playerMovement;
+    private AttackController   _attackController;
+    private PlayerMovement2D   _playerMovement;
+    private HealthSystem       _healthSystem;
+    private ShootingController _shootingController;
+
     private float _totalRangeBonus = 0f;
 
-    // Unity Lifecycle
+    private const int OPTIONS_TO_SHOW = 3;
 
     private void Awake()
     {
-        _attackController = GetComponent<AttackController>();
-        _playerMovement   = GetComponent<PlayerMovement2D>();
+        _attackController   = GetComponent<AttackController>();
+        _playerMovement     = GetComponent<PlayerMovement2D>();
+        _healthSystem       = GetComponent<HealthSystem>();
+        _shootingController = GetComponent<ShootingController>();
 
-        if (powerUpUI == null)
-            powerUpUI = FindFirstObjectByType<PowerUpUI>();
-
+        if (powerUpUICanvas == null)
+            powerUpUICanvas = FindFirstObjectByType<PowerUpUICanvas>();
         if (hitboxFront == null)
             hitboxFront = GetComponentInChildren<HitboxFront>();
 
-        if (powerUpUI == null)
-            Debug.LogError("[PowerUpManager] ¡No se encontró PowerUpUI en la escena! Crea un GameObject vacío y añádele el script PowerUpUI.");
+        if (powerUpUICanvas == null)
+            Debug.LogError("[PowerUpManager] No se encontró PowerUpUICanvas.");
         if (hitboxFront == null)
             Debug.LogWarning("[PowerUpManager] No se encontró HitboxFront en los hijos del jugador.");
     }
 
     private void Start()
     {
-        // Busca todos los HealthSystem en la escena y se suscribe a los que NO
-        // sean el propio jugador (el jugador también tiene HealthSystem).
+        ApplySavedData();
+
         HealthSystem[] allHealth = FindObjectsByType<HealthSystem>(FindObjectsSortMode.None);
         int registered = 0;
-
         foreach (HealthSystem hs in allHealth)
         {
-            // Salta el HealthSystem que vive en el mismo GameObject que este script
-            // (o en cualquier padre/hijo del jugador)
             if (hs.GetComponentInParent<PowerUpManager>() != null) continue;
             if (hs.gameObject == gameObject) continue;
-
             RegisterEnemy(hs);
             registered++;
         }
-
-        Debug.Log($"[PowerUpManager] {registered} enemigo(s) registrado(s) automáticamente.");
-
-        if (registered == 0)
-            Debug.LogWarning("[PowerUpManager] No se encontró ningún enemigo en la escena. " +
-                             "Asegúrate de que el enemigo tiene un componente HealthSystem.");
+        Debug.Log($"[PowerUpManager] {registered} enemigo(s) registrado(s).");
     }
 
- 
+    // ── Aplicar datos guardados (una sola vez al cargar escena) ─
 
-    /// Registra manualmente un enemigo. Úsalo desde un spawner si en el futuro
-    /// tus enemigos se instancian dinámicamente.
+    private void ApplySavedData()
+    {
+        if (PlayerData.Instance == null) return;
+
+        if (PlayerData.Instance.SpeedBonus > 0f)
+            _playerMovement?.AddSpeedBonus(PlayerData.Instance.SpeedBonus);
+
+        if (PlayerData.Instance.DamageBonus > 0f)
+            _attackController?.AddDamageBonus(PlayerData.Instance.DamageBonus);
+
+        if (PlayerData.Instance.RangeBonus > 0f)
+        {
+            _totalRangeBonus = PlayerData.Instance.RangeBonus;
+            hitboxFront?.SetRangeTotal(_totalRangeBonus);
+        }
+
+        // Pasa el TOTAL absoluto de stacks — ShootingController parte siempre de base
+        if (PlayerData.Instance.ExtraBullets > 0)
+            _shootingController?.SetBulletUpgradeStacks(PlayerData.Instance.ExtraBullets);
+
+        Debug.Log("[PowerUpManager] Bonus de PlayerData aplicados.");
+    }
+
+    // ── Registro de enemigos ────────────────────────────────────
+
     public void RegisterEnemy(HealthSystem enemyHealth)
     {
         if (enemyHealth == null) return;
-        // Usamos lambda con referencia para evitar suscripciones duplicadas
         enemyHealth.OnDeath.AddListener(OnEnemyDied);
         Debug.Log($"[PowerUpManager] Enemigo registrado: {enemyHealth.gameObject.name}");
     }
 
-
-
     [ContextMenu("Trigger PowerUp Selection (Test)")]
-    public void TriggerPowerUpSelection()
-    {
-        OnEnemyDied();
-    }
+    public void TriggerPowerUpSelection() => OnEnemyDied();
 
-    // Lógica Interna 
+    // ── Selección aleatoria de powerups ────────────────────────
 
     private void OnEnemyDied()
     {
-        if (powerUpUI == null)
+        if (powerUpUICanvas == null)
         {
-            Debug.LogError("[PowerUpManager] powerUpUI es null. ¿Añadiste el script PowerUpUI a un GameObject en la escena?");
+            Debug.LogError("[PowerUpManager] powerUpUICanvas es null.");
             return;
         }
 
-        PowerUpUI.PowerUpOption[] options = new PowerUpUI.PowerUpOption[]
+        List<PowerUpUICanvas.PowerUpOption> pool = new List<PowerUpUICanvas.PowerUpOption>
         {
-            new PowerUpUI.PowerUpOption
+            new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Range,
                 title       = "+RANGO",
-                description = $"Aumenta el tamaño\nde tu hitbox\n+{rangeBonus:F2} unidades",
-                iconColor   = new Color(0.2f, 0.8f, 1f)
+                description = $"Aumenta el tamaño de tu hitbox\n+{rangeBonus:F2} unidades",
+                hexColor    = "#38D1FF"
             },
-            new PowerUpUI.PowerUpOption
+            new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Damage,
                 title       = "+DAÑO",
-                description = $"Aumenta el daño\nde tu ataque\n+{damageBonus * 100f:F0}% del base",
-                iconColor   = new Color(1f, 0.3f, 0.2f)
+                description = $"Aumenta el daño de tu ataque\n+{damageBonus * 100f:F0}% del base",
+                hexColor    = "#FF4D3A"
             },
-            new PowerUpUI.PowerUpOption
+            new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Speed,
                 title       = "+VELOCIDAD",
-                description = $"Aumenta tu\nvelocidad de movimiento\n+{speedBonus * 100f:F0}% de la base",
-                iconColor   = new Color(0.3f, 1f, 0.4f)
+                description = $"Aumenta tu velocidad de movimiento\n+{speedBonus * 100f:F0}% de la base",
+                hexColor    = "#4DFF66"
+            },
+            new PowerUpUICanvas.PowerUpOption
+            {
+                id          = PowerUpType.Health,
+                title       = "+VIDA",
+                description = $"Aumenta tu vida máxima\n+{healthBonus:F0} HP",
+                hexColor    = "#FFD93D"
+            },
+            new PowerUpUICanvas.PowerUpOption
+            {
+                id          = PowerUpType.Shoot,
+                title       = "+DISPARO",
+                description = "Mejora tu proyectil\n+Daño, +Velocidad, +Duración",
+                hexColor    = "#C77DFF"
             }
         };
 
+        // Fisher-Yates shuffle
+        for (int i = pool.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            PowerUpUICanvas.PowerUpOption temp = pool[i];
+            pool[i] = pool[j];
+            pool[j] = temp;
+        }
+
+        int count = Mathf.Min(OPTIONS_TO_SHOW, pool.Count);
+        PowerUpUICanvas.PowerUpOption[] options = new PowerUpUICanvas.PowerUpOption[count];
+        for (int i = 0; i < count; i++)
+            options[i] = pool[i];
+
         Time.timeScale = 0f;
-        powerUpUI.Show(options, ApplyPowerUp);
-        Debug.Log("[PowerUpManager] Pantalla de powerup activada.");
+        powerUpUICanvas.Show(options, ApplyPowerUp);
+        Debug.Log($"[PowerUpManager] Pantalla de powerup activada con {count} opciones aleatorias.");
     }
+
+    // ── Aplicación del PowerUp ──────────────────────────────────
 
     private void ApplyPowerUp(PowerUpType type)
     {
@@ -135,19 +179,35 @@ public class PowerUpManager : MonoBehaviour
             case PowerUpType.Range:
                 _totalRangeBonus += rangeBonus;
                 hitboxFront?.SetRangeTotal(_totalRangeBonus);
-                Debug.Log($"[PowerUpManager] +Rango aplicado. Total acumulado: {_totalRangeBonus:F2}");
+                PlayerData.Instance?.AddRangeBonus(rangeBonus);
+                Debug.Log($"[PowerUpManager] +Rango. Total: {_totalRangeBonus:F2}");
                 break;
 
             case PowerUpType.Damage:
                 _attackController?.AddDamageBonus(damageBonus);
+                PlayerData.Instance?.AddDamageBonus(damageBonus);
                 break;
 
             case PowerUpType.Speed:
                 _playerMovement?.AddSpeedBonus(speedBonus);
+                PlayerData.Instance?.AddSpeedBonus(speedBonus);
+                break;
+
+            case PowerUpType.Health:
+                _healthSystem?.AddMaxHealthBonus(healthBonus);
+                PlayerData.Instance?.AddHealthBonus(healthBonus);
+                Debug.Log($"[PowerUpManager] +Vida. HP extra: {healthBonus:F0}");
+                break;
+
+            case PowerUpType.Shoot:
+                // Suma 1 stack en runtime y guarda el nuevo total
+                _shootingController?.AddBulletStack();
+                PlayerData.Instance?.AddBulletUpgrade();
+                Debug.Log("[PowerUpManager] +Disparo aplicado.");
                 break;
         }
 
         Time.timeScale = 1f;
-        Debug.Log($"[PowerUpManager] Powerup '{type}' aplicado. Juego reanudado.");
+        Debug.Log($"[PowerUpManager] Powerup '{type}' aplicado.");
     }
 }
