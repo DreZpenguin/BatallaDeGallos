@@ -1,8 +1,9 @@
 // ============================================================
-//  AttackController.cs  — MODIFICADO
-//  Cambios v2:
-//   · OnHitboxTriggerEnter pasa la dirección del golpe a TakeDamage
-//     para activar el knockback en HealthSystem.
+//  AttackController.cs  — v3
+//  Cambios respecto a v2:
+//   · Llama a AudioManager.Instance.PlayPlayerAttack() al atacar
+//     (sólo si el GameObject tiene tag "Player").
+//   · Llama a AudioManager.Instance.PlayEnemyAttack() si es enemigo.
 // ============================================================
 using System.Collections;
 using UnityEngine;
@@ -27,8 +28,12 @@ public class AttackController : MonoBehaviour
     public float BaseDamage    => attackDamage;
     public float CurrentDamage => attackDamage * (1f + _damageBonus);
 
+    private bool _isPlayer;
+
     private void Awake()
     {
+        _isPlayer = gameObject.CompareTag("Player");
+
         if (frontHitbox == null)
         {
             Transform hitboxTransform = transform.Find("HitboxFront");
@@ -64,7 +69,6 @@ public class AttackController : MonoBehaviour
             _facingDirection = direction.normalized;
     }
 
-    /// Añade un porcentaje de bonus al daño base.
     public void AddDamageBonus(float percent)
     {
         _damageBonus += percent;
@@ -75,6 +79,13 @@ public class AttackController : MonoBehaviour
     private void StartAttack()
     {
         _cooldownTimer = attackCooldown;
+
+        // Sonido según quien ataca
+        if (_isPlayer)
+            AudioManager.Instance?.PlayPlayerAttack();
+        else
+            AudioManager.Instance?.PlayEnemyAttack();
+
         StartCoroutine(AttackRoutine());
     }
 
@@ -97,8 +108,6 @@ public class AttackController : MonoBehaviour
         if (health != null)
         {
             float dmg = CurrentDamage;
-
-            // Dirección del golpe: desde el atacante hacia la víctima
             Vector2 hitDir = ((Vector2)other.transform.position - (Vector2)transform.position).normalized;
 
             bool hit = health.TakeDamage(dmg, hitDir);
@@ -110,7 +119,7 @@ public class AttackController : MonoBehaviour
     // ── Debug GUI ──────────────────────────────────────────────
     private void OnGUI()
     {
-        if (!gameObject.CompareTag("Player")) return;
+        if (!_isPlayer) return;
 
         GUI.Label(new Rect(10, 115, 260, 50),
             $"Cooldown ataque: {Mathf.Max(0f, _cooldownTimer):F1}s\n" +

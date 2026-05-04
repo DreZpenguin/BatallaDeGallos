@@ -1,12 +1,7 @@
 // ============================================================
-//  ShootingController.cs  — v3
-//  Cambios:
-//   · Eliminado el bloque Start() que aplicaba ExtraBullets desde
-//     PlayerData — eso lo hace PowerUpManager.ApplySavedData()
-//     para evitar doble aplicación entre escenas.
-//   · ApplyBulletUpgrade recibe el total absoluto de stacks en lugar
-//     de sumarlo encima: así cargar una escena nueva no duplica el bonus.
-//   · Logs de diagnóstico mantenidos.
+//  ShootingController.cs  — v4
+//  Cambios respecto a v3:
+//   · Llama a AudioManager.Instance.PlayPlayerShoot() al disparar.
 // ============================================================
 using UnityEngine;
 
@@ -31,14 +26,10 @@ public class ShootingController : MonoBehaviour
     [SerializeField] private float shootCooldown = 0.5f;
 
     private float _cooldownTimer = 0f;
-
-    // Bonus acumulados — se calculan SIEMPRE desde cero sobre el base
-    // para que cargar una escena nueva no los duplique.
-    private int _upgradeStacks = 0;
+    private int   _upgradeStacks = 0;
 
     private Camera _cam;
 
-    // Cada stack suma estos valores al base
     private const float DamagePerStack   = 5f;
     private const float SpeedPerStack    = 2f;
     private const float LifetimePerStack = 0.5f;
@@ -53,7 +44,6 @@ public class ShootingController : MonoBehaviour
         if (firePoint == null)
             firePoint = transform;
 
-        // Diagnóstico del prefab
         if (bulletPrefab == null)
         {
             Debug.LogError("[ShootingController] ¡bulletPrefab no está asignado en el Inspector!");
@@ -64,14 +54,11 @@ public class ShootingController : MonoBehaviour
         if (bulletPrefab.GetComponent<Rigidbody2D>() == null)
             Debug.LogError("[ShootingController] El prefab NO tiene Rigidbody2D en el objeto raíz.");
         if (bulletPrefab.GetComponent<Collider2D>() == null)
-            Debug.LogError("[ShootingController] El prefab NO tiene Collider2D en el objeto raíz. " +
-                           "Debe estar en el mismo GameObject, no en un hijo.");
+            Debug.LogError("[ShootingController] El prefab NO tiene Collider2D en el objeto raíz.");
     }
 
     private void Start()
     {
-        // NO aplicar PlayerData aquí — PowerUpManager.ApplySavedData() lo hace.
-        // Hacerlo en ambos sitios duplicaba el bonus al cargar una escena nueva.
         Debug.Log($"[ShootingController] Listo. Tecla: {shootKey} | " +
                   $"Prefab: {(bulletPrefab != null ? bulletPrefab.name : "NULL")} | " +
                   $"FirePoint: {firePoint.name}");
@@ -103,6 +90,9 @@ public class ShootingController : MonoBehaviour
 
         _cooldownTimer = shootCooldown;
 
+        // Sonido de disparo
+        AudioManager.Instance?.PlayPlayerShoot();
+
         Vector3 mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
         Vector2 direction  = ((Vector2)mouseWorld - (Vector2)firePoint.position).normalized;
 
@@ -122,11 +112,6 @@ public class ShootingController : MonoBehaviour
 
     // ── API Pública ───────────────────────────────────────────
 
-    /// <summary>
-    /// Recibe el TOTAL ABSOLUTO de stacks acumulados (no un delta).
-    /// PowerUpManager pasa PlayerData.Instance.ExtraBullets directamente,
-    /// así que recargar la escena siempre parte del mismo valor base.
-    /// </summary>
     public void SetBulletUpgradeStacks(int totalStacks)
     {
         _upgradeStacks = totalStacks;
@@ -134,7 +119,6 @@ public class ShootingController : MonoBehaviour
                   $"Dmg:{CurrentDamage:F1} Spd:{CurrentSpeed:F1} Life:{CurrentLifetime:F1}s");
     }
 
-    /// Añade UN stack adicional (llamado cuando el jugador elige el powerup en partida).
     public void AddBulletStack()
     {
         _upgradeStacks++;

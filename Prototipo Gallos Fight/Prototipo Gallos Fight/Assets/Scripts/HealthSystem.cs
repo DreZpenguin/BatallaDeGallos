@@ -1,10 +1,12 @@
 // ============================================================
-//  HealthSystem.cs  — v3
-//  Cambios:
-//   · Knockback gradual: velocidad que decae linealmente a 0
-//     en knockbackDuration segundos (sin teletransporte).
-//   · knockbackForce y knockbackDuration configurables desde Inspector.
-//   · Flash de color sin cambios.
+//  HealthSystem.cs  — v4
+//  Cambios respecto a v3:
+//   · Al recibir daño llama a AudioManager:
+//       - PlayPlayerHit()  si el GameObject tiene tag "Player"
+//       - PlayEnemyHit()   si no
+//   · Al morir llama a AudioManager:
+//       - PlayPlayerDie()  si es el jugador
+//       - PlayEnemyDie()   si no
 // ============================================================
 using System.Collections;
 using UnityEngine;
@@ -39,6 +41,8 @@ public class HealthSystem : MonoBehaviour
     private Coroutine      _flashCoroutine;
     private Coroutine      _knockbackCoroutine;
 
+    private bool _isPlayer;
+
     [Header("Eventos")]
     public UnityEvent<float, float> OnHealthChanged;
     public UnityEvent               OnDeath;
@@ -49,6 +53,7 @@ public class HealthSystem : MonoBehaviour
 
     private void Awake()
     {
+        _isPlayer = gameObject.CompareTag("Player");
         currentHealth = MaxHealth;
 
         _rb = GetComponent<Rigidbody2D>();
@@ -63,7 +68,7 @@ public class HealthSystem : MonoBehaviour
 
     private void Start()
     {
-        if (gameObject.CompareTag("Player") && PlayerData.Instance != null)
+        if (_isPlayer && PlayerData.Instance != null)
         {
             float bonus = PlayerData.Instance.HealthBonus;
             if (bonus > 0f)
@@ -110,11 +115,23 @@ public class HealthSystem : MonoBehaviour
             _flashCoroutine = StartCoroutine(HitFlash());
         }
 
+        // ── Sonido de daño ─────────────────────────────────────
+        if (_isPlayer)
+            AudioManager.Instance?.PlayPlayerHit();
+        else
+            AudioManager.Instance?.PlayEnemyHit();
+
         OnHealthChanged?.Invoke(currentHealth, MaxHealth);
         Debug.Log($"{gameObject.name} recibió {amount} de daño. HP: {currentHealth}/{MaxHealth}");
 
         if (currentHealth <= 0f)
         {
+            // ── Sonido de muerte ───────────────────────────────
+            if (_isPlayer)
+                AudioManager.Instance?.PlayPlayerDie();
+            else
+                AudioManager.Instance?.PlayEnemyDie();
+
             OnDeath?.Invoke();
             Debug.Log($"{gameObject.name} murió.");
         }
@@ -124,17 +141,12 @@ public class HealthSystem : MonoBehaviour
 
     // ── Corrutinas ─────────────────────────────────────────────
 
-    /// El knockback se aplica como desplazamiento manual que decae de
-    /// knockbackForce → 0 en knockbackDuration segundos.
-    /// Usa MovePosition para no sobreescribir la física del Rigidbody
-    /// que gestiona el movimiento normal del personaje.
     private IEnumerator KnockbackRoutine(Vector2 direction)
     {
         float elapsed = 0f;
 
         while (elapsed < knockbackDuration)
         {
-            // Interpolación lineal de velocidad: arranca en knockbackForce y baja a 0
             float t            = 1f - (elapsed / knockbackDuration);
             float currentSpeed = knockbackForce * t;
 
@@ -175,7 +187,7 @@ public class HealthSystem : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!gameObject.CompareTag("Player")) return;
+        if (!_isPlayer) return;
         GUI.Label(new Rect(10, 90, 260, 30), $"HP: {currentHealth:F0} / {MaxHealth:F0}");
     }
 }

@@ -1,10 +1,8 @@
 // ============================================================
-//  BulletController.cs  — v3
-//  Cambios:
-//   · La bala ignora el collider de la arena al ENTRAR (no se destruye).
-//   · La bala se destruye al SALIR del collider de la arena.
-//   · El tag de la arena es configurable desde el Inspector ("Arena" por defecto).
-//   · El resto del comportamiento es idéntico a v2.
+//  BulletController.cs  — v4
+//  Cambios respecto a v3:
+//   · Llama a AudioManager.Instance.PlayBulletImpact() al golpear
+//     un objetivo con HealthSystem.
 // ============================================================
 using UnityEngine;
 
@@ -13,8 +11,7 @@ using UnityEngine;
 public class BulletController : MonoBehaviour
 {
     [Header("Arena")]
-    [Tooltip("Tag del GameObject que contiene el CircleCollider2D de la arena. " +
-             "Asigna este mismo tag al objeto de la arena en Unity.")]
+    [Tooltip("Tag del GameObject que contiene el CircleCollider2D de la arena.")]
     [SerializeField] private string arenaTag = "Arena";
 
     private float      _damage   = 10f;
@@ -34,7 +31,6 @@ public class BulletController : MonoBehaviour
         if (col != null) col.isTrigger = true;
     }
 
-    /// Llamado por ShootingController / RangedEnemyAI justo después de Instantiate.
     public void Init(float damage, float speed, float lifetime, Vector2 direction, GameObject owner)
     {
         _damage    = damage;
@@ -55,32 +51,28 @@ public class BulletController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Ignora al dueño y sus hijos
         if (_owner != null && other.gameObject == _owner) return;
         if (_owner != null && other.transform.IsChildOf(_owner.transform)) return;
-
-        // Ignora el collider de la arena al entrar
-        // (la bala se instancia dentro, por eso lo detectaría aquí)
         if (other.CompareTag(arenaTag)) return;
 
-        // Daño a entidades con HealthSystem
         HealthSystem health = other.GetComponent<HealthSystem>();
         if (health != null)
         {
             bool hit = health.TakeDamage(_damage, _direction);
             if (hit)
+            {
+                AudioManager.Instance?.PlayBulletImpact();
                 Debug.Log($"[Bullet] Impactó a {other.name} por {_damage:F1} de daño.");
+            }
             Destroy(gameObject);
             return;
         }
 
-        // Cualquier otro objeto sólido (paredes, tilemap, etc.) la destruye
         Destroy(gameObject);
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        // Se destruye al salir del límite de la arena
         if (other.CompareTag(arenaTag))
         {
             Debug.Log("[Bullet] Salió de la arena. Destruida.");

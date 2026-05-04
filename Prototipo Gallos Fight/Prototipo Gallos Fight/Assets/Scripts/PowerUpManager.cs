@@ -1,12 +1,16 @@
 // ============================================================
-//  PowerUpManager.cs  — v3
-//  Cambios:
-//   · ApplySavedData usa SetBulletUpgradeStacks(total) en lugar de
-//     ApplyBulletUpgrade(n) — evita acumulación doble entre escenas.
-//   · ApplyPowerUp usa AddBulletStack() para sumar de uno en uno
-//     cuando el jugador elige el powerup en partida.
-//   · Shuffle Fisher-Yates sin cambios.
+//  PowerUpManager.cs  — v4
+//  Cambios respecto a v3:
+//   · TriggerPowerUpSelectionWithCallback(Action onSelected) —
+//     LevelManager llama a este método en lugar de suscribirse
+//     a OnEnemyDied directamente. Cuando el jugador elige el
+//     powerup se invoca tanto ApplyPowerUp como el callback
+//     externo, permitiendo que LevelManager haga la transición.
+//   · TriggerPowerUpSelection() (sin args) se mantiene para
+//     testing desde el ContextMenu.
+//   · El resto del comportamiento es idéntico a v3.
 // ============================================================
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,6 +35,9 @@ public class PowerUpManager : MonoBehaviour
 
     private const int OPTIONS_TO_SHOW = 3;
 
+    // Callback externo (LevelManager lo usa para saber cuándo transicionar)
+    private Action _onPowerUpSelectedCallback;
+
     private void Awake()
     {
         _attackController   = GetComponent<AttackController>();
@@ -53,19 +60,22 @@ public class PowerUpManager : MonoBehaviour
     {
         ApplySavedData();
 
+        // Registro de enemigos existentes en escena
+        // (Los enemigos del LevelManager también son registrados aquí
+        //  para el sistema de powerup heredado; LevelManager lleva su
+        //  propio contador de muertes independiente.)
         HealthSystem[] allHealth = FindObjectsByType<HealthSystem>(FindObjectsSortMode.None);
         int registered = 0;
         foreach (HealthSystem hs in allHealth)
         {
             if (hs.GetComponentInParent<PowerUpManager>() != null) continue;
             if (hs.gameObject == gameObject) continue;
-            RegisterEnemy(hs);
             registered++;
         }
-        Debug.Log($"[PowerUpManager] {registered} enemigo(s) registrado(s).");
+        Debug.Log($"[PowerUpManager] {registered} enemigo(s) encontrado(s) en escena.");
     }
 
-    // ── Aplicar datos guardados (una sola vez al cargar escena) ─
+    // ── Aplicar datos guardados ─────────────────────────────────
 
     private void ApplySavedData()
     {
@@ -83,28 +93,37 @@ public class PowerUpManager : MonoBehaviour
             hitboxFront?.SetRangeTotal(_totalRangeBonus);
         }
 
-        // Pasa el TOTAL absoluto de stacks — ShootingController parte siempre de base
         if (PlayerData.Instance.ExtraBullets > 0)
             _shootingController?.SetBulletUpgradeStacks(PlayerData.Instance.ExtraBullets);
 
         Debug.Log("[PowerUpManager] Bonus de PlayerData aplicados.");
     }
 
-    // ── Registro de enemigos ────────────────────────────────────
+    // ── Registro de enemigos (API heredada) ─────────────────────
 
     public void RegisterEnemy(HealthSystem enemyHealth)
     {
         if (enemyHealth == null) return;
-        enemyHealth.OnDeath.AddListener(OnEnemyDied);
-        Debug.Log($"[PowerUpManager] Enemigo registrado: {enemyHealth.gameObject.name}");
+        Debug.Log($"[PowerUpManager] Enemigo registrado (sin callback de nivel): {enemyHealth.gameObject.name}");
     }
 
+    // ── API de Selección de PowerUp ────────────────────────────
+
+    /// Muestra la pantalla de selección y, al elegir, invoca <paramref name="onSelected"/>.
+    /// Llamado por LevelManager cuando todos los enemigos del nivel han muerto.
+    public void TriggerPowerUpSelectionWithCallback(Action onSelected)
+    {
+        _onPowerUpSelectedCallback = onSelected;
+        ShowPowerUpScreen();
+    }
+
+    /// Versión sin callback (testing desde ContextMenu o uso standalone).
     [ContextMenu("Trigger PowerUp Selection (Test)")]
-    public void TriggerPowerUpSelection() => OnEnemyDied();
+    public void TriggerPowerUpSelection() => ShowPowerUpScreen();
 
-    // ── Selección aleatoria de powerups ────────────────────────
+    // ── Pantalla de selección ───────────────────────────────────
 
-    private void OnEnemyDied()
+    private void ShowPowerUpScreen()
     {
         if (powerUpUICanvas == null)
         {
@@ -154,8 +173,7 @@ public class PowerUpManager : MonoBehaviour
         // Fisher-Yates shuffle
         for (int i = pool.Count - 1; i > 0; i--)
         {
-            int j = Random.Range(0, i + 1);
-            PowerUpUICanvas.PowerUpOption temp = pool[i];
+            int j = UnityEngine.Random.Range(0, i + 1); PowerUpUICanvas.PowerUpOption temp = pool[i];
             pool[i] = pool[j];
             pool[j] = temp;
         }
@@ -167,7 +185,7 @@ public class PowerUpManager : MonoBehaviour
 
         Time.timeScale = 0f;
         powerUpUICanvas.Show(options, ApplyPowerUp);
-        Debug.Log($"[PowerUpManager] Pantalla de powerup activada con {count} opciones aleatorias.");
+        Debug.Log($"[PowerUpManager] Pantalla de powerup activada con {count} opciones.");
     }
 
     // ── Aplicación del PowerUp ──────────────────────────────────
@@ -200,7 +218,6 @@ public class PowerUpManager : MonoBehaviour
                 break;
 
             case PowerUpType.Shoot:
-                // Suma 1 stack en runtime y guarda el nuevo total
                 _shootingController?.AddBulletStack();
                 PlayerData.Instance?.AddBulletUpgrade();
                 Debug.Log("[PowerUpManager] +Disparo aplicado.");
@@ -209,5 +226,10 @@ public class PowerUpManager : MonoBehaviour
 
         Time.timeScale = 1f;
         Debug.Log($"[PowerUpManager] Powerup '{type}' aplicado.");
+
+        // Notifica al LevelManager (u otro sistema) que la selección terminó
+        Action callback = _onPowerUpSelectedCallback;
+        _onPowerUpSelectedCallback = null;
+        callback?.Invoke();
     }
 }
