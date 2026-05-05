@@ -1,16 +1,7 @@
-// ============================================================
-//  HealthSystem.cs  — v4
-//  Cambios respecto a v3:
-//   · Al recibir daño llama a AudioManager:
-//       - PlayPlayerHit()  si el GameObject tiene tag "Player"
-//       - PlayEnemyHit()   si no
-//   · Al morir llama a AudioManager:
-//       - PlayPlayerDie()  si es el jugador
-//       - PlayEnemyDie()   si no
-// ============================================================
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class HealthSystem : MonoBehaviour
 {
@@ -132,8 +123,9 @@ public class HealthSystem : MonoBehaviour
             else
                 AudioManager.Instance?.PlayEnemyDie();
 
-            OnDeath?.Invoke();
+            OnDeath?.Invoke();            
             Debug.Log($"{gameObject.name} murió.");
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
         }
 
         return true;

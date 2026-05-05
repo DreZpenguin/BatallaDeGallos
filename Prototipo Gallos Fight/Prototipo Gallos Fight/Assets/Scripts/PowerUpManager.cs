@@ -1,15 +1,3 @@
-// ============================================================
-//  PowerUpManager.cs  — v4
-//  Cambios respecto a v3:
-//   · TriggerPowerUpSelectionWithCallback(Action onSelected) —
-//     LevelManager llama a este método en lugar de suscribirse
-//     a OnEnemyDied directamente. Cuando el jugador elige el
-//     powerup se invoca tanto ApplyPowerUp como el callback
-//     externo, permitiendo que LevelManager haga la transición.
-//   · TriggerPowerUpSelection() (sin args) se mantiene para
-//     testing desde el ContextMenu.
-//   · El resto del comportamiento es idéntico a v3.
-// ============================================================
 using System;
 using System.Collections.Generic;
 using UnityEngine;

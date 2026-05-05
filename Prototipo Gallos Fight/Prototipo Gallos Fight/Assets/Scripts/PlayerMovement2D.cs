@@ -46,10 +46,10 @@ public class PlayerMovement2D : MonoBehaviour
         RotateTowardsMouse();
         HandleDashInput();
         HandleDashTimer();
-        if (Input.GetKeyDown(KeyCode.R)) UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
-        if (Input.GetKeyDown(KeyCode.F1)) UnityEngine.SceneManagement.SceneManager.LoadScene(0);
-        if (Input.GetKeyDown(KeyCode.F2)) UnityEngine.SceneManagement.SceneManager.LoadScene(1);
-        if (Input.GetKeyDown(KeyCode.F3)) UnityEngine.SceneManagement.SceneManager.LoadScene(2);
+      //  if (Input.GetKeyDown(KeyCode.R)) UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+      //  if (Input.GetKeyDown(KeyCode.F1)) UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+      //  if (Input.GetKeyDown(KeyCode.F2)) UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+      //  if (Input.GetKeyDown(KeyCode.F3)) UnityEngine.SceneManagement.SceneManager.LoadScene(2);
     }
 
     private void FixedUpdate()

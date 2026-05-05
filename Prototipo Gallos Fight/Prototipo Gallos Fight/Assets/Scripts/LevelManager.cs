@@ -1,26 +1,3 @@
-// ============================================================
-//  LevelManager.cs
-//  Gestiona la progresión de niveles de la arena.
-//
-//  COMPORTAMIENTO:
-//   · Cada nivel tiene uno o más enemigos registrados.
-//   · Al morir todos los enemigos del nivel actual se muestra
-//     la pantalla de powerup.
-//   · Al elegir el powerup se carga la siguiente escena
-//     (Build Index: Nivel1=0, Nivel2=1, Nivel3=2, …).
-//   · El Nivel 3 acepta 4 enemigos; la pantalla de powerup
-//     sólo aparece cuando los 4 han muerto.
-//
-//  SETUP EN UNITY:
-//   1. Crea un GameObject vacío "LevelManager" en cada escena.
-//   2. Asígnale este script.
-//   3. Arrastra los HealthSystem de los enemigos de esa escena
-//      al array "Enemies In Level" del Inspector.
-//   4. Asigna el PowerUpManager del jugador al campo
-//      "Power Up Manager".
-//   5. Opcionalmente activa "Is Last Level" en el último nivel
-//      para que no intente cargar una escena inexistente.
-// ============================================================
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -45,6 +22,8 @@ public class LevelManager : MonoBehaviour
 
     [Tooltip("Segundos de espera entre que muere el último enemigo y aparece la pantalla de powerup.")]
     [SerializeField] private float delayBeforePowerUp = 0.8f;
+
+    [SerializeField] private PlayerData PowerUpData;
 
     // ── Estado interno ─────────────────────────────────────────
     private int _enemiesAlive;
@@ -122,6 +101,8 @@ public class LevelManager : MonoBehaviour
             Debug.Log("[LevelManager] Último nivel completado. Fin del juego.");
             // Aquí puedes cargar una escena de créditos / menú principal
             // SceneManager.LoadScene("Credits");
+            PowerUpData.ResetAll();
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
             return;
         }
 

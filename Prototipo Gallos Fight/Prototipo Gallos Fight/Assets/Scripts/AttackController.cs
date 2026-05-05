@@ -1,10 +1,3 @@
-// ============================================================
-//  AttackController.cs  — v3
-//  Cambios respecto a v2:
-//   · Llama a AudioManager.Instance.PlayPlayerAttack() al atacar
-//     (sólo si el GameObject tiene tag "Player").
-//   · Llama a AudioManager.Instance.PlayEnemyAttack() si es enemigo.
-// ============================================================
 using System.Collections;
 using UnityEngine;
 

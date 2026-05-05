@@ -1,9 +1,3 @@
-// ============================================================
-//  PlayerData.cs
-//  Singleton persistente entre escenas (DontDestroyOnLoad).
-//  Guarda todos los bonus acumulados del jugador.
-//  Colócalo en Assets/Scripts/
-// ============================================================
 using UnityEngine;
 
 public class PlayerData : MonoBehaviour
