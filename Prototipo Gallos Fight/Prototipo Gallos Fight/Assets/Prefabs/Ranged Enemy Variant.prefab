@@ -8,9 +8,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 96154386166402537, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_Size.x
+      value: 0.20224115
+      objectReference: {fileID: 0}
+    - target: {fileID: 96154386166402537, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_Size.y
+      value: 0.11310315
+      objectReference: {fileID: 0}
+    - target: {fileID: 96154386166402537, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.05361578
+      objectReference: {fileID: 0}
+    - target: {fileID: 96154386166402537, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.097850725
+      objectReference: {fileID: 0}
     - target: {fileID: 2723383198928369880, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_Name
       value: Ranged Enemy Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 4201430936452012447, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4201430936452012447, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4201430936452012447, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_LocalPosition.x
@@ -54,15 +78,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5588473078638198134, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_Color.b
-      value: 0.9339623
+      value: 0.86415094
       objectReference: {fileID: 0}
     - target: {fileID: 5588473078638198134, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_Color.g
-      value: 0.18768053
+      value: 0.86415094
       objectReference: {fileID: 0}
     - target: {fileID: 5588473078638198134, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_Color.r
-      value: 0.022027409
+      value: 0.86415094
       objectReference: {fileID: 0}
     - target: {fileID: 5692956560386035407, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: hitColor.g
@@ -100,13 +124,22 @@ PrefabInstance:
       propertyPath: OnDeath.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 7121927259988939902, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.071
+      objectReference: {fileID: 0}
+    - target: {fileID: 7121927259988939902, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.518
+      objectReference: {fileID: 0}
     - target: {fileID: 8264681061710510466, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: Enemy
       value: 
       objectReference: {fileID: 2723383198928369880, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
     m_RemovedComponents:
     - {fileID: 8264681061710510466, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7414685534604346003, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2723383198928369880, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
