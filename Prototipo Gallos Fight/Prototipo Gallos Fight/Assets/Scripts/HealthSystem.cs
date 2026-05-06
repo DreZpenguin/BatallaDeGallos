@@ -113,19 +113,22 @@ public class HealthSystem : MonoBehaviour
             AudioManager.Instance?.PlayEnemyHit();
 
         OnHealthChanged?.Invoke(currentHealth, MaxHealth);
-        Debug.Log($"{gameObject.name} recibió {amount} de daño. HP: {currentHealth}/{MaxHealth}");
+       // Debug.Log($"{gameObject.name} recibió {amount} de daño. HP: {currentHealth}/{MaxHealth}");
 
         if (currentHealth <= 0f)
         {
             // ── Sonido de muerte ───────────────────────────────
             if (_isPlayer)
+            {
                 AudioManager.Instance?.PlayPlayerDie();
+                UnityEngine.SceneManagement.SceneManager.LoadScene(0);             
+            }
             else
                 AudioManager.Instance?.PlayEnemyDie();
 
             OnDeath?.Invoke();            
-            Debug.Log($"{gameObject.name} murió.");
-            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+            //Debug.Log($"{gameObject.name} murió.");
+            
         }
 
         return true;
@@ -174,7 +177,7 @@ public class HealthSystem : MonoBehaviour
         currentHealth   += flat;
         currentHealth    = Mathf.Min(currentHealth, MaxHealth);
         OnHealthChanged?.Invoke(currentHealth, MaxHealth);
-        Debug.Log($"[HealthSystem] HP máximo aumentado en {flat}. Total: {MaxHealth:F0} | Actual: {currentHealth:F0}");
+       // Debug.Log($"[HealthSystem] HP máximo aumentado en {flat}. Total: {MaxHealth:F0} | Actual: {currentHealth:F0}");
     }
 
     private void OnGUI()
@@ -182,4 +185,5 @@ public class HealthSystem : MonoBehaviour
         if (!_isPlayer) return;
         GUI.Label(new Rect(10, 90, 260, 30), $"HP: {currentHealth:F0} / {MaxHealth:F0}");
     }
+    
 }

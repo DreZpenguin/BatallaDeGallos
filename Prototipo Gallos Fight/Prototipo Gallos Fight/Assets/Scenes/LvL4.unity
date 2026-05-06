@@ -232,7 +232,7 @@ MonoBehaviour:
   - {fileID: 3633272145038212057}
   - {fileID: 1451677851}
   powerUpManager: {fileID: 7382290753936082596}
-  nextSceneBuildIndex: 2
+  nextSceneBuildIndex: 5
   isLastLevel: 0
   delayBeforePowerUp: 0.8
   PowerUpData: {fileID: 0}

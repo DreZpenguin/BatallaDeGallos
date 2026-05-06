@@ -72,6 +72,11 @@ public class LevelManager : MonoBehaviour
         if (_enemiesAlive <= 0)
         {
             _levelCompleted = true;
+            int scene = SceneManager.GetActiveScene().buildIndex;
+            if (scene == 5) {
+                PowerUpData.ResetAll(); 
+                SceneManager.LoadScene(0);
+            }
             StartCoroutine(TriggerPowerUpWithDelay());
         }
     }
@@ -100,9 +105,12 @@ public class LevelManager : MonoBehaviour
         {
             Debug.Log("[LevelManager] Último nivel completado. Fin del juego.");
             // Aquí puedes cargar una escena de créditos / menú principal
-            // SceneManager.LoadScene("Credits");
+           
             PowerUpData.ResetAll();
-            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+            SceneManager.LoadScene(0);
+            
+
+            
             return;
         }
 
@@ -115,6 +123,8 @@ public class LevelManager : MonoBehaviour
         }
         else
         {
+            Debug.Log($"[LevelManager] Cargando siguiente escena con Build Index {nextSceneBuildIndex}.1");
+
             SceneManager.LoadScene(nextSceneBuildIndex);
         }
     }
@@ -130,4 +140,5 @@ public class LevelManager : MonoBehaviour
         _enemiesAlive++;
         Debug.Log($"[LevelManager] Enemigo registrado en caliente. Total vivos: {_enemiesAlive}");
     }
+
 }

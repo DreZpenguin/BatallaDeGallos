@@ -805,8 +805,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1535,8 +1535,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1856,8 +1856,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2999,9 +2999,10 @@ MonoBehaviour:
   - {fileID: 620702153}
   - {fileID: 1834748812}
   powerUpManager: {fileID: 0}
-  nextSceneBuildIndex: 3
+  nextSceneBuildIndex: 4
   isLastLevel: 0
   delayBeforePowerUp: 0.8
+  PowerUpData: {fileID: 0}
 --- !u!1 &1667384104
 GameObject:
   m_ObjectHideFlags: 0
@@ -4097,7 +4098,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5079060295999399929, guid: e0b441effb6a86349afb342b785ec018, type: 3}
       propertyPath: attackDamage
-      value: 10
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 7999295500232933501, guid: e0b441effb6a86349afb342b785ec018, type: 3}
       propertyPath: m_LocalPosition.x

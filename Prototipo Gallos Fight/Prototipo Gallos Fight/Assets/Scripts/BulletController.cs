@@ -62,7 +62,7 @@ public class BulletController : MonoBehaviour
             if (hit)
             {
                 AudioManager.Instance?.PlayBulletImpact();
-                Debug.Log($"[Bullet] Impactó a {other.name} por {_damage:F1} de daño.");
+                //Debug.Log($"[Bullet] Impactó a {other.name} por {_damage:F1} de daño.");
             }
             Destroy(gameObject);
             return;
@@ -75,7 +75,7 @@ public class BulletController : MonoBehaviour
     {
         if (other.CompareTag(arenaTag))
         {
-            Debug.Log("[Bullet] Salió de la arena. Destruida.");
+            //Debug.Log("[Bullet] Salió de la arena. Destruida.");
             Destroy(gameObject);
         }
     }

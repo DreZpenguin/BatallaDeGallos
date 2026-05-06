@@ -92,7 +92,7 @@ public class PowerUpManager : MonoBehaviour
     public void RegisterEnemy(HealthSystem enemyHealth)
     {
         if (enemyHealth == null) return;
-        Debug.Log($"[PowerUpManager] Enemigo registrado (sin callback de nivel): {enemyHealth.gameObject.name}");
+       // Debug.Log($"[PowerUpManager] Enemigo registrado (sin callback de nivel): {enemyHealth.gameObject.name}");
     }
 
     // ── API de Selección de PowerUp ────────────────────────────
@@ -115,7 +115,7 @@ public class PowerUpManager : MonoBehaviour
     {
         if (powerUpUICanvas == null)
         {
-            Debug.LogError("[PowerUpManager] powerUpUICanvas es null.");
+            //Debug.LogError("[PowerUpManager] powerUpUICanvas es null.");
             return;
         }
 
@@ -125,7 +125,7 @@ public class PowerUpManager : MonoBehaviour
             {
                 id          = PowerUpType.Range,
                 title       = "+RANGO",
-                description = $"Aumenta el tamaño de tu hitbox\n+{rangeBonus:F2} unidades",
+                description = $"Aumenta el rango de tu ataque\n+{rangeBonus:F2} unidades",
                 hexColor    = "#38D1FF"
             },
             new PowerUpUICanvas.PowerUpOption
@@ -213,7 +213,7 @@ public class PowerUpManager : MonoBehaviour
         }
 
         Time.timeScale = 1f;
-        Debug.Log($"[PowerUpManager] Powerup '{type}' aplicado.");
+       // Debug.Log($"[PowerUpManager] Powerup '{type}' aplicado.");
 
         // Notifica al LevelManager (u otro sistema) que la selección terminó
         Action callback = _onPowerUpSelectedCallback;
