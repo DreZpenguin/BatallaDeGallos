@@ -180,7 +180,7 @@ MonoBehaviour:
   playerTransform: {fileID: 0}
   detectionRange: 8
   attackRange: 0.72
-  moveSpeed: 3.5
+  moveSpeed: 6
   rotationSpeed: 10
   Enemy: {fileID: 2723383198928369880}
   EnemyInstance: {fileID: 0}
@@ -198,7 +198,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackKey: 122
-  attackDamage: 25
+  attackDamage: 5
   attackCooldown: 1
   frontHitbox: {fileID: 96154386166402537}
   hitboxActiveDuration: 0.12

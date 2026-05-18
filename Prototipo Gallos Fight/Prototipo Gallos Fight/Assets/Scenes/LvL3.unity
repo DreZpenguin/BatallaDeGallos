@@ -1465,7 +1465,7 @@ PrefabInstance:
       objectReference: {fileID: 1178273480}
     - target: {fileID: 8264681061710510466, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: moveSpeed
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8264681061710510466, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: playerTransform
@@ -1473,7 +1473,7 @@ PrefabInstance:
       objectReference: {fileID: 1178273475}
     - target: {fileID: 8497273950093436327, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: attackDamage
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8497273950093436327, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: attackCooldown
@@ -3935,7 +3935,7 @@ GameObject:
   - component: {fileID: 1955716467}
   - component: {fileID: 1955716466}
   m_Layer: 3
-  m_Name: s
+  m_Name: Fondo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

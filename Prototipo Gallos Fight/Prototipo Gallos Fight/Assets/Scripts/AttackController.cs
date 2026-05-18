@@ -4,18 +4,24 @@ using UnityEngine;
 public class AttackController : MonoBehaviour
 {
     [Header("Ataque")]
-    [SerializeField] private KeyCode attackKey = KeyCode.Mouse0;
-    [SerializeField] private float attackDamage = 25f;
-    [SerializeField] private float attackCooldown = 0.4f;
+    [SerializeField] private float attackDamage       = 25f;
+    [SerializeField] private float attackCooldown     = 0.4f;
 
     [Header("Hitbox")]
     [SerializeField] private Collider2D frontHitbox;
     [SerializeField] private float hitboxActiveDuration = 0.12f;
 
-    // Bonus acumulado de daño (sumatorio de porcentajes, ej: 0.5 = +50%)
-    private float _damageBonus = 0f;
+    // ── Control — Teclado/Ratón ────────────────────────────────
+    [Header("Control — Teclado / Ratón")]
+    [SerializeField] private KeyCode attackKey = KeyCode.Mouse0;
 
-    private float _cooldownTimer = 0f;
+    // ── Control — Mando Xbox ───────────────────────────────────
+    [Header("Control — Mando Xbox")]
+    [Tooltip("Botón del mando para atacar cuerpo a cuerpo (X = joystick button 2).")]
+    [SerializeField] private KeyCode gamepadAttackKey = KeyCode.JoystickButton2;
+
+    private float _damageBonus    = 0f;
+    private float _cooldownTimer  = 0f;
     private Vector2 _facingDirection = Vector2.up;
 
     public float BaseDamage    => attackDamage;
@@ -45,11 +51,14 @@ public class AttackController : MonoBehaviour
         if (_cooldownTimer > 0f)
             _cooldownTimer -= Time.deltaTime;
 
-        if (Input.GetKeyDown(attackKey) && _cooldownTimer <= 0f)
+        bool attackPressed = Input.GetKeyDown(attackKey) || Input.GetKeyDown(gamepadAttackKey);
+
+        if (attackPressed && _cooldownTimer <= 0f)
             StartAttack();
     }
 
     // ── API Pública ────────────────────────────────────────────
+
     public void TriggerAttack()
     {
         if (_cooldownTimer <= 0f)
@@ -69,11 +78,11 @@ public class AttackController : MonoBehaviour
     }
 
     // ── Ataque ─────────────────────────────────────────────────
+
     private void StartAttack()
     {
         _cooldownTimer = attackCooldown;
 
-        // Sonido según quien ataca
         if (_isPlayer)
             AudioManager.Instance?.PlayPlayerAttack();
         else
@@ -100,7 +109,7 @@ public class AttackController : MonoBehaviour
         HealthSystem health = other.GetComponent<HealthSystem>();
         if (health != null)
         {
-            float dmg = CurrentDamage;
+            float dmg    = CurrentDamage;
             Vector2 hitDir = ((Vector2)other.transform.position - (Vector2)transform.position).normalized;
 
             bool hit = health.TakeDamage(dmg, hitDir);
@@ -110,12 +119,13 @@ public class AttackController : MonoBehaviour
     }
 
     // ── Debug GUI ──────────────────────────────────────────────
-    private void OnGUI()
-    {
-        if (!_isPlayer) return;
 
-        GUI.Label(new Rect(10, 115, 260, 50),
-            $"Cooldown ataque: {Mathf.Max(0f, _cooldownTimer):F1}s\n" +
-            $"Daño actual: {CurrentDamage:F1} (base {attackDamage} +{_damageBonus * 100f:F0}%)");
-    }
+        private void OnGUI()
+        {
+            if (!_isPlayer) return;
+
+            GUI.Label(new Rect(10, 115, 280, 50),
+                $"Cooldown ataque: {Mathf.Max(0f, _cooldownTimer):F1}s\n" +
+                $"Daño actual: {CurrentDamage:F1} (base {attackDamage} +{_damageBonus * 100f:F0}%)");
+        }
 }
