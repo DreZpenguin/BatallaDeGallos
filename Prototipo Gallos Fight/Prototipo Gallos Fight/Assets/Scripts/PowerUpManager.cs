@@ -132,14 +132,14 @@ public class PowerUpManager : MonoBehaviour
             {
                 id          = PowerUpType.Damage,
                 title       = "+DAÑO",
-                description = $"Aumenta el daño de tu ataque\n+{damageBonus * 100f:F0}% del base",
+                description = $"Aumenta el daño de tu ataque\n+{damageBonus * 100f:F0}% de la base",
                 hexColor    = "#FF4D3A"
             },
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Speed,
                 title       = "+VELOCIDAD",
-                description = $"Aumenta tu velocidad de movimiento\n+{speedBonus * 100f:F0}% de la base",
+                description = $"Aumenta tu velocidad un\n+{speedBonus * 100f:F0}% de la base",
                 hexColor    = "#4DFF66"
             },
             new PowerUpUICanvas.PowerUpOption

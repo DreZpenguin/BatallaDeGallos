@@ -1,32 +1,5 @@
 // ============================================================
 //  MenuNavigator.cs  — v1
-//
-//  Navegación genérica de menú con mando Xbox (y teclado).
-//  Funciona para el Menú Principal, Opciones, Créditos, o
-//  cualquier panel con botones de Unity UI (Button).
-//
-//  CARACTERÍSTICAS:
-//   · Navegación vertical u horizontal con D-Pad / stick izquierdo.
-//   · Confirmación con botón Sur (A por defecto).
-//   · Cancelar / Volver con botón Este (B por defecto).
-//   · Soporte para teclado: flechas + Enter / Escape.
-//   · Se puede activar/desactivar por código (útil para submenús).
-//   · Todos los ejes y botones son configurables desde el Inspector.
-//   · Sistema de paneles: cambia entre Main, Options, Credits, etc.
-//     llamando a SwitchToPanel(panel).
-//
-//  SETUP EN UNITY:
-//   1. Añade este script a cualquier GameObject del Canvas (ej. "MenuManager").
-//   2. En el Inspector, asigna los Button[] de cada panel que quieras controlar.
-//   3. (Opcional) Asigna el panel "padre" de cada grupo si quieres auto-activarlo.
-//   4. Llama a SwitchToPanel(MenuPanel.Main) al cargar la escena para empezar.
-//   5. Asegúrate de que en Edit > Project Settings > Input Manager existan:
-//        - "DPadY"      (eje vertical del D-Pad, ej. joystick axis 7 o "Vertical" con filtro)
-//        - "DPadX"      (eje horizontal, si usas menús horizontales)
-//        - "Horizontal" / "Vertical" para el stick izquierdo
-//      Si no tienes "DPadY" configura el campo navAxisY con "Vertical".
-// ============================================================
-
 using System;
 using UnityEngine;
 using UnityEngine.UI;
