@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.754717, g: 0.751157, b: 0.751157, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
@@ -671,6 +671,7 @@ GameObject:
   - component: {fileID: 842459232}
   - component: {fileID: 842459231}
   - component: {fileID: 842459235}
+  - component: {fileID: 842459236}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -773,6 +774,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 934445bbe8aefb14bb75fc608cbe2460, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &842459236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 842459230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05ef442112ff099439b0e4952eb1f1ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panels:
+  - id: 0
+    rootObject: {fileID: 1651517517}
+    buttons:
+    - {fileID: 1841150896}
+    - {fileID: 156361264}
+    - {fileID: 1579439180}
+    - {fileID: 328455671}
+    navDirection: 0
+    hasBackPanel: 0
+    backPanel: 0
+  initialPanel: 0
+  navAxisY: DPadY
+  navAxisX: DPadX
+  gamepadConfirmKey: 330
+  gamepadBackKey: 331
+  navDeadzone: 0.5
+  navRepeatDelay: 0.2
+  kbUpKey: 273
+  kbDownKey: 274
+  kbLeftKey: 276
+  kbRightKey: 275
+  kbConfirmKey: 13
+  kbBackKey: 27
+  wrapAround: 1
 --- !u!1 &977319205
 GameObject:
   m_ObjectHideFlags: 0
@@ -1355,9 +1393,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.6415094, g: 0.6384834, b: 0.6384834, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.4056604, g: 0.39226595, b: 0.39226595, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1

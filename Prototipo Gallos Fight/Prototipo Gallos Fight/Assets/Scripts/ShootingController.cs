@@ -189,11 +189,11 @@ public class ShootingController : MonoBehaviour
         Debug.Log($"[ShootingController] Tecla de disparo → {key}");
     }
 
-    private void OnGUI()
-    {
-        if (!gameObject.CompareTag("Player")) return;
-        GUI.Label(new Rect(10, 165, 300, 60),
-            $"Disparo [KB:{shootKey} | PAD:{gamepadShootKey}/RT] — CD: {Mathf.Max(0f, _cooldownTimer):F1}s\n" +
-            $"Bala: Dmg {CurrentDamage:F1} | Spd {CurrentSpeed:F1} | Life {CurrentLifetime:F1}s");
-    }
+    //private void OnGUI()
+    //{
+    //    if (!gameObject.CompareTag("Player")) return;
+    //    GUI.Label(new Rect(10, 165, 300, 60),
+    //        $"Disparo [KB:{shootKey} | PAD:{gamepadShootKey}/RT] — CD: {Mathf.Max(0f, _cooldownTimer):F1}s\n" +
+    //        $"Bala: Dmg {CurrentDamage:F1} | Spd {CurrentSpeed:F1} | Life {CurrentLifetime:F1}s");
+    //}
 }

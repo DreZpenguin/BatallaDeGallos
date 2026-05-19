@@ -220,25 +220,25 @@ public class PlayerMovement2D : MonoBehaviour
         }
     }
 
-    private void OnGUI()
-    {
-        GUI.Label(new Rect(10, 10, 300, 90),
-            $"Vel: {_rb.linearVelocity.magnitude:F2} / {CurrentMaxSpeed:F1}\n" +
-            $"Dash CD: {Mathf.Max(0f, _dashCooldownTimer):F1}s\n" +
-            $"Input: {(_usingGamepad ? "MANDO" : "Teclado/Raton")}");
+    //private void OnGUI()
+    //{
+    //    GUI.Label(new Rect(10, 10, 300, 90),
+    //        $"Vel: {_rb.linearVelocity.magnitude:F2} / {CurrentMaxSpeed:F1}\n" +
+    //        $"Dash CD: {Mathf.Max(0f, _dashCooldownTimer):F1}s\n" +
+    //        $"Input: {(_usingGamepad ? "MANDO" : "Teclado/Raton")}");
 
-        if (!showGamepadDebug) return;
+    //    if (!showGamepadDebug) return;
 
-        GUI.Box(new Rect(8, 108, 255, 205), "");
-        GUI.Label(new Rect(12, 112, 248, 198),
-            "[DEBUG STICK DERECHO]\n" +
-            $"Eje{aimAxisX}(AimX): {ReadJoystickAxis(aimAxisX):F3}\n" +
-            $"Eje{aimAxisY}(AimY): {ReadJoystickAxis(aimAxisY):F3}\n" +
-            $"Dir apuntado: {_gamepadAimDir}\n" +
-            "--- Todos los ejes ---\n" +
-            $"Eje1:{ReadJoystickAxis(1):F2}  Eje2:{ReadJoystickAxis(2):F2}\n" +
-            $"Eje3:{ReadJoystickAxis(3):F2}  Eje4:{ReadJoystickAxis(4):F2}\n" +
-            $"Eje5:{ReadJoystickAxis(5):F2}  Eje6:{ReadJoystickAxis(6):F2}\n" +
-            $"Eje7:{ReadJoystickAxis(7):F2}  Eje8:{ReadJoystickAxis(8):F2}");
-    }
+    //    GUI.Box(new Rect(8, 108, 255, 205), "");
+    //    GUI.Label(new Rect(12, 112, 248, 198),
+    //        "[DEBUG STICK DERECHO]\n" +
+    //        $"Eje{aimAxisX}(AimX): {ReadJoystickAxis(aimAxisX):F3}\n" +
+    //        $"Eje{aimAxisY}(AimY): {ReadJoystickAxis(aimAxisY):F3}\n" +
+    //        $"Dir apuntado: {_gamepadAimDir}\n" +
+    //        "--- Todos los ejes ---\n" +
+    //        $"Eje1:{ReadJoystickAxis(1):F2}  Eje2:{ReadJoystickAxis(2):F2}\n" +
+    //        $"Eje3:{ReadJoystickAxis(3):F2}  Eje4:{ReadJoystickAxis(4):F2}\n" +
+    //        $"Eje5:{ReadJoystickAxis(5):F2}  Eje6:{ReadJoystickAxis(6):F2}\n" +
+    //        $"Eje7:{ReadJoystickAxis(7):F2}  Eje8:{ReadJoystickAxis(8):F2}");
+    //}
 }

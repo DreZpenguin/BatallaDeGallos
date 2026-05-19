@@ -180,10 +180,10 @@ public class HealthSystem : MonoBehaviour
        // Debug.Log($"[HealthSystem] HP máximo aumentado en {flat}. Total: {MaxHealth:F0} | Actual: {currentHealth:F0}");
     }
 
-    private void OnGUI()
-    {
-        if (!_isPlayer) return;
-        GUI.Label(new Rect(10, 90, 260, 30), $"HP: {currentHealth:F0} / {MaxHealth:F0}");
-    }
+    //private void OnGUI()
+    //{
+    //    if (!_isPlayer) return;
+    //    GUI.Label(new Rect(10, 90, 260, 30), $"HP: {currentHealth:F0} / {MaxHealth:F0}");
+    //}
     
 }

@@ -147,18 +147,18 @@ public class PlayerMovement2D_DualStick : MonoBehaviour
         }
     }
 
-    private void OnGUI()
-    {
-        if (!showGamepadDebug) return;
+    //private void OnGUI()
+    //{
+    //    if (!showGamepadDebug) return;
 
-        GUI.Box(new Rect(8, 8, 300, 120), "");
-        GUI.Label(new Rect(12, 12, 292, 114),
-            "=== DEBUG DUAL STICK ===\n" +
-            $"Eje {aimAxisX} (AimX raw):  {RawAxis(aimAxisX):F3}\n" +
-            $"Eje {aimAxisY} (AimY raw):  {RawAxis(aimAxisY):F3}\n" +
-            $"AimX (con invert): {RawAxis(aimAxisX) * (invertAimX ? -1f : 1f):F3}\n" +
-            $"AimY (con invert): {RawAxis(aimAxisY) * (invertAimY ? -1f : 1f):F3}\n" +
-            $"_lastAimDir: {_lastAimDir}\n" +
-            $"Vel: {_rb.linearVelocity.magnitude:F2} / {CurrentMaxSpeed:F1}");
-    }
+    //    GUI.Box(new Rect(8, 8, 300, 120), "");
+    //    GUI.Label(new Rect(12, 12, 292, 114),
+    //        "=== DEBUG DUAL STICK ===\n" +
+    //        $"Eje {aimAxisX} (AimX raw):  {RawAxis(aimAxisX):F3}\n" +
+    //        $"Eje {aimAxisY} (AimY raw):  {RawAxis(aimAxisY):F3}\n" +
+    //        $"AimX (con invert): {RawAxis(aimAxisX) * (invertAimX ? -1f : 1f):F3}\n" +
+    //        $"AimY (con invert): {RawAxis(aimAxisY) * (invertAimY ? -1f : 1f):F3}\n" +
+    //        $"_lastAimDir: {_lastAimDir}\n" +
+    //        $"Vel: {_rb.linearVelocity.magnitude:F2} / {CurrentMaxSpeed:F1}");
+    //}
 }

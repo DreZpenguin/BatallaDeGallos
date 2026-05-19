@@ -702,50 +702,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 561212434}
   m_CullTransparentMesh: 1
---- !u!1 &582187317
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 582187318}
-  - component: {fileID: 582187319}
-  m_Layer: 0
-  m_Name: ola
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &582187318
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 582187317}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.0603139, y: 0.35869116, z: -0.036563087}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &582187319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 582187317}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a005dcc52fdad834788373ceb992fc6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1772,34 +1728,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1238399270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1238399241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd89fd2d3b518174c84b8483eb8fb44b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxSpeed: 8
-  acceleration: 60
-  friction: 0.85
-  dashForce: 18
-  dashCooldown: 1
-  dashDuration: 0.15
-  horizontalAxis: Horizontal
-  verticalAxis: Vertical
-  dashKey: 304
-  gamepadDashKey: 330
-  aimAxisX: 4
-  aimAxisY: 5
-  invertAimX: 0
-  invertAimY: 0
-  gamepadDeadzone: 0.2
-  showGamepadDebug: 1
 --- !u!1 &1244852056
 GameObject:
   m_ObjectHideFlags: 0
@@ -4077,8 +4005,7 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0.383
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 2659921933871984980, guid: e0b441effb6a86349afb342b785ec018, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 7163253049714401508, guid: e0b441effb6a86349afb342b785ec018, type: 3}
     m_AddedGameObjects: []
@@ -4086,9 +4013,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2368000104760980746, guid: e0b441effb6a86349afb342b785ec018, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1238399255}
-    - targetCorrespondingSourceObject: {fileID: 2368000104760980746, guid: e0b441effb6a86349afb342b785ec018, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1238399270}
     - targetCorrespondingSourceObject: {fileID: 7363322504723959598, guid: e0b441effb6a86349afb342b785ec018, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1224330337}
@@ -4109,4 +4033,3 @@ SceneRoots:
   - {fileID: 1058376903}
   - {fileID: 645657301}
   - {fileID: 1462393882}
-  - {fileID: 582187318}
