@@ -127,5 +127,5 @@ public class AttackController : MonoBehaviour
         //    GUI.Label(new Rect(10, 115, 280, 50),
         //        $"Cooldown ataque: {Mathf.Max(0f, _cooldownTimer):F1}s\n" +
         //        $"Daño actual: {CurrentDamage:F1} (base {attackDamage} +{_damageBonus * 100f:F0}%)");
-        //}
+        //}z
 }

@@ -1723,6 +1723,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c4b9544170756549b7a7f6a7e1d3df7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  iconRange: {fileID: 0}
+  iconDamage: {fileID: 2800000, guid: 96140a7d01379e44f9cf0b4fbd4987ac, type: 3}
+  iconSpeed: {fileID: 0}
+  iconHealth: {fileID: 2800000, guid: d00336521b77a1c40bcdd2db5e188e62, type: 3}
+  iconShoot: {fileID: 2800000, guid: 8a602b47cc23673478d447d6cb7b00f5, type: 3}
+  useColorTintOnIcon: 0
 --- !u!1 &1225988193
 GameObject:
   m_ObjectHideFlags: 0
@@ -3538,6 +3544,7 @@ MonoBehaviour:
   invincibilityDuration: 0.5
   knockbackForce: 10
   knockbackDuration: 0.25
+  knockbackResistance: 0.9
   hitColor: {r: 1, g: 0, b: 0, a: 1}
   hitColorDuration: 0.15
   OnHealthChanged:
@@ -3643,12 +3650,46 @@ MonoBehaviour:
   detectionHalfAngle: 25
   detectionRange: 12
   minScanTime: 0.5
+  noVisionCenterTime: 3
+  centerCorrectionSpeed: 45
+  preChargeDelay: 0.1
+  telegraphShakeAmplitude: 0.06
+  telegraphShakeFrequency: 18
   chargeMaxSpeed: 18
-  chargeAcceleration: 30
-  brakingMargin: 1.5
+  brakingMargin: 1
+  brakingStrength: 0.08
+  borderStunThreshold: 0.25
   stunDuration: 1.2
   stunColor: {r: 1, g: 0.6, b: 0, a: 1}
   turnDuration: 0.4
+  targetCamera: {fileID: 0}
+  shakeDuration: 0.35
+  shakeMagnitude: 0.28
+  shakeFrequency: 30
+  shakeDecayCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   chargeDamage: 100
   damageRadius: 0.8
 --- !u!1001 &7382290753936082595

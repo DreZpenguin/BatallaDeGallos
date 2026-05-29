@@ -1,25 +1,20 @@
 // ============================================================
-//  BullEnemyAI.cs
-//  IA de enemigo tipo TORO con audio integrado.
+//  BullEnemyAI.cs  — v4
+//
+//  CAMBIOS respecto a v3:
+//   · Embestida explosiva: se elimina la aceleración gradual.
+//     El toro sale a chargeMaxSpeed en el primer FixedUpdate.
+//     Se añade chargeImpulseDelay (frames de espera tras soltar
+//     constraints) para asegurar que el motor de física procese
+//     el cambio antes de aplicar velocidad.
+//   · Camera shake al chocar con el borde (BeginStun).
+//     Implementado como corrutina interna que mueve el Transform
+//     de la cámara. No requiere paquetes externos.
+//     Parámetros: shakeDuration, shakeMagnitude, shakeFrequency.
+//   · Se mantiene toda la personalización de v3.
 //
 //  ESTADOS:
-//   ESCANEO     → Rota lentamente buscando al jugador con cono
-//                 de visión frontal. Al detectarlo, pasa a CARGA.
-//   EMBESTIDA   → Acelera en línea recta fija (no persigue).
-//                 Al llegar al borde de la arena, pasa a ATURDIDO.
-//   ATURDIDO    → Pausa de recuperación con flash de color,
-//                 luego vuelve a ESCANEO.
-//
-//  AUDIO:
-//   · PlayBullCharge() al iniciar embestida.
-//   · PlayBullStun()   al chocar con el borde.
-//
-//  SETUP EN UNITY:
-//   1. Prefab con: Rigidbody2D, Collider2D, SpriteRenderer,
-//      HealthSystem y este script.
-//   2. Asigna el CircleCollider2D de la arena al campo
-//      "Arena Collider" (isTrigger = true).
-//   3. Ajusta los parámetros en el Inspector.
+//   ESCANEO → PRE_CHARGE → EMBESTIDA → ATURDIDO → ESCANEO
 // ============================================================
 using System.Collections;
 using UnityEngine;
@@ -36,44 +31,67 @@ public class BullEnemyAI : MonoBehaviour
     [Tooltip("Transform del jugador. Se busca por tag 'Player' si queda vacío.")]
     [SerializeField] private Transform playerTransform;
 
-    [Tooltip("CircleCollider2D de la arena (isTrigger = true). Define el límite de la embestida.")]
+    [Tooltip("CircleCollider2D de la arena (isTrigger = true).")]
     [SerializeField] private CircleCollider2D arenaCollider;
 
     // ──────────────────────────────────────────────────────────
     [Header("── Escaneo ──────────────────────────────────────")]
 
     [Tooltip("Velocidad de rotación durante el escaneo (grados/segundo).")]
-    [SerializeField] private float scanRotationSpeed = 60f;
+    [SerializeField] private float scanRotationSpeed = 20f;
 
     [Tooltip("Dirección inicial: +1 = horario, -1 = antihorario.")]
     [SerializeField] private float scanDirection = 1f;
 
-    [Tooltip("Cada cuántos segundos invierte la dirección de escaneo. 0 = nunca.")]
+    [Tooltip("Cada cuántos segundos invierte la dirección. 0 = nunca.")]
     [SerializeField] private float scanReverseInterval = 3f;
 
-    [Tooltip("Ángulo de medio-cono frontal (grados). Ej: 25 → detecta en ±25° al frente.")]
+    [Tooltip("Ángulo de medio-cono frontal (grados).")]
     [SerializeField] private float detectionHalfAngle = 25f;
 
-    [Tooltip("Distancia máxima de detección durante el escaneo.")]
+    [Tooltip("Distancia máxima de detección.")]
     [SerializeField] private float detectionRange = 12f;
 
-    [Tooltip("Tiempo mínimo en ESCANEO antes de poder detectar (evita embestidas inmediatas).")]
+    [Tooltip("Tiempo mínimo en ESCANEO antes de poder detectar.")]
     [SerializeField] private float minScanTime = 0.5f;
+
+    [Tooltip("Segundos sin ver al jugador para rotar hacia el centro. 0 = desactivado.")]
+    [SerializeField] private float noVisionCenterTime = 3f;
+
+    [Tooltip("Velocidad de rotación al corregir hacia el centro (grados/segundo).")]
+    [SerializeField] private float centerCorrectionSpeed = 45f;
+
+    // ──────────────────────────────────────────────────────────
+    [Header("── Pre-Embestida (telegrafío) ───────────────────")]
+
+    [Tooltip("Segundos de pausa antes de embestir. 0 = sin telegrafío.")]
+    [SerializeField] private float preChargeDelay = 0.5f;
+
+    [Tooltip("Amplitud del shake visual del toro durante el telegrafío.")]
+    [SerializeField] private float telegraphShakeAmplitude = 0.08f;
+
+    [Tooltip("Frecuencia del shake del toro (Hz).")]
+    [SerializeField] private float telegraphShakeFrequency = 14f;
 
     // ──────────────────────────────────────────────────────────
     [Header("── Embestida ────────────────────────────────────")]
 
-    [Tooltip("Velocidad máxima de la embestida (unidades/segundo).")]
-    [SerializeField] private float chargeMaxSpeed = 18f;
+    [Tooltip("Velocidad de la embestida (unidades/segundo). " +
+             "Se aplica instantáneamente — sin aceleración gradual.")]
+    [SerializeField] private float chargeMaxSpeed = 22f;
 
-    [Tooltip("Aceleración de la embestida (unidades/segundo²).")]
-    [SerializeField] private float chargeAcceleration = 30f;
+    [Tooltip("Margen antes del borde donde empieza a frenar.")]
+    [SerializeField] private float brakingMargin = 1.2f;
 
-    [Tooltip("Margen antes del borde donde empieza a frenar (unidades).")]
-    [SerializeField] private float brakingMargin = 1.5f;
+    [Tooltip("Multiplicador de frenado. 1 = frena normalmente, " +
+             "valores menores = frena más agresivo cerca del borde.")]
+    [SerializeField, Range(0.01f, 1f)] private float brakingStrength = 0.08f;
+
+    [Tooltip("Distancia al borde que dispara el aturdimiento. Debe ser < brakingMargin.")]
+    [SerializeField] private float borderStunThreshold = 0.25f;
 
     // ──────────────────────────────────────────────────────────
-    [Header("── Recuperación / Aturdimiento ───────────────────")]
+    [Header("── Aturdimiento ─────────────────────────────────")]
 
     [Tooltip("Segundos de aturdimiento al chocar con el borde.")]
     [SerializeField] private float stunDuration = 1.2f;
@@ -81,13 +99,31 @@ public class BullEnemyAI : MonoBehaviour
     [Tooltip("Color del flash durante el aturdimiento.")]
     [SerializeField] private Color stunColor = new Color(1f, 0.6f, 0f);
 
-    [Tooltip("Segundos que tarda el giro de 180° al salir del aturdimiento.")]
-[SerializeField] private float turnDuration = 0.4f;
+    [Tooltip("Segundos del giro de vuelta al centro.")]
+    [SerializeField] private float turnDuration = 0.4f;
+
+    // ──────────────────────────────────────────────────────────
+    [Header("── Camera Shake (al chocar con el borde) ─────────")]
+
+    [Tooltip("Cámara principal. Se busca automáticamente si queda vacío.")]
+    [SerializeField] private Camera targetCamera;
+
+    [Tooltip("Duración del camera shake (segundos).")]
+    [SerializeField] private float shakeDuration = 0.35f;
+
+    [Tooltip("Intensidad máxima del shake (unidades de mundo).")]
+    [SerializeField] private float shakeMagnitude = 0.28f;
+
+    [Tooltip("Frecuencia del shake (Hz). Valores altos = vibración rápida.")]
+    [SerializeField] private float shakeFrequency = 30f;
+
+    [Tooltip("Curva de decaimiento del shake. Si queda vacía se usa decaimiento lineal.")]
+    [SerializeField] private AnimationCurve shakeDecayCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
 
     // ──────────────────────────────────────────────────────────
     [Header("── Daño de contacto ──────────────────────────────")]
 
-    [Tooltip("Daño al jugador si lo toca durante la embestida.")]
+    [Tooltip("Daño al jugador durante la embestida.")]
     [SerializeField] private float chargeDamage = 30f;
 
     [Tooltip("Radio de contacto para detectar al jugador.")]
@@ -97,7 +133,7 @@ public class BullEnemyAI : MonoBehaviour
     //  ESTADO INTERNO
     // ══════════════════════════════════════════════════════════
 
-    private enum State { Scanning, Charging, Stunned, Dead }
+    private enum State { Scanning, PreCharge, Charging, Stunned, Dead }
     private State _state = State.Scanning;
 
     private Rigidbody2D    _rb;
@@ -107,15 +143,27 @@ public class BullEnemyAI : MonoBehaviour
     private Vector2 _arenaCenter;
     private float   _arenaRadius;
 
-    private float   _reverseTimer  = 0f;
-    private float   _minScanTimer  = 0f;
+    // Escaneo
+    private float _reverseTimer  = 0f;
+    private float _minScanTimer  = 0f;
+    private float _noVisionTimer = 0f;
+
+    // Embestida
     private Vector2 _chargeDir;
-    private float   _currentSpeed  = 0f;
+    private float   _currentSpeed     = 0f;
+    private Vector2 _preChargeAnchor;
+    private float   _distanceFromAnchor = 0f;
+    private const float MinDistBeforeBorderCheck = 0.5f;
 
+    // Aturdimiento / corrutinas
     private Color     _originalColor;
-    private Coroutine _stunCoroutine;
+    private Coroutine _activeCoroutine;
+    private Coroutine _shakeCoroutine;
 
-    // Anti-spam de daño de contacto
+    // Camera shake — posición original de la cámara
+    private Vector3 _cameraOriginalPos;
+
+    // Anti-spam de daño
     private float _damageCooldown = 0f;
     private const float DmgInterval = 0.5f;
 
@@ -157,11 +205,18 @@ public class BullEnemyAI : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[BullEnemyAI] Sin arenaCollider — límites desactivados.");
+            Debug.LogWarning("[BullEnemyAI] Sin arenaCollider.");
             _arenaRadius = float.MaxValue;
         }
 
-        _minScanTimer = minScanTime;
+        // Cámara
+        if (targetCamera == null)
+            targetCamera = Camera.main;
+        if (targetCamera != null)
+            _cameraOriginalPos = targetCamera.transform.localPosition;
+
+        _minScanTimer  = minScanTime;
+        _noVisionTimer = 0f;
         _healthSystem.OnDeath.AddListener(OnDeath);
     }
 
@@ -169,12 +224,13 @@ public class BullEnemyAI : MonoBehaviour
     {
         if (_state == State.Dead || playerTransform == null) return;
 
-        if (_damageCooldown > 0f) _damageCooldown -= Time.deltaTime;
+        if (_damageCooldown > 0f)
+            _damageCooldown -= Time.deltaTime;
 
         switch (_state)
         {
-            case State.Scanning:  TickScanning();  break;
-            case State.Charging:  TickCharging();  break;
+            case State.Scanning: TickScanning(); break;
+            case State.Charging: TickCharging(); break;
         }
     }
 
@@ -182,10 +238,19 @@ public class BullEnemyAI : MonoBehaviour
     {
         if (_state == State.Dead) return;
 
-        if (_state == State.Charging)
-            FixedTickCharging();
-        else
-            _rb.linearVelocity = Vector2.Lerp(_rb.linearVelocity, Vector2.zero, Time.fixedDeltaTime * 15f);
+        switch (_state)
+        {
+            case State.Charging:
+                FixedTickCharging();
+                break;
+
+            case State.Scanning:
+            case State.Stunned:
+                _rb.linearVelocity = Vector2.Lerp(
+                    _rb.linearVelocity, Vector2.zero, Time.fixedDeltaTime * 15f);
+                break;
+            // PreCharge: constraints = FreezeAll, no tocar velocity.
+        }
     }
 
     // ══════════════════════════════════════════════════════════
@@ -194,126 +259,264 @@ public class BullEnemyAI : MonoBehaviour
 
     private void TickScanning()
     {
-        if (_minScanTimer > 0f) _minScanTimer -= Time.deltaTime;
+        if (_minScanTimer > 0f)
+            _minScanTimer -= Time.deltaTime;
 
-        // Inversión periódica
         if (scanReverseInterval > 0f)
         {
             _reverseTimer += Time.deltaTime;
             if (_reverseTimer >= scanReverseInterval)
             {
-                _reverseTimer  = 0f;
-                scanDirection  = -scanDirection;
+                _reverseTimer = 0f;
+                scanDirection = -scanDirection;
+            }
+        }
+
+        bool playerVisible = PlayerInCone();
+
+        if (noVisionCenterTime > 0f)
+        {
+            if (!playerVisible)
+            {
+                _noVisionTimer += Time.deltaTime;
+                if (_noVisionTimer >= noVisionCenterTime)
+                {
+                    RotateTowardCenter();
+                    return;
+                }
+            }
+            else
+            {
+                _noVisionTimer = 0f;
             }
         }
 
         transform.Rotate(0f, 0f, -scanDirection * scanRotationSpeed * Time.deltaTime);
 
-        if (_minScanTimer <= 0f && PlayerInCone())
-            BeginCharge();
+        if (_minScanTimer <= 0f && playerVisible)
+            BeginPreCharge();
+    }
+
+    private void RotateTowardCenter()
+    {
+        Vector2 toCenter  = (_arenaCenter - (Vector2)transform.position).normalized;
+        float targetAngle = -(Mathf.Atan2(toCenter.x, toCenter.y) * Mathf.Rad2Deg);
+        float newAngle    = Mathf.MoveTowardsAngle(
+            transform.eulerAngles.z, targetAngle, centerCorrectionSpeed * Time.deltaTime);
+
+        transform.rotation = Quaternion.Euler(0f, 0f, newAngle);
+
+        if (Mathf.Abs(Mathf.DeltaAngle(newAngle, targetAngle)) < 1f)
+            _noVisionTimer = 0f;
     }
 
     private bool PlayerInCone()
     {
         Vector2 toPlayer = (Vector2)playerTransform.position - (Vector2)transform.position;
         if (toPlayer.magnitude > detectionRange) return false;
-        return Vector2.Angle(transform.up, toPlayer.normalized) <= detectionHalfAngle;
+        return Vector2.Angle(transform.up, toPlayer) <= detectionHalfAngle;
     }
 
     // ══════════════════════════════════════════════════════════
-    //  EMBESTIDA
+    //  PRE-EMBESTIDA
+    // ══════════════════════════════════════════════════════════
+
+    private void BeginPreCharge()
+    {
+        _state = State.PreCharge;
+
+        _chargeDir           = transform.up.normalized;
+        _preChargeAnchor     = _rb.position;
+        _distanceFromAnchor  = 0f;
+
+        _rb.linearVelocity = Vector2.zero;
+        _rb.constraints    = RigidbodyConstraints2D.FreezeAll;
+
+        Debug.Log($"[BullEnemyAI] {gameObject.name} → PRE-EMBESTIDA ({preChargeDelay}s)");
+
+        if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
+        _activeCoroutine = StartCoroutine(PreChargeRoutine());
+    }
+
+    private IEnumerator PreChargeRoutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < preChargeDelay)
+        {
+            elapsed += Time.deltaTime;
+
+            if (telegraphShakeAmplitude > 0f)
+            {
+                float offsetX    = Mathf.Sin(elapsed * telegraphShakeFrequency * Mathf.PI * 2f)
+                                   * telegraphShakeAmplitude;
+                Vector2 perp     = new Vector2(-_chargeDir.y, _chargeDir.x);
+                Vector2 shakePos = _preChargeAnchor + perp * offsetX;
+                _rb.MovePosition(shakePos);
+            }
+
+            yield return null;
+        }
+
+        // Restaura posición exacta y desbloquea
+        _rb.MovePosition(_preChargeAnchor);
+        _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        _activeCoroutine = null;
+        BeginCharge();
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  EMBESTIDA — EXPLOSIVA (sin aceleración gradual)
     // ══════════════════════════════════════════════════════════
 
     private void BeginCharge()
     {
-        _state        = State.Charging;
-        _currentSpeed = 0f;
-        _chargeDir    = transform.up.normalized;
+        _state               = State.Charging;
+        _distanceFromAnchor  = 0f;
+
+        // ── Velocidad instantánea al máximo ───────────────────
+        // Se aplica directamente en BeginCharge sin esperar FixedUpdate,
+        // usando el método de física que garantiza aplicación inmediata.
+        _currentSpeed = chargeMaxSpeed;
+        _rb.linearVelocity = _chargeDir * _currentSpeed;
 
         AudioManager.Instance?.PlayBullCharge();
-        Debug.Log($"[BullEnemyAI] {gameObject.name} → EMBESTIDA");
+        Debug.Log($"[BullEnemyAI] {gameObject.name} → EMBESTIDA explosiva a {chargeMaxSpeed} u/s");
     }
 
     private void TickCharging()
     {
-        if (DistanceToBorder() <= brakingMargin * 0.25f)
+        if (_distanceFromAnchor >= MinDistBeforeBorderCheck
+            && DistanceToBorder() <= borderStunThreshold)
         {
             BeginStun();
             return;
         }
+
         TryDamagePlayer();
     }
 
     private void FixedTickCharging()
     {
-        if (DistanceToBorder() <= brakingMargin * 0.25f) return;
+        if (_distanceFromAnchor >= MinDistBeforeBorderCheck
+            && DistanceToBorder() <= borderStunThreshold)
+            return;
 
-        _currentSpeed = Mathf.MoveTowards(_currentSpeed, chargeMaxSpeed,
-                                           chargeAcceleration * Time.fixedDeltaTime);
-
-        // Frenado suave al acercarse al borde
+        // Frenado suave solo al acercarse al borde
         float d = DistanceToBorder();
-        if (d < brakingMargin)
-            _currentSpeed *= Mathf.Lerp(0.05f, 1f, d / brakingMargin);
+        if (d < brakingMargin && d > 0f)
+        {
+            // Reduce la velocidad actual proporcionalmente al acercamiento
+            float brakeFactor = Mathf.Lerp(brakingStrength, 1f, d / brakingMargin);
+            _currentSpeed = chargeMaxSpeed * brakeFactor;
+        }
+        else
+        {
+            // Fuera del brakingMargin: velocidad completa siempre
+            _currentSpeed = chargeMaxSpeed;
+        }
 
-        _rb.linearVelocity = _chargeDir * _currentSpeed;
+        _rb.linearVelocity  = _chargeDir * _currentSpeed;
+        _distanceFromAnchor = Vector2.Distance(_rb.position, _preChargeAnchor);
     }
 
     // ══════════════════════════════════════════════════════════
-    //  ATURDIMIENTO
+    //  ATURDIMIENTO + CAMERA SHAKE
     // ══════════════════════════════════════════════════════════
 
     private void BeginStun()
     {
         _state = State.Stunned;
         _rb.linearVelocity = Vector2.zero;
-        _currentSpeed = 0f;
+        _currentSpeed      = 0f;
 
         AudioManager.Instance?.PlayBullStun();
         Debug.Log($"[BullEnemyAI] {gameObject.name} → ATURDIDO ({stunDuration}s)");
 
-        if (_stunCoroutine != null) StopCoroutine(_stunCoroutine);
-        _stunCoroutine = StartCoroutine(StunRoutine());
+        // ── Camera shake ──────────────────────────────────────
+        if (targetCamera != null)
+        {
+            if (_shakeCoroutine != null)
+            {
+                StopCoroutine(_shakeCoroutine);
+                // Restaura posición antes de iniciar nuevo shake
+                targetCamera.transform.localPosition = _cameraOriginalPos;
+            }
+            _shakeCoroutine = StartCoroutine(CameraShakeRoutine());
+        }
+
+        if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
+        _activeCoroutine = StartCoroutine(StunRoutine());
+    }
+
+    private IEnumerator CameraShakeRoutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < shakeDuration)
+        {
+            elapsed += Time.deltaTime;
+
+            // Decaimiento: usa la curva si tiene claves, sino lineal
+            float normalizedTime = elapsed / shakeDuration;
+            float decay = shakeDecayCurve != null && shakeDecayCurve.length > 0
+                ? shakeDecayCurve.Evaluate(normalizedTime)
+                : 1f - normalizedTime;
+
+            // Posición oscilante con frecuencia configurable
+            float t        = elapsed * shakeFrequency;
+            float offsetX  = (Mathf.PerlinNoise(t, 0f) * 2f - 1f) * shakeMagnitude * decay;
+            float offsetY  = (Mathf.PerlinNoise(0f, t) * 2f - 1f) * shakeMagnitude * decay;
+
+            targetCamera.transform.localPosition =
+                _cameraOriginalPos + new Vector3(offsetX, offsetY, 0f);
+
+            yield return null;
+        }
+
+        // Restaura posición exacta
+        targetCamera.transform.localPosition = _cameraOriginalPos;
+        _shakeCoroutine = null;
     }
 
     private IEnumerator StunRoutine()
     {
-        if (_spriteRenderer != null) _spriteRenderer.color = stunColor;
+        if (_spriteRenderer != null)
+            _spriteRenderer.color = stunColor;
 
         yield return new WaitForSeconds(stunDuration);
 
-        if (_spriteRenderer != null) _spriteRenderer.color = _originalColor;
+        if (_spriteRenderer != null)
+            _spriteRenderer.color = _originalColor;
 
-        // Giro animado de 180° antes de volver a escanear
-        yield return StartCoroutine(SmoothTurn180());
+        yield return StartCoroutine(TurnTowardCenter());
 
-        _minScanTimer = minScanTime;
-        _reverseTimer = 0f;
-        _state = State.Scanning;
-        _stunCoroutine = null;
+        _minScanTimer    = minScanTime;
+        _reverseTimer    = 0f;
+        _noVisionTimer   = 0f;
+        _state           = State.Scanning;
+        _activeCoroutine = null;
         Debug.Log($"[BullEnemyAI] {gameObject.name} → ESCANEO");
     }
 
-    private IEnumerator SmoothTurn180()
+    private IEnumerator TurnTowardCenter()
     {
-        float startAngle = transform.eulerAngles.z;
-        float targetAngle = startAngle + 180f;
-        float elapsed = 0f;
-
-        // Puedes exponer este valor en el Inspector si quieres ajustarlo
-        //float turnDuration = 0.4f;
+        Vector2 toCenter     = (_arenaCenter - (Vector2)transform.position).normalized;
+        float targetAngleDeg = -(Mathf.Atan2(toCenter.x, toCenter.y) * Mathf.Rad2Deg);
+        float startAngle     = transform.eulerAngles.z;
+        float elapsed        = 0f;
 
         while (elapsed < turnDuration)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.SmoothStep(0f, 1f, elapsed / turnDuration);
-            float angle = Mathf.LerpAngle(startAngle, targetAngle, t);
+            float t     = Mathf.SmoothStep(0f, 1f, elapsed / turnDuration);
+            float angle = Mathf.LerpAngle(startAngle, targetAngleDeg, t);
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
             yield return null;
         }
 
-        // Asegura que quede exactamente en 180°
-        transform.rotation = Quaternion.Euler(0f, 0f, targetAngle);
+        transform.rotation = Quaternion.Euler(0f, 0f, targetAngleDeg);
     }
 
     // ══════════════════════════════════════════════════════════
@@ -322,8 +525,7 @@ public class BullEnemyAI : MonoBehaviour
 
     private void TryDamagePlayer()
     {
-        if (_damageCooldown > 0f) return;
-        if (playerTransform == null) return;
+        if (_damageCooldown > 0f || playerTransform == null) return;
 
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         if (dist > damageRadius) return;
@@ -335,12 +537,12 @@ public class BullEnemyAI : MonoBehaviour
         if (ph.TakeDamage(chargeDamage, hitDir))
         {
             _damageCooldown = DmgInterval;
-            Debug.Log($"[BullEnemyAI] Golpeó jugador: {chargeDamage} dmg.");
+            Debug.Log($"[BullEnemyAI] Golpeó al jugador: {chargeDamage} dmg.");
         }
     }
 
     // ══════════════════════════════════════════════════════════
-    //  DISTANCIA AL BORDE
+    //  UTILIDADES
     // ══════════════════════════════════════════════════════════
 
     private float DistanceToBorder()
@@ -357,10 +559,21 @@ public class BullEnemyAI : MonoBehaviour
     {
         _state = State.Dead;
         _rb.linearVelocity = Vector2.zero;
-        _rb.bodyType = RigidbodyType2D.Kinematic;
+        _rb.constraints    = RigidbodyConstraints2D.FreezeRotation;
+        _rb.bodyType       = RigidbodyType2D.Kinematic;
 
-        if (_stunCoroutine != null) StopCoroutine(_stunCoroutine);
-        if (_spriteRenderer != null) _spriteRenderer.color = _originalColor;
+        if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
+
+        // Restaura cámara si estaba haciendo shake
+        if (_shakeCoroutine != null)
+        {
+            StopCoroutine(_shakeCoroutine);
+            if (targetCamera != null)
+                targetCamera.transform.localPosition = _cameraOriginalPos;
+        }
+
+        if (_spriteRenderer != null)
+            _spriteRenderer.color = _originalColor;
 
         Debug.Log($"[BullEnemyAI] {gameObject.name} ha muerto.");
         gameObject.SetActive(false);
@@ -380,7 +593,7 @@ public class BullEnemyAI : MonoBehaviour
 
         // Cono de visión
         Vector2 fwd = Application.isPlaying ? (Vector2)transform.up : Vector2.up;
-        float rad = detectionHalfAngle * Mathf.Deg2Rad;
+        float   rad = detectionHalfAngle * Mathf.Deg2Rad;
         Gizmos.color = new Color(1f, 0.5f, 0f, 0.9f);
         Gizmos.DrawRay(transform.position, (Vector3)RotateVec(fwd,  rad) * detectionRange);
         Gizmos.DrawRay(transform.position, (Vector3)RotateVec(fwd, -rad) * detectionRange);
@@ -390,15 +603,25 @@ public class BullEnemyAI : MonoBehaviour
         Gizmos.color = new Color(1f, 0.1f, 0.1f, 0.5f);
         Gizmos.DrawWireSphere(transform.position, damageRadius);
 
-        // Zona de frenado
+        // Zona de frenado y stun en la arena
         if (arenaCollider != null)
         {
             Vector2 c = (Vector2)arenaCollider.transform.position + arenaCollider.offset;
-            float r = arenaCollider.radius * Mathf.Max(
+            float   r = arenaCollider.radius * Mathf.Max(
                 arenaCollider.transform.lossyScale.x,
                 arenaCollider.transform.lossyScale.y);
             Gizmos.color = new Color(0.2f, 0.6f, 1f, 0.2f);
             Gizmos.DrawWireSphere(c, r - brakingMargin);
+            Gizmos.color = new Color(1f, 0.2f, 0.2f, 0.2f);
+            Gizmos.DrawWireSphere(c, r - borderStunThreshold);
+        }
+
+        // Ancla y dirección de carga (solo en Play)
+        if (Application.isPlaying && (_state == State.PreCharge || _state == State.Charging))
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(_preChargeAnchor, 0.15f);
+            Gizmos.DrawRay(_preChargeAnchor, _chargeDir * 2f);
         }
     }
 

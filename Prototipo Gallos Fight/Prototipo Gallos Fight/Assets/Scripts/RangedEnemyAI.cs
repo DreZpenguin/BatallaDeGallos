@@ -1,22 +1,33 @@
 // ============================================================
-//  RangedEnemyAI.cs  — NUEVO
+//  RangedEnemyAI.cs  — v2
 //
-//  IA de enemigo a distancia. Comportamiento:
-//   · Dispara proyectiles al jugador con un cooldown configurable.
-//   · Si el jugador entra al rango de huida, se aleja de él.
-//   · Si el jugador está fuera del rango de huida pero dentro de
-//     detección, el enemigo se mantiene quieto (puede disparar igualmente).
-//   · Se mantiene dentro del CircleCollider2D de la arena usando
-//     el trigger del collider de la arena como límite de posición.
+//  COMPORTAMIENTO:
+//   · Detecta al jugador dentro de detectionRange.
+//   · Dispara proyectiles con cooldown configurable.
+//   · Si el jugador entra a fleeRange, huye en dirección opuesta.
+//   · Se mantiene siempre dentro del CircleCollider2D de la arena.
+//
+//  NUEVO — Rodeo de obstáculos:
+//   · Cada frame comprueba si hay línea de visión limpia al jugador
+//     con un Raycast2D filtrado por la LayerMask "obstacleLayer".
+//   · Si la visión está bloqueada, entra en estado STRAFING:
+//     se desplaza lateralmente (izquierda o derecha) a strafeSpeed.
+//   · La dirección de strafeo se elige al inicio para que el enemigo
+//     se aleje del borde de la arena (evita quedarse atrapado).
+//   · Si tras strafeMaxTime segundos sigue sin tener visión, invierte
+//     la dirección de strafeo.
+//   · En cuanto recupera visión limpia vuelve a estado ACTIVE normal.
+//   · Sigue disparando mientras strafea si tiene línea de visión.
+//   · No dispara si la visión está bloqueada (las balas chocarían).
 //
 //  SETUP EN UNITY:
-//   1. Crea un prefab de enemigo con: Rigidbody2D, Collider2D, SpriteRenderer,
-//      HealthSystem, y este script.
-//   2. Asigna el prefab de bala (mismo que usa el jugador sirve).
-//   3. Arrastra el GameObject de la arena (el que tiene el CircleCollider2D
-//      con IsTrigger = true) al campo "Arena Collider".
-//   4. Si quieres un firePoint personalizado, crea un hijo vacío y asígnalo;
-//      si lo dejas vacío se usa el centro del enemigo.
+//   1. Prefab con: Rigidbody2D, Collider2D, SpriteRenderer,
+//      HealthSystem y este script.
+//   2. Asigna el prefab de bala con BulletController.
+//   3. Arrastra el CircleCollider2D de la arena a "Arena Collider".
+//   4. Crea una Layer para los obstáculos (ej. "Obstacles") y
+//      asígnala en el campo "Obstacle Layer" del Inspector.
+//   5. Asegúrate de que los obstáculos estén en esa Layer.
 // ============================================================
 using UnityEngine;
 
@@ -24,57 +35,83 @@ using UnityEngine;
 [RequireComponent(typeof(HealthSystem))]
 public class RangedEnemyAI : MonoBehaviour
 {
-    // ── Inspector ──────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    //  INSPECTOR
+    // ══════════════════════════════════════════════════════════
 
-    [Header("Referencias")]
+    [Header("── Referencias ──────────────────────────────────")]
     [Tooltip("Transform del jugador. Se busca por tag 'Player' si queda vacío.")]
     [SerializeField] private Transform playerTransform;
 
-    [Tooltip("CircleCollider2D de la arena (IsTrigger = true). Limita el movimiento del enemigo.")]
+    [Tooltip("CircleCollider2D de la arena (IsTrigger = true).")]
     [SerializeField] private CircleCollider2D arenaCollider;
 
-    [Tooltip("Punto de origen del disparo. Deja vacío para usar el centro del enemigo.")]
+    [Tooltip("Punto de origen del disparo. Vacío = centro del enemigo.")]
     [SerializeField] private Transform firePoint;
 
-    [Header("Prefab de proyectil")]
-    [Tooltip("Prefab de bala con BulletController.")]
+    // ──────────────────────────────────────────────────────────
+    [Header("── Proyectil ────────────────────────────────────")]
     [SerializeField] private GameObject bulletPrefab;
-
-    [Header("Estadísticas del proyectil")]
     [SerializeField] private float bulletDamage   = 10f;
     [SerializeField] private float bulletSpeed    = 10f;
     [SerializeField] private float bulletLifetime = 4f;
 
-    [Header("Cooldown de disparo")]
-    [Tooltip("Segundos entre cada disparo.")]
+    [Tooltip("Segundos entre disparos.")]
     [SerializeField] private float shootCooldown = 1.5f;
 
-    [Header("Detección y huida")]
-    [Tooltip("Distancia a la que el enemigo detecta al jugador y empieza a disparar.")]
+    // ──────────────────────────────────────────────────────────
+    [Header("── Detección y huida ───────────────────────────")]
+    [Tooltip("Distancia a la que detecta al jugador y comienza a actuar.")]
     [SerializeField] private float detectionRange = 10f;
 
     [Tooltip("Si el jugador entra a esta distancia, el enemigo huye.")]
     [SerializeField] private float fleeRange = 4f;
 
-    [Tooltip("Velocidad de movimiento al huir del jugador.")]
+    [Tooltip("Velocidad de huida.")]
     [SerializeField] private float fleeSpeed = 4f;
 
-    [Header("Rotación")]
+    // ──────────────────────────────────────────────────────────
+    [Header("── Rodeo de obstáculos ──────────────────────────")]
+    [Tooltip("Layer de los obstáculos que bloquean la línea de visión. " +
+             "Crea una Layer 'Obstacles' y asígnala aquí.")]
+    [SerializeField] private LayerMask obstacleLayer;
+
+    [Tooltip("Velocidad de desplazamiento lateral al rodear un obstáculo.")]
+    [SerializeField] private float strafeSpeed = 3.5f;
+
+    [Tooltip("Segundos máximos strafando en una dirección antes de invertirla. " +
+             "Evita que el enemigo se quede rodeando indefinidamente por un lado.")]
+    [SerializeField] private float strafeMaxTime = 2.5f;
+
+    [Tooltip("Distancia del raycast de visión. Debe ser >= detectionRange.")]
+    [SerializeField] private float visionRayLength = 12f;
+
+    // ──────────────────────────────────────────────────────────
+    [Header("── Rotación ─────────────────────────────────────")]
     [SerializeField] private float rotationSpeed = 8f;
 
-    // ── Estado interno ─────────────────────────────────────────
-    private enum State { Idle, Active, Dead }
+    // ══════════════════════════════════════════════════════════
+    //  ESTADO INTERNO
+    // ══════════════════════════════════════════════════════════
+
+    private enum State { Idle, Active, Strafing, Dead }
     private State _state = State.Idle;
 
     private Rigidbody2D  _rb;
     private HealthSystem _healthSystem;
-    private float        _shootTimer = 0f;
 
-    // Centro y radio de la arena (calculados en Start)
+    private float   _shootTimer   = 0f;
     private Vector2 _arenaCenter;
     private float   _arenaRadius;
 
-    // ── Unity Lifecycle ────────────────────────────────────────
+    // Rodeo
+    private float _strafeDir      = 1f;   // +1 = derecha del enemigo, -1 = izquierda
+    private float _strafeTimer    = 0f;   // tiempo acumulado strafando en esta dirección
+    private bool  _hasLOS         = true; // ¿tiene línea de visión al jugador?
+
+    // ══════════════════════════════════════════════════════════
+    //  LIFECYCLE
+    // ══════════════════════════════════════════════════════════
 
     private void Awake()
     {
@@ -89,17 +126,13 @@ public class RangedEnemyAI : MonoBehaviour
 
     private void Start()
     {
-        // Busca al jugador por tag si no está asignado
         if (playerTransform == null)
         {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-                playerTransform = player.transform;
-            else
-                Debug.LogWarning("[RangedEnemyAI] No se encontró GameObject con tag 'Player'.");
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) playerTransform = p.transform;
+            else Debug.LogWarning("[RangedEnemyAI] No se encontró 'Player'.");
         }
 
-        // Lee el centro y radio de la arena
         if (arenaCollider != null)
         {
             _arenaCenter = (Vector2)arenaCollider.transform.position + arenaCollider.offset;
@@ -109,25 +142,23 @@ public class RangedEnemyAI : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[RangedEnemyAI] No se asignó arenaCollider. El enemigo no tendrá límites de movimiento.");
+            Debug.LogWarning("[RangedEnemyAI] Sin arenaCollider.");
             _arenaRadius = float.MaxValue;
         }
 
-        // FirePoint por defecto
         if (firePoint == null)
             firePoint = transform;
 
-        // Suscribirse a la muerte
         _healthSystem.OnDeath.AddListener(OnDeath);
     }
 
     private void Update()
     {
-        if (_state == State.Dead) return;
-        if (playerTransform == null) return;
+        if (_state == State.Dead || playerTransform == null) return;
 
         float dist = Vector2.Distance(transform.position, playerTransform.position);
 
+        CheckLineOfSight();
         UpdateState(dist);
         HandleRotation();
         HandleShoot(dist);
@@ -135,89 +166,210 @@ public class RangedEnemyAI : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_state != State.Active) return;
+        if (_state == State.Dead) return;
 
         float dist = Vector2.Distance(transform.position, playerTransform.position);
 
-        if (dist < fleeRange)
-            Flee();
-        else
-            _rb.linearVelocity = Vector2.Lerp(_rb.linearVelocity, Vector2.zero, Time.fixedDeltaTime * 10f);
+        switch (_state)
+        {
+            case State.Active:
+                if (dist < fleeRange)
+                    Flee();
+                else
+                    Brake();
+                break;
+
+            case State.Strafing:
+                Strafe();
+                break;
+
+            default:
+                Brake();
+                break;
+        }
 
         ClampToArena();
     }
 
-    // ── Máquina de estados ─────────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    //  LÍNEA DE VISIÓN
+    // ══════════════════════════════════════════════════════════
+
+    private void CheckLineOfSight()
+    {
+        if (playerTransform == null) return;
+
+        Vector2 origin    = firePoint.position;
+        Vector2 toPlayer  = (Vector2)playerTransform.position - origin;
+        float   distance  = Mathf.Min(toPlayer.magnitude, visionRayLength);
+
+        // Raycast solo contra la capa de obstáculos
+        RaycastHit2D hit = Physics2D.Raycast(origin, toPlayer.normalized, distance, obstacleLayer);
+        _hasLOS = (hit.collider == null);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  MÁQUINA DE ESTADOS
+    // ══════════════════════════════════════════════════════════
 
     private void UpdateState(float distance)
     {
-        State next = distance <= detectionRange ? State.Active : State.Idle;
+        if (_state == State.Dead) return;
 
-        if (next != _state)
+        bool inRange = distance <= detectionRange;
+
+        if (!inRange)
         {
-            _state = next;
-            Debug.Log($"[RangedEnemyAI] {gameObject.name} → {_state}");
+            // Fuera de rango → Idle
+            TransitionTo(State.Idle);
+            return;
         }
+
+        if (!_hasLOS)
+        {
+            // En rango pero visión bloqueada → Strafing
+            if (_state != State.Strafing)
+                BeginStrafe();
+            return;
+        }
+
+        // En rango y con visión → Active (cancela strafeo si lo había)
+        if (_state == State.Strafing)
+        {
+            _strafeTimer = 0f;
+            Debug.Log($"[RangedEnemyAI] {gameObject.name} → visión recuperada, volviendo a ACTIVE");
+        }
+        TransitionTo(State.Active);
     }
 
-    // ── Movimiento de huida ────────────────────────────────────
+    private void TransitionTo(State next)
+    {
+        if (_state == next) return;
+        _state = next;
+        Debug.Log($"[RangedEnemyAI] {gameObject.name} → {_state}");
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  RODEO (STRAFING)
+    // ══════════════════════════════════════════════════════════
+
+    private void BeginStrafe()
+    {
+        _state       = State.Strafing;
+        _strafeTimer = 0f;
+
+        // Elige la dirección que más aleje al enemigo del borde de la arena.
+        // Calcula la posición que tendría en cada dirección y compara
+        // cuál queda más cerca del centro.
+        Vector2 toPlayer  = ((Vector2)playerTransform.position - (Vector2)transform.position).normalized;
+        Vector2 perpRight = new Vector2(toPlayer.y, -toPlayer.x);   // 90° derecha
+        Vector2 perpLeft  = new Vector2(-toPlayer.y, toPlayer.x);   // 90° izquierda
+
+        Vector2 posRight = (Vector2)transform.position + perpRight * strafeSpeed * 0.5f;
+        Vector2 posLeft  = (Vector2)transform.position + perpLeft  * strafeSpeed * 0.5f;
+
+        float distRight = Vector2.Distance(posRight, _arenaCenter);
+        float distLeft  = Vector2.Distance(posLeft,  _arenaCenter);
+
+        // Elige el lado que queda más hacia el centro (distancia menor al centro)
+        _strafeDir = distRight <= distLeft ? 1f : -1f;
+
+        Debug.Log($"[RangedEnemyAI] {gameObject.name} → STRAFING dir={(_strafeDir > 0 ? "derecha" : "izquierda")}");
+    }
+
+    private void Strafe()
+    {
+        // Acumula tiempo en esta dirección
+        _strafeTimer += Time.fixedDeltaTime;
+
+        // Si lleva demasiado tiempo sin recuperar visión, invierte dirección
+        if (_strafeTimer >= strafeMaxTime)
+        {
+            _strafeDir   = -_strafeDir;
+            _strafeTimer = 0f;
+            Debug.Log($"[RangedEnemyAI] {gameObject.name} invirtió dirección de strafeo");
+        }
+
+        // Perpendicular a la dirección al jugador
+        Vector2 toPlayer = ((Vector2)playerTransform.position - (Vector2)transform.position).normalized;
+        Vector2 strafeVec = new Vector2(toPlayer.y, -toPlayer.x) * _strafeDir;
+
+        _rb.linearVelocity = strafeVec * strafeSpeed;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  MOVIMIENTO
+    // ══════════════════════════════════════════════════════════
 
     private void Flee()
     {
-        // Dirección OPUESTA al jugador
-        Vector2 awayFromPlayer = ((Vector2)transform.position - (Vector2)playerTransform.position).normalized;
-        _rb.linearVelocity = awayFromPlayer * fleeSpeed;
+        Vector2 away = ((Vector2)transform.position - (Vector2)playerTransform.position).normalized;
+        _rb.linearVelocity = away * fleeSpeed;
     }
 
-    // ── Contención dentro de la arena ─────────────────────────
+    private void Brake()
+    {
+        _rb.linearVelocity = Vector2.Lerp(_rb.linearVelocity, Vector2.zero, Time.fixedDeltaTime * 10f);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  CONTENCIÓN EN LA ARENA
+    // ══════════════════════════════════════════════════════════
 
     private void ClampToArena()
     {
         if (_arenaRadius == float.MaxValue) return;
 
-        Vector2 pos     = transform.position;
+        Vector2 pos        = transform.position;
         Vector2 fromCenter = pos - _arenaCenter;
-        float   dist    = fromCenter.magnitude;
-
-        // Margen para que el enemigo no se quede pegado al borde
-        float margin = 0.3f;
-        float limit  = _arenaRadius - margin;
+        float   dist       = fromCenter.magnitude;
+        float   limit      = _arenaRadius - 0.3f;
 
         if (dist > limit)
         {
-            // Empuja al enemigo de vuelta hacia el centro
-            Vector2 clampedPos = _arenaCenter + fromCenter.normalized * limit;
-            _rb.MovePosition(clampedPos);
+            _rb.MovePosition(_arenaCenter + fromCenter.normalized * limit);
 
-            // Cancela la componente de velocidad que apunta hacia afuera
-            Vector2 outward = fromCenter.normalized;
+            Vector2 outward    = fromCenter.normalized;
             float   outwardVel = Vector2.Dot(_rb.linearVelocity, outward);
             if (outwardVel > 0f)
                 _rb.linearVelocity -= outward * outwardVel;
+
+            // Si está intentando strafear hacia el borde, invierte dirección
+            if (_state == State.Strafing)
+            {
+                _strafeDir   = -_strafeDir;
+                _strafeTimer = 0f;
+            }
         }
     }
 
-    // ── Rotación ───────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    //  ROTACIÓN
+    // ══════════════════════════════════════════════════════════
 
     private void HandleRotation()
     {
         if (playerTransform == null) return;
 
-        Vector2 dir = ((Vector2)playerTransform.position - (Vector2)transform.position).normalized;
-        float targetAngle = Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg;
-        float smoothAngle = Mathf.LerpAngle(
+        Vector2 dir        = ((Vector2)playerTransform.position - (Vector2)transform.position).normalized;
+        float targetAngle  = Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg;
+        float smoothAngle  = Mathf.LerpAngle(
             transform.rotation.eulerAngles.z,
             -targetAngle,
-            rotationSpeed * Time.deltaTime
-        );
+            rotationSpeed * Time.deltaTime);
+
         transform.rotation = Quaternion.Euler(0f, 0f, smoothAngle);
     }
 
-    // ── Disparo ────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    //  DISPARO
+    // ══════════════════════════════════════════════════════════
 
     private void HandleShoot(float distance)
     {
-        if (_state != State.Active) return;
+        // Solo dispara si está activo Y tiene línea de visión limpia
+        if (_state != State.Active && _state != State.Strafing) return;
+        if (!_hasLOS) return;
         if (bulletPrefab == null) return;
 
         _shootTimer -= Time.deltaTime;
@@ -240,7 +392,9 @@ public class RangedEnemyAI : MonoBehaviour
             Debug.LogError("[RangedEnemyAI] El prefab de bala no tiene BulletController.");
     }
 
-    // ── Muerte ─────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    //  MUERTE
+    // ══════════════════════════════════════════════════════════
 
     private void OnDeath()
     {
@@ -251,20 +405,39 @@ public class RangedEnemyAI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    // ── Debug Visual ───────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    //  GIZMOS
+    // ══════════════════════════════════════════════════════════
 
     private void OnDrawGizmosSelected()
     {
-        // Rango de detección (amarillo)
-        Gizmos.color = new Color(1f, 0.85f, 0.2f, 0.25f);
+        // Rango de detección
+        Gizmos.color = new Color(1f, 0.85f, 0.2f, 0.2f);
         Gizmos.DrawSphere(transform.position, detectionRange);
         Gizmos.color = new Color(1f, 0.85f, 0.2f, 0.8f);
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // Rango de huida (naranja)
-        Gizmos.color = new Color(1f, 0.5f, 0.1f, 0.25f);
+        // Rango de huida
+        Gizmos.color = new Color(1f, 0.5f, 0.1f, 0.2f);
         Gizmos.DrawSphere(transform.position, fleeRange);
         Gizmos.color = new Color(1f, 0.5f, 0.1f, 0.9f);
         Gizmos.DrawWireSphere(transform.position, fleeRange);
+
+        // Línea de visión al jugador (solo en Play)
+        if (Application.isPlaying && playerTransform != null)
+        {
+            Gizmos.color = _hasLOS ? new Color(0f, 1f, 0.3f, 0.9f)   // verde = despejado
+                                   : new Color(1f, 0.1f, 0.1f, 0.9f); // rojo = bloqueado
+            Gizmos.DrawLine(transform.position, playerTransform.position);
+
+            // Muestra la dirección de strafeo actual
+            if (_state == State.Strafing)
+            {
+                Vector2 toPlayer  = ((Vector2)playerTransform.position - (Vector2)transform.position).normalized;
+                Vector2 strafeVec = new Vector2(toPlayer.y, -toPlayer.x) * _strafeDir;
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawRay(transform.position, strafeVec * 2f);
+            }
+        }
     }
 }

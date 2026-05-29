@@ -1,10 +1,3 @@
-// ============================================================
-//  PowerUpUICanvas.cs  — v2
-//  Cambios respecto a v1:
-//   · Navegación con mando Xbox: D-Pad / stick izquierdo para
-//     moverse entre tarjetas, botón Sur (A) para confirmar.
-//   · Los campos de mando son configurables desde el Inspector.
-// ============================================================
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,8 +13,33 @@ public class PowerUpUICanvas : MonoBehaviour
         public PowerUpType id;
         public string      title;
         public string      description;
-        public string      hexColor;
+        public string      hexColor;   // Color de tinte si no hay sprite, o de borde/acento
     }
+
+    // ── Iconos por tipo de powerup ─────────────────────────────
+    [Header("Iconos por tipo de powerup")]
+    [Tooltip("Sprite que se mostrará en la tarjeta del powerup de Rango.")]
+    [SerializeField] private Sprite iconRange;
+
+    [Tooltip("Sprite que se mostrará en la tarjeta del powerup de Daño.")]
+    [SerializeField] private Sprite iconDamage;
+
+    [Tooltip("Sprite que se mostrará en la tarjeta del powerup de Velocidad.")]
+    [SerializeField] private Sprite iconSpeed;
+
+    [Tooltip("Sprite que se mostrará en la tarjeta del powerup de Vida.")]
+    [SerializeField] private Sprite iconHealth;
+
+    [Tooltip("Sprite que se mostrará en la tarjeta del powerup de Disparo.")]
+    [SerializeField] private Sprite iconShoot;
+
+    [Tooltip("Si está activo, el Image adoptará el tamaño nativo del sprite " +
+             "en lugar de estirarse al tamaño del RectTransform.")]
+    [SerializeField] private bool useNativeSpriteSize = false;
+
+    [Tooltip("Si está activo, aplica el hexColor de cada opción como tinte sobre el icono. " +
+             "Desactívalo para mostrar el sprite con sus colores originales (recomendado).")]
+    [SerializeField] private bool useColorTintOnIcon = false;
 
     // ── Referencias del Canvas ─────────────────────────────────
     [Header("Panel raíz (se activa/desactiva)")]
@@ -42,27 +60,26 @@ public class PowerUpUICanvas : MonoBehaviour
 
     // ── Control — Mando Xbox ───────────────────────────────────
     [Header("Control — Mando Xbox (Selección de PowerUp)")]
-    [Tooltip("Eje horizontal del D-Pad o stick izquierdo. Configura en Input Manager como 'DPadX' o usa 'Horizontal'.")]
-    [SerializeField] private string gamepadNavAxisX    = "DPadX";
+    [Tooltip("Eje horizontal del D-Pad o stick izquierdo.")]
+    [SerializeField] private string gamepadNavAxisX = "DPadX";
 
     [Tooltip("Botón de confirmación del mando (A = joystick button 0).")]
     [SerializeField] private KeyCode gamepadConfirmKey = KeyCode.JoystickButton0;
 
-    [Tooltip("Umbral del eje de navegación para considerar que hay input.")]
+    [Tooltip("Umbral del eje de navegación.")]
     [SerializeField, Range(0.1f, 0.9f)] private float navDeadzone = 0.5f;
 
-    [Tooltip("Segundos de espera entre cada movimiento de navegación (evita saltos rápidos).")]
+    [Tooltip("Segundos entre movimientos de navegación (evita saltos rápidos).")]
     [SerializeField] private float navRepeatDelay = 0.25f;
 
     // ── Estado interno ─────────────────────────────────────────
     private PowerUpOption[]     _options;
     private Action<PowerUpType> _onSelected;
-    private int                 _activeOptions   = 0;
+    private int                 _activeOptions  = 0;
 
-    // Navegación con mando
-    private int   _selectedIndex   = 0;
-    private float _navTimer        = 0f;
-    private bool  _axisWasNeutral  = true;   // evita movimiento continuo sin soltar
+    private int   _selectedIndex  = 0;
+    private float _navTimer       = 0f;
+    private bool  _axisWasNeutral = true;
 
     // ── Unity Lifecycle ────────────────────────────────────────
 
@@ -75,7 +92,6 @@ public class PowerUpUICanvas : MonoBehaviour
     private void Update()
     {
         if (rootPanel == null || !rootPanel.activeSelf) return;
-
         HandleGamepadNavigation();
     }
 
@@ -83,34 +99,63 @@ public class PowerUpUICanvas : MonoBehaviour
 
     public void Show(PowerUpOption[] options, Action<PowerUpType> callback)
     {
-        _options      = options;
-        _onSelected   = callback;
-        _activeOptions = 0;
-        _selectedIndex = 0;
-        _navTimer      = 0f;
+        _options        = options;
+        _onSelected     = callback;
+        _activeOptions  = 0;
+        _selectedIndex  = 0;
+        _navTimer       = 0f;
         _axisWasNeutral = true;
 
         for (int i = 0; i < cards.Length; i++)
         {
             bool hasOption = i < options.Length;
             cards[i].SetActive(hasOption);
-
             if (!hasOption) continue;
 
             _activeOptions++;
 
+            // ── Título ─────────────────────────────────────────
             if (i < cardTitles.Length && cardTitles[i] != null)
                 cardTitles[i].text = options[i].title;
 
+            // ── Descripción ────────────────────────────────────
             if (i < cardDescriptions.Length && cardDescriptions[i] != null)
                 cardDescriptions[i].text = options[i].description;
 
+            // ── Icono ──────────────────────────────────────────
             if (i < cardIcons.Length && cardIcons[i] != null)
             {
+                Image icon   = cardIcons[i];
+                Sprite sprite = GetSpriteForType(options[i].id);
+
+                if (sprite != null)
+                {
+                    icon.sprite = sprite;
+                    icon.enabled = true;
+                    icon.preserveAspect = true;
+
+                    if (useNativeSpriteSize)
+                        icon.SetNativeSize();
+                }
+                else
+                {
+                    // Sin sprite: muestra solo el color de tinte como fallback
+                    icon.sprite  = null;
+                    icon.enabled = true;
+                }
+
+                // Tinte: si hay sprite y useColorTintOnIcon está OFF → Color.white (sin tinte).
+                // Si no hay sprite → siempre aplica el hexColor como fallback de color.
                 if (ColorUtility.TryParseHtmlString(options[i].hexColor, out Color col))
-                    cardIcons[i].color = col;
+                {
+                    if (sprite != null)
+                        icon.color = useColorTintOnIcon ? col : Color.white;
+                    else
+                        icon.color = col; // fallback siempre con color cuando no hay sprite
+                }
             }
 
+            // ── Botón ──────────────────────────────────────────
             int index = i;
             if (i < cardButtons.Length && cardButtons[i] != null)
             {
@@ -120,8 +165,6 @@ public class PowerUpUICanvas : MonoBehaviour
         }
 
         rootPanel.SetActive(true);
-
-        // Selecciona el primer botón con el EventSystem
         RefreshGamepadSelection();
     }
 
@@ -131,27 +174,40 @@ public class PowerUpUICanvas : MonoBehaviour
             rootPanel.SetActive(false);
     }
 
+    // ── Resolución de sprite por tipo ──────────────────────────
+
+    /// Devuelve el sprite asignado en el Inspector para cada PowerUpType.
+    /// Si un tipo no tiene sprite, devuelve null (el Image mostrará solo color).
+    private Sprite GetSpriteForType(PowerUpType type)
+    {
+        switch (type)
+        {
+            case PowerUpType.Range:  return iconRange;
+            case PowerUpType.Damage: return iconDamage;
+            case PowerUpType.Speed:  return iconSpeed;
+            case PowerUpType.Health: return iconHealth;
+            case PowerUpType.Shoot:  return iconShoot;
+            default:                 return null;
+        }
+    }
+
     // ── Navegación con mando ───────────────────────────────────
 
     private void HandleGamepadNavigation()
     {
         if (_activeOptions == 0) return;
 
-        // Cooldown de repetición
         if (_navTimer > 0f)
-        {
-            _navTimer -= Time.unscaledDeltaTime;  // usa unscaledDeltaTime porque Time.timeScale = 0
-        }
+            _navTimer -= Time.unscaledDeltaTime;
 
-        // ── D-Pad / stick izquierdo horizontal ────────────────
         float axisValue = GetNavAxis();
         bool  axisActive = Mathf.Abs(axisValue) >= navDeadzone;
 
         if (axisActive && _axisWasNeutral && _navTimer <= 0f)
         {
             int dir = axisValue > 0f ? 1 : -1;
-            _selectedIndex = (_selectedIndex + dir + _activeOptions) % _activeOptions;
-            _navTimer      = navRepeatDelay;
+            _selectedIndex  = (_selectedIndex + dir + _activeOptions) % _activeOptions;
+            _navTimer       = navRepeatDelay;
             _axisWasNeutral = false;
             RefreshGamepadSelection();
         }
@@ -159,18 +215,10 @@ public class PowerUpUICanvas : MonoBehaviour
         if (!axisActive)
             _axisWasNeutral = true;
 
-        // ── D-Pad también como botones digitales (joystick button 7/8) ──
-        // D-Pad derecha: JoystickButton7 | D-Pad izquierda: JoystickButton6 (varía por driver)
-        // Se cubre con el eje, pero añadimos botón de confirmación.
-
-        // ── Confirmación ──────────────────────────────────────
         if (Input.GetKeyDown(gamepadConfirmKey))
-        {
             OnCardSelected(_selectedIndex);
-        }
     }
 
-    /// Refresca el foco del EventSystem en el botón actualmente seleccionado.
     private void RefreshGamepadSelection()
     {
         if (_selectedIndex < cardButtons.Length && cardButtons[_selectedIndex] != null)

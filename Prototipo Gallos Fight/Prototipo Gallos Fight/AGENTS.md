@@ -2,7 +2,7 @@
 - Project name: Prototipo Gallos Fight
 - Unity version: Unity 6000.0.58f2
 - Active game object:
-  - Name: PoweUpUI
+  - Name: Canvas
   - Tag: Untagged
-  - Layer: Default
+  - Layer: UI
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

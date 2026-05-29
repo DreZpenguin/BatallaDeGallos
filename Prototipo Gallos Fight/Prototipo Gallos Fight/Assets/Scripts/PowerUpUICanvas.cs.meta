@@ -1,2 +1,17 @@
 fileFormatVersion: 2
 guid: a6e20cce22574fe46ab2aae0ea667461
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - iconRange: {instanceID: 0}
+  - iconDamage: {fileID: -9209175266704393728, guid: 96140a7d01379e44f9cf0b4fbd4987ac, type: 3}
+  - iconSpeed: {instanceID: 0}
+  - iconHealth: {fileID: -4647644886965054437, guid: d00336521b77a1c40bcdd2db5e188e62, type: 3}
+  - iconShoot: {fileID: 2542808508691646393, guid: 8a602b47cc23673478d447d6cb7b00f5, type: 3}
+  - rootPanel: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

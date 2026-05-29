@@ -2048,50 +2048,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ad0d0195aa8b949a0311479e84bf93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1209997239
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1209997240}
-  - component: {fileID: 1209997241}
-  m_Layer: 0
-  m_Name: PoweUpUI
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1209997240
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1209997239}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5690314, y: -2.1799185, z: -0.037664335}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1209997241
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1209997239}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c4b9544170756549b7a7f6a7e1d3df7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1225988193
 GameObject:
   m_ObjectHideFlags: 0
@@ -2952,6 +2908,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6e20cce22574fe46ab2aae0ea667461, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  iconRange: {fileID: 0}
+  iconDamage: {fileID: -9209175266704393728, guid: 96140a7d01379e44f9cf0b4fbd4987ac, type: 3}
+  iconSpeed: {fileID: 0}
+  iconHealth: {fileID: -4647644886965054437, guid: d00336521b77a1c40bcdd2db5e188e62, type: 3}
+  iconShoot: {fileID: 2542808508691646393, guid: 8a602b47cc23673478d447d6cb7b00f5, type: 3}
+  useNativeSpriteSize: 0
+  useColorTintOnIcon: 0
   rootPanel: {fileID: 431735511}
   cards:
   - {fileID: 1667384104}
@@ -4159,7 +4122,7 @@ PrefabInstance:
     - target: {fileID: 1462466886521731746, guid: e0b441effb6a86349afb342b785ec018, type: 3}
       propertyPath: powerUpUI
       value: 
-      objectReference: {fileID: 1209997241}
+      objectReference: {fileID: 0}
     - target: {fileID: 1462466886521731746, guid: e0b441effb6a86349afb342b785ec018, type: 3}
       propertyPath: powerUpUICanvas
       value: 
@@ -4345,7 +4308,6 @@ SceneRoots:
   - {fileID: 758324953}
   - {fileID: 128524990}
   - {fileID: 1834748810}
-  - {fileID: 1209997240}
   - {fileID: 1523328281}
   - {fileID: 453156347}
   - {fileID: 1058376903}

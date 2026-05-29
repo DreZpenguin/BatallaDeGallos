@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class HealthSystem : MonoBehaviour
 {
     [Header("Vida")]
-    [SerializeField] private float maxHealth    = 100f;
+    [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
 
     [Header("Invencibilidad tras recibir daño")]
@@ -16,9 +16,14 @@ public class HealthSystem : MonoBehaviour
 
     [Header("Knockback")]
     [Tooltip("Velocidad inicial del empuje (unidades/segundo).")]
-    [SerializeField] private float knockbackForce    = 10f;
-    [Tooltip("Segundos que tarda el empuje en llegar a 0 (decaimiento lineal).")]
+    [SerializeField] private float knockbackForce = 10f;
+
+    [Tooltip("Segundos que tarda el empuje en llegar a 0.")]
     [SerializeField] private float knockbackDuration = 0.25f;
+
+    [Tooltip("Resistencia al knockback. 0 = sin resistencia (empuje normal). " +
+             "1 = inmune total (sin empuje). Úsalo en el Toro con 0.90–0.99.")]
+    [SerializeField, Range(0f, 1f)] private float knockbackResistance = 0f;
 
     [Header("Flash de color al recibir daño")]
     [SerializeField] private Color hitColor         = Color.red;
@@ -44,7 +49,7 @@ public class HealthSystem : MonoBehaviour
 
     private void Awake()
     {
-        _isPlayer = gameObject.CompareTag("Player");
+        _isPlayer     = gameObject.CompareTag("Player");
         currentHealth = MaxHealth;
 
         _rb = GetComponent<Rigidbody2D>();
@@ -90,12 +95,17 @@ public class HealthSystem : MonoBehaviour
         if (useInvincibility)
             _invincibilityTimer = invincibilityDuration;
 
-        // Knockback gradual
-        if (_rb != null && knockbackForce > 0f && hitDirection != Vector2.zero)
+        // ── Knockback con resistencia ──────────────────────────
+        // La fuerza efectiva = knockbackForce * (1 - resistencia).
+        // Con resistencia = 0.95 → solo el 5 % del empuje original.
+        float effectiveForce = knockbackForce * (1f - knockbackResistance);
+
+        if (_rb != null && effectiveForce > 0.01f && hitDirection != Vector2.zero)
         {
             if (_knockbackCoroutine != null)
                 StopCoroutine(_knockbackCoroutine);
-            _knockbackCoroutine = StartCoroutine(KnockbackRoutine(hitDirection.normalized));
+            _knockbackCoroutine = StartCoroutine(
+                KnockbackRoutine(hitDirection.normalized, effectiveForce));
         }
 
         // Flash
@@ -106,29 +116,25 @@ public class HealthSystem : MonoBehaviour
             _flashCoroutine = StartCoroutine(HitFlash());
         }
 
-        // ── Sonido de daño ─────────────────────────────────────
+        // Sonido
         if (_isPlayer)
             AudioManager.Instance?.PlayPlayerHit();
         else
             AudioManager.Instance?.PlayEnemyHit();
 
         OnHealthChanged?.Invoke(currentHealth, MaxHealth);
-       // Debug.Log($"{gameObject.name} recibió {amount} de daño. HP: {currentHealth}/{MaxHealth}");
 
         if (currentHealth <= 0f)
         {
-            // ── Sonido de muerte ───────────────────────────────
             if (_isPlayer)
             {
                 AudioManager.Instance?.PlayPlayerDie();
-                UnityEngine.SceneManagement.SceneManager.LoadScene(0);             
+                SceneManager.LoadScene(0);
             }
             else
                 AudioManager.Instance?.PlayEnemyDie();
 
-            OnDeath?.Invoke();            
-            //Debug.Log($"{gameObject.name} murió.");
-            
+            OnDeath?.Invoke();
         }
 
         return true;
@@ -136,14 +142,14 @@ public class HealthSystem : MonoBehaviour
 
     // ── Corrutinas ─────────────────────────────────────────────
 
-    private IEnumerator KnockbackRoutine(Vector2 direction)
+    private IEnumerator KnockbackRoutine(Vector2 direction, float force)
     {
         float elapsed = 0f;
 
         while (elapsed < knockbackDuration)
         {
             float t            = 1f - (elapsed / knockbackDuration);
-            float currentSpeed = knockbackForce * t;
+            float currentSpeed = force * t;
 
             _rb.MovePosition(_rb.position + direction * currentSpeed * Time.fixedDeltaTime);
 
@@ -177,13 +183,5 @@ public class HealthSystem : MonoBehaviour
         currentHealth   += flat;
         currentHealth    = Mathf.Min(currentHealth, MaxHealth);
         OnHealthChanged?.Invoke(currentHealth, MaxHealth);
-       // Debug.Log($"[HealthSystem] HP máximo aumentado en {flat}. Total: {MaxHealth:F0} | Actual: {currentHealth:F0}");
     }
-
-    //private void OnGUI()
-    //{
-    //    if (!_isPlayer) return;
-    //    GUI.Label(new Rect(10, 90, 260, 30), $"HP: {currentHealth:F0} / {MaxHealth:F0}");
-    //}
-    
 }
