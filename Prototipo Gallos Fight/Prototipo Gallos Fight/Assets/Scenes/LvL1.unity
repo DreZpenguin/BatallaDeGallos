@@ -2688,12 +2688,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6e20cce22574fe46ab2aae0ea667461, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iconRange: {fileID: 0}
+  iconRange: {fileID: -1688364378837737268, guid: cdd3284bd383bf7419ebeab7d3846e09, type: 3}
   iconDamage: {fileID: -9209175266704393728, guid: 96140a7d01379e44f9cf0b4fbd4987ac, type: 3}
-  iconSpeed: {fileID: 0}
+  iconSpeed: {fileID: 8073353776826903162, guid: 7535e6a2e0b988b429f5d7b8f2cc4951, type: 3}
   iconHealth: {fileID: -4647644886965054437, guid: d00336521b77a1c40bcdd2db5e188e62, type: 3}
   iconShoot: {fileID: 2542808508691646393, guid: 8a602b47cc23673478d447d6cb7b00f5, type: 3}
   useNativeSpriteSize: 0
+  useColorTintOnIcon: 0
   rootPanel: {fileID: 431735511}
   cards:
   - {fileID: 1667384104}

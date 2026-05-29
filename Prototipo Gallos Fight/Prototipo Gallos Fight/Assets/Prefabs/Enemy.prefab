@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_Sprite: {fileID: 3880122267378182979, guid: 1e94fbdeddab3ea488f966f3cd8aaa96, type: 3}
-  m_Color: {r: 0.3845257, g: 0.83137256, b: 0.0980392, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -157,6 +157,7 @@ MonoBehaviour:
   invincibilityDuration: 0.4
   knockbackForce: 8
   knockbackDuration: 0.25
+  knockbackResistance: 0
   hitColor: {r: 1, g: 0, b: 0, a: 1}
   hitColorDuration: 0.15
   OnHealthChanged:
@@ -197,11 +198,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26dd2b8cb2d90184e9eb74bf15cb10db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackKey: 122
-  attackDamage: 5
+  attackDamage: 8
   attackCooldown: 1
   frontHitbox: {fileID: 96154386166402537}
   hitboxActiveDuration: 0.12
+  attackKey: 122
+  gamepadAttackKey: 332
 --- !u!50 &8715057196054992877
 Rigidbody2D:
   serializedVersion: 5
