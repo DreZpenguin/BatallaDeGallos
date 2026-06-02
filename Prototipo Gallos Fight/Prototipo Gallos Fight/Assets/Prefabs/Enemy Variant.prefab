@@ -85,6 +85,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5588473078638198134, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_FlipY
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5588473078638198134, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 396394072784696322, guid: 2b7b93b07a8aae041aafa7c20eb48a87, type: 3}
@@ -148,13 +152,17 @@ PrefabInstance:
       propertyPath: moveSpeed
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 8264681061710510466, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: detectionRange
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 8497273950093436327, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: attackDamage
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8497273950093436327, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: attackCooldown
-      value: 1.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8497273950093436327, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: hitboxActiveDuration
