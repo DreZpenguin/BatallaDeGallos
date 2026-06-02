@@ -16,4 +16,9 @@ public class CanvasManager : MonoBehaviour
     }
     public void LoadLvl1() { SceneManager.LoadScene("Lvl1"); }
     public void QuitGame() { Application.Quit(); }
+    public void InfiniteMode() 
+    {
+        InfiniteData.Instance.StartInfiniteRun();
+        SceneManager.LoadScene("LvlInfinite");
+    }
 }

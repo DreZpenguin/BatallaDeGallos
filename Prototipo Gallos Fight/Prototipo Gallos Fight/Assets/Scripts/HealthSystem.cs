@@ -1,3 +1,12 @@
+// ============================================================
+//  HealthSystem.cs  — v2
+//
+//  CAMBIOS respecto a v1:
+//   · Nuevo campo KnockbackResistance (0 = sin resistencia,
+//     1 = completamente inmune). Multiplica la fuerza de knockback
+//     recibida. Configurable por objeto desde el Inspector.
+//     Úsalo en el Toro con valor cercano a 1 (ej. 0.95).
+// ============================================================
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -183,5 +192,106 @@ public class HealthSystem : MonoBehaviour
         currentHealth   += flat;
         currentHealth    = Mathf.Min(currentHealth, MaxHealth);
         OnHealthChanged?.Invoke(currentHealth, MaxHealth);
+    }
+
+    // ── Barra de vida (OnGUI) ──────────────────────────────────
+
+    [Header("Barra de vida — UI")]
+    [Tooltip("Ancho de la barra de vida en píxeles.")]
+    [SerializeField] private float hpBarWidth      = 220f;
+    [Tooltip("Alto de la barra de vida en píxeles.")]
+    [SerializeField] private float hpBarHeight     = 22f;
+    [Tooltip("Margen desde el borde derecho de la pantalla.")]
+    [SerializeField] private float hpBarMarginX    = 20f;
+    [Tooltip("Margen desde el borde superior de la pantalla.")]
+    [SerializeField] private float hpBarMarginY    = 20f;
+    [Tooltip("Color de la barra cuando la vida es alta (>60%).")]
+    [SerializeField] private Color hpColorHigh     = new Color(0.15f, 0.85f, 0.25f);
+    [Tooltip("Color de la barra cuando la vida es media (30–60%).")]
+    [SerializeField] private Color hpColorMid      = new Color(0.95f, 0.75f, 0.05f);
+    [Tooltip("Color de la barra cuando la vida es baja (<30%).")]
+    [SerializeField] private Color hpColorLow      = new Color(0.90f, 0.15f, 0.10f);
+    [Tooltip("Color del fondo de la barra.")]
+    [SerializeField] private Color hpColorBg       = new Color(0.10f, 0.10f, 0.10f, 0.85f);
+    [Tooltip("Color del borde de la barra.")]
+    [SerializeField] private Color hpColorBorder   = new Color(0f, 0f, 0f, 0.90f);
+    [Tooltip("Tamaño del texto de HP.")]
+    [SerializeField] private int   hpFontSize      = 13;
+    [Tooltip("Mostrar texto numérico dentro de la barra.")]
+    [SerializeField] private bool  hpShowText      = true;
+
+    // Texturas generadas en runtime (una sola vez)
+    private Texture2D _texWhite;
+    private GUIStyle  _hpTextStyle;
+    private bool      _guiInitialized = false;
+
+    private void InitGUI()
+    {
+        if (_guiInitialized) return;
+        _guiInitialized = true;
+
+        _texWhite = new Texture2D(1, 1);
+        _texWhite.SetPixel(0, 0, Color.white);
+        _texWhite.Apply();
+
+        _hpTextStyle                  = new GUIStyle(GUI.skin.label);
+        _hpTextStyle.fontSize         = hpFontSize;
+        _hpTextStyle.fontStyle        = FontStyle.Bold;
+        _hpTextStyle.alignment        = TextAnchor.MiddleCenter;
+        _hpTextStyle.normal.textColor = Color.white;
+    }
+
+    private void OnGUI()
+    {
+        if (!_isPlayer) return;
+
+        InitGUI();
+
+        float sw = Screen.width;
+
+        // Posición: esquina superior derecha
+        float barX = sw - hpBarWidth - hpBarMarginX;
+        float barY = hpBarMarginY;
+
+        float ratio = MaxHealth > 0f ? Mathf.Clamp01(currentHealth / MaxHealth) : 0f;
+
+        // ── Color dinámico según % de vida ────────────────────
+        Color barColor;
+        if (ratio > 0.6f)
+            barColor = hpColorHigh;
+        else if (ratio > 0.3f)
+            barColor = Color.Lerp(hpColorMid, hpColorHigh, (ratio - 0.3f) / 0.3f);
+        else
+            barColor = Color.Lerp(hpColorLow, hpColorMid, ratio / 0.3f);
+
+        float border = 2f;
+
+        // ── Borde exterior ────────────────────────────────────
+        GUI.color = hpColorBorder;
+        GUI.DrawTexture(new Rect(barX - border, barY - border,
+                                 hpBarWidth + border * 2f, hpBarHeight + border * 2f), _texWhite);
+
+        // ── Fondo ─────────────────────────────────────────────
+        GUI.color = hpColorBg;
+        GUI.DrawTexture(new Rect(barX, barY, hpBarWidth, hpBarHeight), _texWhite);
+
+        // ── Relleno de vida ───────────────────────────────────
+        if (ratio > 0f)
+        {
+            GUI.color = barColor;
+            GUI.DrawTexture(new Rect(barX, barY, hpBarWidth * ratio, hpBarHeight), _texWhite);
+        }
+
+        // ── Texto HP ──────────────────────────────────────────
+        if (hpShowText)
+        {
+            GUI.color = Color.white;
+            GUI.Label(new Rect(barX, barY, hpBarWidth, hpBarHeight),
+                      $"{Mathf.CeilToInt(currentHealth)} / {Mathf.CeilToInt(MaxHealth)}",
+                      _hpTextStyle);
+        }
+
+        // Restaura color de GUI
+        GUI.color = Color.white;
     }
 }

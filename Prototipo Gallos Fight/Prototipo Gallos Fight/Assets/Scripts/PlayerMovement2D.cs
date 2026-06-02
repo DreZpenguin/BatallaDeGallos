@@ -1,3 +1,15 @@
+// ============================================================
+//  PlayerMovement2D.cs  — v2
+//
+//  CAMBIO respecto a v1:
+//   · La rotación del personaje ya NO depende del stick izquierdo
+//     ni de la dirección de movimiento (WASD).
+//   · Con teclado/ratón: rota hacia el cursor del mouse (igual que antes).
+//   · Con mando: rota SOLO si el stick derecho supera el deadzone.
+//     Si el stick derecho está en reposo, el personaje mantiene
+//     su última dirección de apuntado sin girar hacia el movimiento.
+//   · El movimiento (WASD / stick izquierdo) nunca afecta la rotación.
+// ============================================================
 using UnityEngine;
 
 public class PlayerMovement2D : MonoBehaviour
@@ -21,10 +33,10 @@ public class PlayerMovement2D : MonoBehaviour
     [SerializeField] private KeyCode gamepadDashKey = KeyCode.JoystickButton0;
 
     [Header("Control — Mando Xbox — Apuntado Stick Derecho")]
-    [Tooltip("Numero de eje joystick para stick derecho HORIZONTAL.\nXbox XInput Windows: prueba 4. Si no funciona prueba 3.")]
+    [Tooltip("Número de eje joystick para stick derecho HORIZONTAL. Xbox XInput Windows: 4.")]
     [SerializeField, Range(1, 10)] private int aimAxisX = 4;
 
-    [Tooltip("Numero de eje joystick para stick derecho VERTICAL.\nXbox XInput Windows: prueba 5. Si no funciona prueba 4 o 6.")]
+    [Tooltip("Número de eje joystick para stick derecho VERTICAL. Xbox XInput Windows: 5.")]
     [SerializeField, Range(1, 10)] private int aimAxisY = 5;
 
     [Tooltip("Activa si al empujar el stick ARRIBA el personaje mira ABAJO.")]
@@ -36,15 +48,13 @@ public class PlayerMovement2D : MonoBehaviour
     [Header("Control — Mando Xbox — General")]
     [SerializeField, Range(0.05f, 0.9f)] private float gamepadDeadzone = 0.25f;
 
-    [Header("Debug (desactiva en build final)")]
-    [SerializeField] private bool showGamepadDebug = true;
-
+    // ── Estado interno ─────────────────────────────────────────
     private Rigidbody2D      _rb;
     private AttackController _attackController;
     private Camera           _cam;
 
-    private Vector2 _lastInputDir      = Vector2.up;
-    private Vector2 _gamepadAimDir     = Vector2.zero;
+    private Vector2 _lastInputDir      = Vector2.up;   // para el dash
+    private Vector2 _lastAimDir        = Vector2.up;   // última dirección de apuntado válida
     private bool    _usingGamepad      = false;
     private float   _dashCooldownTimer = 0f;
     private float   _dashActiveTimer   = 0f;
@@ -53,6 +63,10 @@ public class PlayerMovement2D : MonoBehaviour
 
     public float BaseSpeed       => maxSpeed;
     public float CurrentMaxSpeed => maxSpeed * (1f + _speedBonus);
+
+    // ══════════════════════════════════════════════════════════
+    //  LIFECYCLE
+    // ══════════════════════════════════════════════════════════
 
     private void Awake()
     {
@@ -83,19 +97,19 @@ public class PlayerMovement2D : MonoBehaviour
         }
     }
 
+    // ══════════════════════════════════════════════════════════
+    //  API PÚBLICA
+    // ══════════════════════════════════════════════════════════
+
     public void AddSpeedBonus(float percent)
     {
         _speedBonus += percent;
-        Debug.Log($"[PlayerMovement2D] Velocidad +{percent*100f:F0}%. Max: {CurrentMaxSpeed:F1}");
+        Debug.Log($"[PlayerMovement2D] Velocidad +{percent * 100f:F0}%. Max: {CurrentMaxSpeed:F1}");
     }
 
-    // Lee un eje de joystick directamente por numero (1-based).
-    private float ReadJoystickAxis(int axisNumber)
-    {
-        string axisName = "joystick axis " + axisNumber;
-        try   { return Input.GetAxisRaw(axisName); }
-        catch { return 0f; }
-    }
+    // ══════════════════════════════════════════════════════════
+    //  DETECCIÓN DE DISPOSITIVO
+    // ══════════════════════════════════════════════════════════
 
     private void DetectInputDevice()
     {
@@ -113,51 +127,57 @@ public class PlayerMovement2D : MonoBehaviour
         if (gamepadActive)
             _usingGamepad = true;
 
+        // Cualquier movimiento de ratón devuelve al modo teclado/ratón
         if (Input.GetAxisRaw("Mouse X") != 0f || Input.GetAxisRaw("Mouse Y") != 0f)
             _usingGamepad = false;
     }
 
+    // ══════════════════════════════════════════════════════════
+    //  APUNTADO / ROTACIÓN
+    //  Regla: la rotación NUNCA depende del stick izquierdo ni
+    //  de las teclas de movimiento.
+    // ══════════════════════════════════════════════════════════
+
     private void HandleAim()
     {
-        Vector2 aimDir = Vector2.zero;
+        Vector2 newAimDir = Vector2.zero;
 
         if (_usingGamepad)
         {
+            // ── Mando: solo stick DERECHO ──────────────────────
             float rx = ReadJoystickAxis(aimAxisX) * (invertAimX ? -1f : 1f);
             float ry = ReadJoystickAxis(aimAxisY) * (invertAimY ? -1f : 1f);
 
             if (Mathf.Abs(rx) > gamepadDeadzone || Mathf.Abs(ry) > gamepadDeadzone)
             {
-                aimDir         = new Vector2(rx, ry).normalized;
-                _gamepadAimDir = aimDir;
+                // Stick derecho activo → actualiza dirección
+                newAimDir  = new Vector2(rx, ry).normalized;
+                _lastAimDir = newAimDir;
             }
-            else if (_gamepadAimDir != Vector2.zero)
-            {
-                aimDir = _gamepadAimDir;
-            }
-            else
-            {
-                float lx = Input.GetAxisRaw(horizontalAxis);
-                float ly = Input.GetAxisRaw(verticalAxis);
-                if (Mathf.Abs(lx) > gamepadDeadzone || Mathf.Abs(ly) > gamepadDeadzone)
-                    aimDir = new Vector2(lx, ly).normalized;
-            }
+            // Si el stick derecho está en reposo → NO hacer nada.
+            // El personaje mantiene _lastAimDir (la última dirección válida).
+            // NO hay fallback al stick izquierdo.
         }
         else
         {
+            // ── Teclado/Ratón: siempre hacia el cursor ─────────
             if (_cam != null)
             {
                 Vector3 mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
-                aimDir = ((Vector2)(mouseWorld - transform.position)).normalized;
+                newAimDir  = ((Vector2)(mouseWorld - transform.position)).normalized;
+                _lastAimDir = newAimDir;
             }
         }
 
-        if (aimDir == Vector2.zero) return;
-
-        float angle = Mathf.Atan2(aimDir.x, aimDir.y) * Mathf.Rad2Deg;
+        // Aplica la rotación usando _lastAimDir (que nunca es Vector2.zero)
+        float angle = Mathf.Atan2(_lastAimDir.x, _lastAimDir.y) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, -angle);
-        _attackController?.SetFacingDirection(aimDir);
+        _attackController?.SetFacingDirection(_lastAimDir);
     }
+
+    // ══════════════════════════════════════════════════════════
+    //  MOVIMIENTO — no afecta la rotación
+    // ══════════════════════════════════════════════════════════
 
     private void ApplyMovement()
     {
@@ -171,6 +191,7 @@ public class PlayerMovement2D : MonoBehaviour
         );
         input = Vector2.ClampMagnitude(input, 1f);
 
+        // Guarda la dirección de movimiento solo para el dash
         if (input != Vector2.zero)
             _lastInputDir = input.normalized;
 
@@ -194,6 +215,10 @@ public class PlayerMovement2D : MonoBehaviour
             _rb.linearVelocity = _rb.linearVelocity.normalized * CurrentMaxSpeed;
     }
 
+    // ══════════════════════════════════════════════════════════
+    //  DASH
+    // ══════════════════════════════════════════════════════════
+
     private void HandleDashInput()
     {
         bool dashPressed = Input.GetKeyDown(dashKey) || Input.GetKeyDown(gamepadDashKey);
@@ -203,6 +228,7 @@ public class PlayerMovement2D : MonoBehaviour
             _dashActiveTimer   = dashDuration;
             _dashCooldownTimer = dashCooldown;
             _rb.linearVelocity = Vector2.zero;
+            // El dash va en la dirección de MOVIMIENTO, no de apuntado
             _rb.AddForce(_lastInputDir * dashForce, ForceMode2D.Impulse);
         }
     }
@@ -220,25 +246,13 @@ public class PlayerMovement2D : MonoBehaviour
         }
     }
 
-    //private void OnGUI()
-    //{
-    //    GUI.Label(new Rect(10, 10, 300, 90),
-    //        $"Vel: {_rb.linearVelocity.magnitude:F2} / {CurrentMaxSpeed:F1}\n" +
-    //        $"Dash CD: {Mathf.Max(0f, _dashCooldownTimer):F1}s\n" +
-    //        $"Input: {(_usingGamepad ? "MANDO" : "Teclado/Raton")}");
+    // ══════════════════════════════════════════════════════════
+    //  HELPERS
+    // ══════════════════════════════════════════════════════════
 
-    //    if (!showGamepadDebug) return;
-
-    //    GUI.Box(new Rect(8, 108, 255, 205), "");
-    //    GUI.Label(new Rect(12, 112, 248, 198),
-    //        "[DEBUG STICK DERECHO]\n" +
-    //        $"Eje{aimAxisX}(AimX): {ReadJoystickAxis(aimAxisX):F3}\n" +
-    //        $"Eje{aimAxisY}(AimY): {ReadJoystickAxis(aimAxisY):F3}\n" +
-    //        $"Dir apuntado: {_gamepadAimDir}\n" +
-    //        "--- Todos los ejes ---\n" +
-    //        $"Eje1:{ReadJoystickAxis(1):F2}  Eje2:{ReadJoystickAxis(2):F2}\n" +
-    //        $"Eje3:{ReadJoystickAxis(3):F2}  Eje4:{ReadJoystickAxis(4):F2}\n" +
-    //        $"Eje5:{ReadJoystickAxis(5):F2}  Eje6:{ReadJoystickAxis(6):F2}\n" +
-    //        $"Eje7:{ReadJoystickAxis(7):F2}  Eje8:{ReadJoystickAxis(8):F2}");
-    //}
+    private float ReadJoystickAxis(int axisNumber)
+    {
+        try   { return Input.GetAxisRaw("joystick axis " + axisNumber); }
+        catch { return 0f; }
+    }
 }

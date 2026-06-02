@@ -166,6 +166,17 @@ MonoBehaviour:
   OnDeath:
     m_PersistentCalls:
       m_Calls: []
+  hpBarWidth: 220
+  hpBarHeight: 22
+  hpBarMarginX: 20
+  hpBarMarginY: 20
+  hpColorHigh: {r: 0.15, g: 0.85, b: 0.25, a: 1}
+  hpColorMid: {r: 0.95, g: 0.75, b: 0.05, a: 1}
+  hpColorLow: {r: 0.9, g: 0.15, b: 0.1, a: 1}
+  hpColorBg: {r: 0.1, g: 0.1, b: 0.1, a: 0.85}
+  hpColorBorder: {r: 0, g: 0, b: 0, a: 0.9}
+  hpFontSize: 13
+  hpShowText: 1
 --- !u!114 &8264681061710510466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,7 +191,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 0}
   detectionRange: 8
-  attackRange: 0.72
+  attackRange: 1.3
   moveSpeed: 6
   rotationSpeed: 10
   Enemy: {fileID: 2723383198928369880}

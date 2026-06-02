@@ -630,4 +630,21 @@ public class BullEnemyAI : MonoBehaviour
         float c = Mathf.Cos(rad), s = Mathf.Sin(rad);
         return new Vector2(c * v.x - s * v.y, s * v.x + c * v.y);
     }
+    public void ApplyScaling(float damageMult, float speedMult)
+    {
+        chargeDamage *= damageMult;
+        chargeMaxSpeed *= speedMult;
+    }
+    public void SetArena(CircleCollider2D arena)
+    {
+        arenaCollider = arena;
+        if (arenaCollider != null)
+        {
+            _arenaCenter = (Vector2)arenaCollider.transform.position + arenaCollider.offset;
+            _arenaRadius = arenaCollider.radius * Mathf.Max(
+                arenaCollider.transform.lossyScale.x,
+                arenaCollider.transform.lossyScale.y);
+        }
+    }
+
 }

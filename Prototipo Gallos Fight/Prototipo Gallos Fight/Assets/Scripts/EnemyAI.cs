@@ -188,4 +188,8 @@ public class EnemyAI : MonoBehaviour
         PowerUp.RegisterEnemy(EnemyInstance.GetComponent<HealthSystem>());
         
     }
+    public void ApplySpeedScale(float multiplier)
+    {
+        moveSpeed *= multiplier;
+    }
 }

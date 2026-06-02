@@ -1,34 +1,3 @@
-// ============================================================
-//  RangedEnemyAI.cs  — v2
-//
-//  COMPORTAMIENTO:
-//   · Detecta al jugador dentro de detectionRange.
-//   · Dispara proyectiles con cooldown configurable.
-//   · Si el jugador entra a fleeRange, huye en dirección opuesta.
-//   · Se mantiene siempre dentro del CircleCollider2D de la arena.
-//
-//  NUEVO — Rodeo de obstáculos:
-//   · Cada frame comprueba si hay línea de visión limpia al jugador
-//     con un Raycast2D filtrado por la LayerMask "obstacleLayer".
-//   · Si la visión está bloqueada, entra en estado STRAFING:
-//     se desplaza lateralmente (izquierda o derecha) a strafeSpeed.
-//   · La dirección de strafeo se elige al inicio para que el enemigo
-//     se aleje del borde de la arena (evita quedarse atrapado).
-//   · Si tras strafeMaxTime segundos sigue sin tener visión, invierte
-//     la dirección de strafeo.
-//   · En cuanto recupera visión limpia vuelve a estado ACTIVE normal.
-//   · Sigue disparando mientras strafea si tiene línea de visión.
-//   · No dispara si la visión está bloqueada (las balas chocarían).
-//
-//  SETUP EN UNITY:
-//   1. Prefab con: Rigidbody2D, Collider2D, SpriteRenderer,
-//      HealthSystem y este script.
-//   2. Asigna el prefab de bala con BulletController.
-//   3. Arrastra el CircleCollider2D de la arena a "Arena Collider".
-//   4. Crea una Layer para los obstáculos (ej. "Obstacles") y
-//      asígnala en el campo "Obstacle Layer" del Inspector.
-//   5. Asegúrate de que los obstáculos estén en esa Layer.
-// ============================================================
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -438,6 +407,26 @@ public class RangedEnemyAI : MonoBehaviour
                 Gizmos.color = Color.cyan;
                 Gizmos.DrawRay(transform.position, strafeVec * 2f);
             }
+        }
+    }
+    public void ApplyScaling(float damageMult, float bulletSpeedMult,
+                         float cooldownMult, float speedMult)
+    {
+        bulletDamage *= damageMult;
+        bulletSpeed *= bulletSpeedMult;
+        shootCooldown *= cooldownMult;   // cooldownMult < 1 → dispara más rápido
+        fleeSpeed *= speedMult;
+    }
+    public void SetArena(CircleCollider2D arena)
+    {
+        arenaCollider = arena;
+        if (arenaCollider != null)
+        {
+            // Recalcula centro y radio (mismo cálculo que en Start)
+            _arenaCenter = (Vector2)arenaCollider.transform.position + arenaCollider.offset;
+            _arenaRadius = arenaCollider.radius * Mathf.Max(
+                arenaCollider.transform.lossyScale.x,
+                arenaCollider.transform.lossyScale.y);
         }
     }
 }
