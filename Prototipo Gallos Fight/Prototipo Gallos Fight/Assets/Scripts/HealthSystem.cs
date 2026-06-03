@@ -38,7 +38,8 @@ public class HealthSystem : MonoBehaviour
     [SerializeField] private Color hitColor         = Color.red;
     [SerializeField] private float hitColorDuration = 0.15f;
 
-    private float _maxHealthBonus = 0f;
+    private float _maxHealthBonus  = 0f;
+    private bool  _infiniteHealth  = false;  // modo práctica
 
     private Rigidbody2D    _rb;
     private SpriteRenderer _spriteRenderer;
@@ -135,6 +136,13 @@ public class HealthSystem : MonoBehaviour
 
         if (currentHealth <= 0f)
         {
+            // Si tiene vida infinita (modo práctica) se restaura al máximo
+            if (_infiniteHealth)
+            {
+                currentHealth = MaxHealth;
+                OnHealthChanged?.Invoke(currentHealth, MaxHealth);
+                return true;
+            }
             if (_isPlayer)
             {
                 AudioManager.Instance?.PlayPlayerDie();
@@ -192,6 +200,18 @@ public class HealthSystem : MonoBehaviour
         currentHealth   += flat;
         currentHealth    = Mathf.Min(currentHealth, MaxHealth);
         OnHealthChanged?.Invoke(currentHealth, MaxHealth);
+    }
+
+    /// Activa la vida infinita (modo práctica).
+    /// El enemigo recibe daño y muestra los popups, pero nunca muere.
+    public void SetInfiniteHealth(bool infinite)
+    {
+        _infiniteHealth = infinite;
+        if (infinite)
+        {
+            currentHealth = MaxHealth;
+            OnHealthChanged?.Invoke(currentHealth, MaxHealth);
+        }
     }
 
     // ── Barra de vida (OnGUI) ──────────────────────────────────

@@ -2,7 +2,7 @@
 - Project name: Prototipo Gallos Fight
 - Unity version: Unity 6000.0.58f2
 - Active game object:
-  - Name: Enemy
+  - Name: LevelManager
   - Tag: Untagged
-  - Layer: Enemy
+  - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

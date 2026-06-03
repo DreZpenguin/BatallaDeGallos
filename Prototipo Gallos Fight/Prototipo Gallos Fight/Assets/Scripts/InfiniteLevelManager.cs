@@ -37,8 +37,9 @@ public class InfiniteLevelManager : MonoBehaviour
     // ── Inspector ──────────────────────────────────────────────
 
     [Header("── Configuración de Escalado ───────────────────")]
-    [Tooltip("ScriptableObject con las curvas de escalado de enemigos.")]
-    [SerializeField] private EnemyScalingConfig scalingConfig;
+    [Tooltip("Arrastra aquí EnemyScalingConfig (v1 curvas) o EnemyScalingConfigV2 (tabla). " +
+             "Ambos son compatibles — puedes cambiar entre ellos sin tocar código.")]
+    [SerializeField] private EnemyScalingConfigBase scalingConfig;
 
     [Header("── Prefabs de Enemigos ─────────────────────────")]
     [Tooltip("Prefab del enemigo normal (EnemyAI + HealthSystem).")]

@@ -2610,6 +2610,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Zone: {fileID: 1386763026}
+  damagePorSegundo: 15
+  graceTime: 0.5
+  showWarning: 1
+  warningColor: {r: 1, g: 0.25, b: 0.1, a: 1}
 --- !u!58 &1386763026
 CircleCollider2D:
   m_ObjectHideFlags: 0

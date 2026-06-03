@@ -1128,9 +1128,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemiesInLevel:
-  - {fileID: 0}
+  - {fileID: 770418683}
   powerUpManager: {fileID: 1178273480}
-  nextSceneBuildIndex: 2
+  nextSceneBuildIndex: 3
   isLastLevel: 0
   delayBeforePowerUp: 0.8
   PowerUpData: {fileID: 0}
@@ -1339,6 +1339,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 71322ec148eafc946aef1f57d923796e, type: 3}
+--- !u!114 &770418683 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7049924980704284279, guid: 71322ec148eafc946aef1f57d923796e, type: 3}
+  m_PrefabInstance: {fileID: 770418682}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b2430667b522604a8dddb5564aac419, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &838655348
 GameObject:
   m_ObjectHideFlags: 0
