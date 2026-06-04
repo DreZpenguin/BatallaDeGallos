@@ -1,26 +1,38 @@
+// ============================================================
+//  PlayerData.cs  — v2
+//  Cambios respecto a v1:
+//   · RangeBonus ahora guarda stacks del powerup de Rango
+//     (velocidad + knockback del disparo), no el tamaño de hitbox.
+//   · ExtraBullets ahora guarda stacks del powerup de Disparo
+//     (solo daño de bala).
+//   · Se elimina la llave KEY_RANGE antigua y se añade
+//     KEY_BULLET_RANGE para los stacks de rango del disparo.
+//   · Retrocompatibilidad: si existía un RangeBonus guardado
+//     como float (hitbox), se ignora y empieza en 0.
+// ============================================================
 using UnityEngine;
 
 public class PlayerData : MonoBehaviour
 {
-    // ── Singleton ─────────────────────────────────────────────
     public static PlayerData Instance { get; private set; }
 
-    // ── Datos persistentes ────────────────────────────────────
     [Header("Bonus acumulados (solo lectura en Inspector)")]
-    [SerializeField] private float _speedBonus   = 0f;
-    [SerializeField] private float _damageBonus  = 0f;
-    [SerializeField] private float _rangeBonus   = 0f;
-    [SerializeField] private float _healthBonus  = 0f;   // flat HP extra
-    [SerializeField] private int   _extraBullets = 0;    // cantidad de veces que se eligió el powerup de disparo
+    [SerializeField] private float _speedBonus        = 0f;
+    [SerializeField] private float _damageBonus       = 0f;
+    [SerializeField] private float _healthBonus       = 0f;
+    [SerializeField] private int   _extraBullets      = 0;  // stacks daño bala (Shoot)
+    [SerializeField] private int   _bulletRangeStacks = 0;  // stacks vel+knockback (Range)
 
-    // Propiedades públicas de solo lectura
-    public float SpeedBonus   => _speedBonus;
-    public float DamageBonus  => _damageBonus;
-    public float RangeBonus   => _rangeBonus;
-    public float HealthBonus  => _healthBonus;
-    public int   ExtraBullets => _extraBullets;
+    public float SpeedBonus        => _speedBonus;
+    public float DamageBonus       => _damageBonus;
+    public float HealthBonus       => _healthBonus;
+    public int   ExtraBullets      => _extraBullets;
+    public int   BulletRangeStacks => _bulletRangeStacks;
 
-    // ── Unity Lifecycle ────────────────────────────────────────
+    // Retrocompatibilidad: propiedad RangeBonus devuelve 0 siempre
+    // (el sistema de hitbox ya no existe para el jugador)
+    public float RangeBonus => 0f;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -28,82 +40,75 @@ public class PlayerData : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
-        // Carga datos guardados en disco (PlayerPrefs)
         Load();
     }
 
     // ── API Pública ────────────────────────────────────────────
-    public void AddSpeedBonus(float percent)
-    {
-        _speedBonus += percent;
-        Save();
-    }
 
-    public void AddDamageBonus(float percent)
-    {
-        _damageBonus += percent;
-        Save();
-    }
-
-    public void AddRangeBonus(float flat)
-    {
-        _rangeBonus += flat;
-        Save();
-    }
-
-    public void AddHealthBonus(float flat)
-    {
-        _healthBonus += flat;
-        Save();
-    }
+    public void AddSpeedBonus(float percent)       { _speedBonus   += percent; Save(); }
+    public void AddDamageBonus(float percent)      { _damageBonus  += percent; Save(); }
+    public void AddHealthBonus(float flat)         { _healthBonus  += flat;    Save(); }
 
     public void AddBulletUpgrade()
     {
         _extraBullets++;
         Save();
+        Debug.Log($"[PlayerData] +Disparo (daño). Total stacks: {_extraBullets}");
     }
 
-    /// Resetea todos los datos (útil para "Nueva partida")
+    public void AddBulletRangeStack()
+    {
+        _bulletRangeStacks++;
+        Save();
+        Debug.Log($"[PlayerData] +Rango (vel+knockback). Total stacks: {_bulletRangeStacks}");
+    }
+
+    // Retrocompatibilidad
+    public void AddRangeBonus(float flat)
+    {
+        // Convierte a un stack de rango (1 stack por llamada)
+        AddBulletRangeStack();
+    }
+
     public void ResetAll()
     {
-        _speedBonus   = 0f;
-        _damageBonus  = 0f;
-        _rangeBonus   = 0f;
-        _healthBonus  = 0f;
-        _extraBullets = 0;
+        _speedBonus        = 0f;
+        _damageBonus       = 0f;
+        _healthBonus       = 0f;
+        _extraBullets      = 0;
+        _bulletRangeStacks = 0;
         Save();
         Debug.Log("[PlayerData] Todos los datos reseteados.");
     }
 
-    // ── Persistencia con PlayerPrefs ───────────────────────────
-    private const string KEY_SPEED   = "pd_speed";
-    private const string KEY_DAMAGE  = "pd_damage";
-    private const string KEY_RANGE   = "pd_range";
-    private const string KEY_HEALTH  = "pd_health";
-    private const string KEY_BULLETS = "pd_bullets";
+    // ── Persistencia ───────────────────────────────────────────
+
+    private const string KEY_SPEED        = "pd_speed";
+    private const string KEY_DAMAGE       = "pd_damage";
+    private const string KEY_HEALTH       = "pd_health";
+    private const string KEY_BULLETS      = "pd_bullets";
+    private const string KEY_BULLET_RANGE = "pd_bullet_range";
 
     public void Save()
     {
-        PlayerPrefs.SetFloat(KEY_SPEED,   _speedBonus);
-        PlayerPrefs.SetFloat(KEY_DAMAGE,  _damageBonus);
-        PlayerPrefs.SetFloat(KEY_RANGE,   _rangeBonus);
-        PlayerPrefs.SetFloat(KEY_HEALTH,  _healthBonus);
-        PlayerPrefs.SetInt  (KEY_BULLETS, _extraBullets);
+        PlayerPrefs.SetFloat(KEY_SPEED,        _speedBonus);
+        PlayerPrefs.SetFloat(KEY_DAMAGE,       _damageBonus);
+        PlayerPrefs.SetFloat(KEY_HEALTH,       _healthBonus);
+        PlayerPrefs.SetInt  (KEY_BULLETS,      _extraBullets);
+        PlayerPrefs.SetInt  (KEY_BULLET_RANGE, _bulletRangeStacks);
         PlayerPrefs.Save();
-        Debug.Log("[PlayerData] Datos guardados en PlayerPrefs.");
     }
 
     public void Load()
     {
-        _speedBonus   = PlayerPrefs.GetFloat(KEY_SPEED,   0f);
-        _damageBonus  = PlayerPrefs.GetFloat(KEY_DAMAGE,  0f);
-        _rangeBonus   = PlayerPrefs.GetFloat(KEY_RANGE,   0f);
-        _healthBonus  = PlayerPrefs.GetFloat(KEY_HEALTH,  0f);
-        _extraBullets = PlayerPrefs.GetInt  (KEY_BULLETS, 0);
-        Debug.Log($"[PlayerData] Datos cargados — Speed:{_speedBonus:F2} Dmg:{_damageBonus:F2} Range:{_rangeBonus:F2} HP:{_healthBonus:F0} Bullets:{_extraBullets}");
+        _speedBonus        = PlayerPrefs.GetFloat(KEY_SPEED,        0f);
+        _damageBonus       = PlayerPrefs.GetFloat(KEY_DAMAGE,       0f);
+        _healthBonus       = PlayerPrefs.GetFloat(KEY_HEALTH,       0f);
+        _extraBullets      = PlayerPrefs.GetInt  (KEY_BULLETS,      0);
+        _bulletRangeStacks = PlayerPrefs.GetInt  (KEY_BULLET_RANGE, 0);
+        Debug.Log($"[PlayerData] Cargado — Spd:{_speedBonus:F2} Dmg:{_damageBonus:F2} " +
+                  $"HP:{_healthBonus:F0} Balas:{_extraBullets} Rango:{_bulletRangeStacks}");
     }
 }

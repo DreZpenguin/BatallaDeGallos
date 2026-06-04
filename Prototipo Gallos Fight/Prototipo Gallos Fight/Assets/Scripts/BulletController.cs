@@ -1,8 +1,11 @@
 // ============================================================
-//  BulletController.cs  — v4
-//  Cambios respecto a v3:
-//   · Llama a AudioManager.Instance.PlayBulletImpact() al golpear
-//     un objetivo con HealthSystem.
+//  BulletController.cs  — v5
+//  Cambios respecto a v4:
+//   · Init recibe un parámetro knockbackMultiplier.
+//   · Al impactar aplica TakeDamageWithKnockback pasando la
+//     dirección y el multiplicador al HealthSystem.
+//   · Si knockbackMultiplier = 1 el comportamiento es idéntico
+//     a v4 — totalmente retrocompatible.
 // ============================================================
 using UnityEngine;
 
@@ -14,9 +17,10 @@ public class BulletController : MonoBehaviour
     [Tooltip("Tag del GameObject que contiene el CircleCollider2D de la arena.")]
     [SerializeField] private string arenaTag = "Arena";
 
-    private float      _damage   = 10f;
-    private float      _lifetime = 3f;
-    private float      _speed    = 12f;
+    private float      _damage             = 10f;
+    private float      _lifetime           = 3f;
+    private float      _speed              = 12f;
+    private float      _knockbackMultiplier = 1f;
     private GameObject _owner;
     private Vector2    _direction;
 
@@ -31,13 +35,23 @@ public class BulletController : MonoBehaviour
         if (col != null) col.isTrigger = true;
     }
 
-    public void Init(float damage, float speed, float lifetime, Vector2 direction, GameObject owner)
+    // ── Init original (retrocompatible) ────────────────────────
+    public void Init(float damage, float speed, float lifetime,
+                     Vector2 direction, GameObject owner)
     {
-        _damage    = damage;
-        _speed     = speed;
-        _lifetime  = lifetime;
-        _owner     = owner;
-        _direction = direction.normalized;
+        Init(damage, speed, lifetime, direction, owner, 1f);
+    }
+
+    // ── Init con knockback ─────────────────────────────────────
+    public void Init(float damage, float speed, float lifetime,
+                     Vector2 direction, GameObject owner, float knockbackMultiplier)
+    {
+        _damage              = damage;
+        _speed               = speed;
+        _lifetime            = lifetime;
+        _owner               = owner;
+        _knockbackMultiplier = Mathf.Max(0f, knockbackMultiplier);
+        _direction           = direction.normalized;
 
         _rb.linearVelocity = _direction * _speed;
 
@@ -58,12 +72,10 @@ public class BulletController : MonoBehaviour
         HealthSystem health = other.GetComponent<HealthSystem>();
         if (health != null)
         {
-            bool hit = health.TakeDamage(_damage, _direction);
+            bool hit = health.TakeDamage(_damage, _direction, _knockbackMultiplier);
             if (hit)
-            {
                 AudioManager.Instance?.PlayBulletImpact();
-                //Debug.Log($"[Bullet] Impactó a {other.name} por {_damage:F1} de daño.");
-            }
+
             Destroy(gameObject);
             return;
         }
@@ -74,9 +86,6 @@ public class BulletController : MonoBehaviour
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag(arenaTag))
-        {
-            //Debug.Log("[Bullet] Salió de la arena. Destruida.");
             Destroy(gameObject);
-        }
     }
 }

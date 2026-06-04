@@ -92,10 +92,15 @@ public class HealthSystem : MonoBehaviour
 
     public bool TakeDamage(float amount)
     {
-        return TakeDamage(amount, Vector2.zero);
+        return TakeDamage(amount, Vector2.zero, 1f);
     }
 
     public bool TakeDamage(float amount, Vector2 hitDirection)
+    {
+        return TakeDamage(amount, hitDirection, 1f);
+    }
+
+    public bool TakeDamage(float amount, Vector2 hitDirection, float knockbackMultiplier)
     {
         if (!IsAlive) return false;
         if (useInvincibility && _invincibilityTimer > 0f) return false;
@@ -105,10 +110,8 @@ public class HealthSystem : MonoBehaviour
         if (useInvincibility)
             _invincibilityTimer = invincibilityDuration;
 
-        // ── Knockback con resistencia ──────────────────────────
-        // La fuerza efectiva = knockbackForce * (1 - resistencia).
-        // Con resistencia = 0.95 → solo el 5 % del empuje original.
-        float effectiveForce = knockbackForce * (1f - knockbackResistance);
+        // ── Knockback con resistencia y multiplicador externo ──
+        float effectiveForce = knockbackForce * (1f - knockbackResistance) * knockbackMultiplier;
 
         if (_rb != null && effectiveForce > 0.01f && hitDirection != Vector2.zero)
         {
