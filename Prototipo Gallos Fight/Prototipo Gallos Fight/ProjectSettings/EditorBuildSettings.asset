@@ -13,19 +13,25 @@ EditorBuildSettings:
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
     path: Assets/Scenes/LvL2.unity
-    guid: cc201b3c793b33348ad619ac8feaafc0
+    guid: 2d55c5b6c51344d43aadc48157b487e8
   - enabled: 1
     path: Assets/Scenes/LvL3.unity
-    guid: 7e812d5e537958b4381a7259aa61ba87
+    guid: f5fe4ae366684ab43a0cf2d496bed558
   - enabled: 1
     path: Assets/Scenes/LvL4.unity
-    guid: 8e5ede447b9b1824cb507db7fc37d9bb
+    guid: 45f933ffbfa8f5744b9f0efdcb9f0ce9
   - enabled: 1
     path: Assets/Scenes/LvL5.unity
-    guid: 4d40ca4750238664e93e939eb484aba0
+    guid: 9010a1e63a6d5054db8fc8f2c430490f
   - enabled: 1
     path: Assets/Scenes/LvLInfinite.unity
     guid: e7c934442b5c95d46a068bde404e76a6
+  - enabled: 1
+    path: Assets/Scenes/PracticeLvL.unity
+    guid: 5f0150a51b514454e9d5fac557617196
+  - enabled: 1
+    path: Assets/Scenes/LvLInfiniteV2.unity
+    guid: 32e9809e22bff824dba58c4c1e1abe1e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

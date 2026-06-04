@@ -1592,9 +1592,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speedBonus: 0
   _damageBonus: 0
-  _rangeBonus: 0
   _healthBonus: 0
   _extraBullets: 0
+  _bulletRangeStacks: 0
 --- !u!1 &1079524056
 GameObject:
   m_ObjectHideFlags: 0
@@ -1984,6 +1984,9 @@ MonoBehaviour:
   baseDamage: 2
   baseSpeed: 12
   baseLifetime: 3
+  damagePerStack: 5
+  speedPerStack: 2
+  knockbackPerStack: 0.5
   shootCooldown: 0.5
 --- !u!95 &1238399255
 Animator:
@@ -2422,6 +2425,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Zone: {fileID: 1386763026}
+  damagePorSegundo: 15
+  graceTime: 0.5
+  showWarning: 1
+  warningColor: {r: 1, g: 0.25, b: 0.1, a: 1}
 --- !u!58 &1386763026
 CircleCollider2D:
   m_ObjectHideFlags: 0

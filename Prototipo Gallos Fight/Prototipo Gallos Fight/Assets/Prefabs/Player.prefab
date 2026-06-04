@@ -83,7 +83,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 6
+  m_SortingOrder: 8
   m_Sprite: {fileID: -7593719511280997049, guid: ecae70ed7fa74854c84a61b3408d2304, type: 3}
   m_Color: {r: 0.9433962, g: 0.66608554, b: 0, a: 1}
   m_FlipX: 0
@@ -186,6 +186,15 @@ MonoBehaviour:
   dashForce: 12
   dashCooldown: 1
   dashDuration: 0.15
+  horizontalAxis: Horizontal
+  verticalAxis: Vertical
+  dashKey: 304
+  gamepadDashKey: 330
+  aimAxisX: 4
+  aimAxisY: 5
+  invertAimY: 0
+  invertAimX: 0
+  gamepadDeadzone: 0.25
 --- !u!114 &5079060295999399929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,11 +207,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26dd2b8cb2d90184e9eb74bf15cb10db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackKey: 323
   attackDamage: 25
   attackCooldown: 0.4
   frontHitbox: {fileID: 6267467462282915581}
   hitboxActiveDuration: 0.12
+  attackKey: 323
+  gamepadAttackKey: 332
 --- !u!114 &3769541666389373667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,6 +231,7 @@ MonoBehaviour:
   invincibilityDuration: 0.5
   knockbackForce: 10
   knockbackDuration: 0.25
+  knockbackResistance: 0
   hitColor: {r: 1, g: 0, b: 0, a: 1}
   hitColorDuration: 0.15
   OnHealthChanged:
@@ -229,6 +240,17 @@ MonoBehaviour:
   OnDeath:
     m_PersistentCalls:
       m_Calls: []
+  hpBarWidth: 220
+  hpBarHeight: 22
+  hpBarMarginX: 20
+  hpBarMarginY: 20
+  hpColorHigh: {r: 0.15, g: 0.85, b: 0.25, a: 1}
+  hpColorMid: {r: 0.95, g: 0.75, b: 0.05, a: 1}
+  hpColorLow: {r: 0.9, g: 0.15, b: 0.1, a: 1}
+  hpColorBg: {r: 0.1, g: 0.1, b: 0.1, a: 0.85}
+  hpColorBorder: {r: 0, g: 0, b: 0, a: 0.9}
+  hpFontSize: 13
+  hpShowText: 1
 --- !u!114 &1462466886521731746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241,12 +263,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ad0d0195aa8b949a0311479e84bf93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rangeBonus: 0.5
   damageBonus: 0.25
   speedBonus: 0.3
   healthBonus: 50
+  bulletSpeedBonus: 2
+  bulletKnockbackBonus: 0.5
+  bulletDamageBonus: 5
   powerUpUICanvas: {fileID: 0}
-  hitboxFront: {fileID: 8523419519605220843}
 --- !u!114 &242237432808601803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,11 +283,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shootKey: 324
+  gamepadShootKey: 335
+  gamepadTriggerAxis: RT
+  triggerThreshold: 0.3
   bulletPrefab: {fileID: 8604628323211790900, guid: b2183b014e4c5b34cafec47850dd36ad, type: 3}
   firePoint: {fileID: 0}
   baseDamage: 10
   baseSpeed: 12
   baseLifetime: 3
+  damagePerStack: 5
+  speedPerStack: 2
+  knockbackPerStack: 0.5
   shootCooldown: 0.5
 --- !u!1 &7363322504723959598
 GameObject:
