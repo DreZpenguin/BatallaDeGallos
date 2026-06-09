@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 637c827f807cfcb479931b1421479b08
+guid: d58031cc5cb858e4ea7868f9dea290c4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5771300265913591160
-    second: Fondo_nivelV2_0
+      213: 7252110457977104427
+    second: Fondo-Nivel-05)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 64
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Fondo_nivelV2_0
+      name: Fondo-Nivel-05)_0
       rect:
         serializedVersion: 2
-        x: 310
+        x: 0
         y: 0
-        width: 1492
-        height: 1080
+        width: 266
+        height: 128
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 88a5a1e5cf838efa0800000000000000
-      internalID: -5771300265913591160
+      spriteID: b28ee97c90ca4a460800000000000000
+      internalID: 7252110457977104427
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Fondo_nivelV2_0: -5771300265913591160
+      Fondo-Nivel-05)_0: 7252110457977104427
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
