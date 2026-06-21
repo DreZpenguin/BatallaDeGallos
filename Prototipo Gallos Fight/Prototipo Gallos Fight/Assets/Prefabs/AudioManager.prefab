@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1341246435971348590
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3140438250998607278}
+  - component: {fileID: 3400532947638375666}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3140438250998607278
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341246435971348590}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 312.8131, y: 543.81067, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3400532947638375666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341246435971348590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7930f94e0c6cfd5479690b4aea523d72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerAttackClip: {fileID: 8300000, guid: f785e55713ca6b4478174952bcec9d4a, type: 3}
+  playerShootClip: {fileID: 8300000, guid: 2807d916b0ec0304690182ae10bf080d, type: 3}
+  playerHitClip: {fileID: 8300000, guid: 37773d6611ee09241bdb9d899b01187e, type: 3}
+  playerDieClip: {fileID: 0}
+  enemyHitClip: {fileID: 0}
+  enemyDieClip: {fileID: 0}
+  enemyAttackClip: {fileID: 0}
+  bullChargeClip: {fileID: 8300000, guid: 5ff3c324fe36eb04eb910b8e48e89aa8, type: 3}
+  bullStunClip: {fileID: 8300000, guid: 87de2e6768faab04d88909995c424299, type: 3}
+  bulletImpactClip: {fileID: 0}
+  powerUpSelectClip: {fileID: 0}
+  playerAttackVolume: 0.8
+  playerShootVolume: 0.7
+  playerHitVolume: 0.9
+  playerDieVolume: 1
+  enemyHitVolume: 0.7
+  enemyDieVolume: 0.9
+  enemyAttackVolume: 0.7
+  bullChargeVolume: 1
+  bullStunVolume: 0.8
+  bulletImpactVolume: 0.6
+  powerUpSelectVolume: 0.9
+  audioSourcePoolSize: 8

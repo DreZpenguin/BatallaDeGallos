@@ -151,6 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b2430667b522604a8dddb5564aac419, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyType: 0
   maxHealth: 100
   currentHealth: 0
   useInvincibility: 1
@@ -213,6 +214,9 @@ MonoBehaviour:
   attackCooldown: 1
   frontHitbox: {fileID: 96154386166402537}
   hitboxActiveDuration: 0.12
+  clawVFXAnimator: {fileID: 0}
+  vfxTriggerName: Attack
+  snapToHitbox: 1
   attackKey: 122
   gamepadAttackKey: 332
 --- !u!50 &8715057196054992877

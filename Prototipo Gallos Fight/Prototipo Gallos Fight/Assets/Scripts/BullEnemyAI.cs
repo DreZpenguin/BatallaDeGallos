@@ -363,6 +363,8 @@ public class BullEnemyAI : MonoBehaviour
         _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         _activeCoroutine = null;
+        AudioManager.Instance?.PlayBullCharge();
+
         BeginCharge();
     }
 
@@ -378,10 +380,11 @@ public class BullEnemyAI : MonoBehaviour
         // ── Velocidad instantánea al máximo ───────────────────
         // Se aplica directamente en BeginCharge sin esperar FixedUpdate,
         // usando el método de física que garantiza aplicación inmediata.
+
         _currentSpeed = chargeMaxSpeed;
         _rb.linearVelocity = _chargeDir * _currentSpeed;
 
-        AudioManager.Instance?.PlayBullCharge();
+        //AudioManager.Instance?.PlayBullCharge();
         Debug.Log($"[BullEnemyAI] {gameObject.name} → EMBESTIDA explosiva a {chargeMaxSpeed} u/s");
     }
 

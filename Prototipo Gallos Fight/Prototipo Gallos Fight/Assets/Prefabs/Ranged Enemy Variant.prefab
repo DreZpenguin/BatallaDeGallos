@@ -28,21 +28,49 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ranged Enemy Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 4093393189124575757, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_Size.x
+      value: 0.47861475
+      objectReference: {fileID: 0}
+    - target: {fileID: 4093393189124575757, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_Size.y
+      value: 0.8492773
+      objectReference: {fileID: 0}
+    - target: {fileID: 4093393189124575757, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.000086672604
+      objectReference: {fileID: 0}
+    - target: {fileID: 4093393189124575757, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_Offset.y
+      value: 0.014639795
+      objectReference: {fileID: 0}
+    - target: {fileID: 4093393189124575757, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.484375
+      objectReference: {fileID: 0}
+    - target: {fileID: 4093393189124575757, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.875
+      objectReference: {fileID: 0}
     - target: {fileID: 4201430936452012447, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3
+      value: 2.499
       objectReference: {fileID: 0}
     - target: {fileID: 4201430936452012447, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3
+      value: 2.499
+      objectReference: {fileID: 0}
+    - target: {fileID: 4201430936452012447, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.6911597
       objectReference: {fileID: 0}
     - target: {fileID: 4201430936452012447, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.36
+      value: -0.4813
       objectReference: {fileID: 0}
     - target: {fileID: 4201430936452012447, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.11
+      value: 1.8908
       objectReference: {fileID: 0}
     - target: {fileID: 4201430936452012447, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_LocalPosition.z
@@ -76,6 +104,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5588473078638198134, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -7697277987684925860, guid: 028d1c2891b164140a1e946bf44f7d03, type: 3}
     - target: {fileID: 5588473078638198134, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_Color.b
       value: 0.86415094
@@ -175,7 +207,13 @@ MonoBehaviour:
   bulletSpeed: 10
   bulletLifetime: 4
   shootCooldown: 1.5
-  detectionRange: 10
+  detectionRange: 15
   fleeRange: 4
   fleeSpeed: 4
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  strafeSpeed: 3.5
+  strafeMaxTime: 2.5
+  visionRayLength: 12
   rotationSpeed: 8

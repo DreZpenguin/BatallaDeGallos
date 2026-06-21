@@ -106,35 +106,35 @@ public class PowerUpManager : MonoBehaviour
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Range,
-                title       = "+DISPARO POTENTE",
+                title       = "Disparo potente",
                 description = $"Mejora el proyectil\n+{bulletSpeedBonus:F0} velocidad, +{bulletKnockbackBonus:F1}× knockback",
                 hexColor    = "#38D1FF"
             },
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Damage,
-                title       = "+DAÑO",
+                title       = "Daño",
                 description = $"Aumenta el daño de tu ataque\n+{damageBonus * 100f:F0}% del base",
                 hexColor    = "#FF4D3A"
             },
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Speed,
-                title       = "+VELOCIDAD",
+                title       = "Velocidad",
                 description = $"Aumenta tu velocidad\n+{speedBonus * 100f:F0}% de la base",
                 hexColor    = "#4DFF66"
             },
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Health,
-                title       = "+VIDA",
+                title       = "Vida",
                 description = $"Aumenta tu vida máxima\n+{healthBonus:F0} HP",
                 hexColor    = "#FFD93D"
             },
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Shoot,
-                title       = "+DAÑO DE BALA",
+                title       = "Daño de bala",
                 description = $"Aumenta el daño del proyectil\n+{bulletDamageBonus:F0} de daño",
                 hexColor    = "#C77DFF"
             }

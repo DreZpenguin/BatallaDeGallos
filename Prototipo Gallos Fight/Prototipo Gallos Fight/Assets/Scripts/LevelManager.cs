@@ -1,3 +1,24 @@
+// ============================================================
+//  LevelManager.cs  — v2
+//
+//  CAMBIO respecto a v1:
+//   · Al completar un nivel (no el último), en lugar de cargar
+//     la escena siguiente directamente, guarda el índice del
+//     siguiente LevelEntry en PlayerPrefs y carga la escena
+//     "Cutscene" para mostrar la animación de introducción.
+//   · Para el último nivel el comportamiento no cambia
+//     (vuelve al menú).
+//   · Se añade el campo sceneCutscene y nextLevelEntryIndex
+//     en el Inspector.
+//
+//  SETUP:
+//   · nextLevelEntryIndex: índice del LevelEntry en CutsceneData
+//     que corresponde al nivel SIGUIENTE (0-based).
+//     Ejemplo: LevelManager del Lvl1 → nextLevelEntryIndex = 1
+//              LevelManager del Lvl2 → nextLevelEntryIndex = 2
+//              ...
+//              LevelManager del Lvl5 → isLastLevel = true (no usa este campo)
+// ============================================================
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,20 +34,27 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private PowerUpManager powerUpManager;
 
     [Header("Progresión")]
-    [Tooltip("Índice de la escena que se cargará tras elegir el powerup. " +
-             "Debe coincidir con el Build Index en File > Build Settings.")]
+    [Tooltip("Índice del LevelEntry en CutsceneData para el nivel SIGUIENTE (0-based). " +
+             "Ignorado si isLastLevel = true. " +
+             "Lvl1→1, Lvl2→2, Lvl3→3, Lvl4→4, Lvl5 no aplica.")]
+    [SerializeField] private int nextLevelEntryIndex = 1;
+
+    [Tooltip("Nombre de la escena de cutscene. Debe coincidir con Build Settings.")]
+    [SerializeField] private string sceneCutscene = "Cutscene";
+
+    [Tooltip("(Obsoleto) Se mantiene por compatibilidad pero ya no se usa para la " +
+             "transición — la escena destino se define en CutsceneData.targetScene.")]
     [SerializeField] private int nextSceneBuildIndex = -1;
 
-    [Tooltip("Activa esto en el último nivel del juego para no intentar cargar ninguna escena.")]
+    [Tooltip("Activa esto en el último nivel del juego para volver al menú en vez de " +
+             "cargar la cutscene siguiente.")]
     [SerializeField] private bool isLastLevel = false;
 
     [Tooltip("Segundos de espera entre que muere el último enemigo y aparece la pantalla de powerup.")]
     [SerializeField] private float delayBeforePowerUp = 0.8f;
 
-    [SerializeField] private PlayerData PowerUpData;
-
     // ── Estado interno ─────────────────────────────────────────
-    private int _enemiesAlive;
+    private int  _enemiesAlive   = 0;
     private bool _levelCompleted = false;
 
     // ── Unity Lifecycle ────────────────────────────────────────
@@ -53,7 +81,6 @@ public class LevelManager : MonoBehaviour
         foreach (HealthSystem hs in enemiesInLevel)
         {
             if (hs == null) continue;
-            // Escuchamos la muerte de cada enemigo individualmente
             hs.OnDeath.AddListener(OnEnemyDied);
         }
 
@@ -72,11 +99,6 @@ public class LevelManager : MonoBehaviour
         if (_enemiesAlive <= 0)
         {
             _levelCompleted = true;
-            int scene = SceneManager.GetActiveScene().buildIndex;
-            if (scene == 5) {
-                PowerUpData.ResetAll(); 
-                SceneManager.LoadScene(0);
-            }
             StartCoroutine(TriggerPowerUpWithDelay());
         }
     }
@@ -93,46 +115,32 @@ public class LevelManager : MonoBehaviour
             yield break;
         }
 
-        // Pedimos al PowerUpManager que muestre la selección.
-        // Al callback de selección le enganchamos la transición de escena.
         powerUpManager.TriggerPowerUpSelectionWithCallback(OnPowerUpSelected);
         Debug.Log("[LevelManager] Pantalla de selección de poder activada.");
     }
 
     private void OnPowerUpSelected()
     {
+        // ── Último nivel: vuelve al menú ──────────────────────
         if (isLastLevel)
         {
-            Debug.Log("[LevelManager] Último nivel completado. Fin del juego.");
-            // Aquí puedes cargar una escena de créditos / menú principal
-           
-            PowerUpData.ResetAll();
+            Debug.Log("[LevelManager] Último nivel completado. Volviendo al menú.");
+            PlayerData.Instance?.ResetAll();
             SceneManager.LoadScene(0);
-            
-
-            
             return;
         }
 
-        if (nextSceneBuildIndex < 0)
-        {
-            Debug.LogWarning("[LevelManager] nextSceneBuildIndex no configurado. " +
-                             "Cargando siguiente escena por índice incremental.");
-            int next = SceneManager.GetActiveScene().buildIndex + 1;
-            SceneManager.LoadScene(next);
-        }
-        else
-        {
-            Debug.Log($"[LevelManager] Cargando siguiente escena con Build Index {nextSceneBuildIndex}.1");
+        // ── Niveles intermedios: carga cutscene del siguiente ─
+        PlayerPrefs.SetInt(CutsceneScreen.KEY_LEVEL_INDEX, nextLevelEntryIndex);
+        PlayerPrefs.Save();
 
-            SceneManager.LoadScene(nextSceneBuildIndex);
-        }
+        Debug.Log($"[LevelManager] Cargando cutscene para entry {nextLevelEntryIndex}.");
+        SceneManager.LoadScene(sceneCutscene);
     }
 
     // ── API Pública ────────────────────────────────────────────
 
-    /// Registra en caliente un enemigo que fue instanciado en runtime
-    /// (útil si spawneas enemigos por código en vez de ponerlos en escena).
+    /// Registra en caliente un enemigo instanciado en runtime.
     public void RegisterEnemy(HealthSystem hs)
     {
         if (hs == null || _levelCompleted) return;
@@ -140,5 +148,4 @@ public class LevelManager : MonoBehaviour
         _enemiesAlive++;
         Debug.Log($"[LevelManager] Enemigo registrado en caliente. Total vivos: {_enemiesAlive}");
     }
-
 }

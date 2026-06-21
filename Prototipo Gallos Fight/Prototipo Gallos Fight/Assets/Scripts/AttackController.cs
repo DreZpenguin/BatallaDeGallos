@@ -1,3 +1,18 @@
+// ============================================================
+//  AttackController.cs  — v3
+//
+//  CAMBIOS respecto a v2:
+//   · El VFX de garra usa un GameObject PERSISTENTE (hijo del
+//     jugador) con Animator. Ya no se instancia/destruye cada
+//     ataque. Esto permite que la animación corra completa.
+//   · La activación se hace con un Trigger "Attack" en el
+//     Animator. El estado Idle debe tener un sprite vacío/
+//     transparente. No hay idle con sprite visible.
+//   · La posición del VFX usa el Transform del propio collider
+//     de la hitbox (que ya está siempre frente al jugador),
+//     en lugar de calcular un offset rotado manualmente.
+//   · Si no hay clawVFXAnimator asignado, funciona igual que v1.
+// ============================================================
 using System.Collections;
 using UnityEngine;
 
@@ -11,39 +26,78 @@ public class AttackController : MonoBehaviour
     [SerializeField] private Collider2D frontHitbox;
     [SerializeField] private float hitboxActiveDuration = 0.12f;
 
+    [Header("VFX de Garra")]
+    [Tooltip("Animator del GameObject hijo ClawVFX. " +
+             "Solo necesita el estado 'Attack' — no hace falta estado Idle.")]
+    [SerializeField] private Animator clawVFXAnimator;
+
+    [Tooltip("Nombre del Trigger en el Animator que activa la animación de garra.")]
+    [SerializeField] private string vfxTriggerName = "Attack";
+
+    [Tooltip("Si está activo, el VFX se posiciona en el centro del collider " +
+             "de la hitbox en cada ataque (recomendado).")]
+    [SerializeField] private bool snapToHitbox = true;
+
+    // SpriteRenderer del VFX — controlamos visibilidad por código
+    private SpriteRenderer _vfxRenderer;
+    private Coroutine      _vfxCoroutine;
+
     // ── Control — Teclado/Ratón ────────────────────────────────
     [Header("Control — Teclado / Ratón")]
     [SerializeField] private KeyCode attackKey = KeyCode.Mouse0;
 
     // ── Control — Mando Xbox ───────────────────────────────────
     [Header("Control — Mando Xbox")]
-    [Tooltip("Botón del mando para atacar cuerpo a cuerpo (X = joystick button 2).")]
+    [Tooltip("Botón del mando para atacar (X = joystick button 2).")]
     [SerializeField] private KeyCode gamepadAttackKey = KeyCode.JoystickButton2;
 
-    private float _damageBonus    = 0f;
-    private float _cooldownTimer  = 0f;
+    // ── Estado interno ─────────────────────────────────────────
+    private float   _damageBonus     = 0f;
+    private float   _cooldownTimer   = 0f;
     private Vector2 _facingDirection = Vector2.up;
+    private bool    _isPlayer;
 
     public float BaseDamage    => attackDamage;
     public float CurrentDamage => attackDamage * (1f + _damageBonus);
 
-    private bool _isPlayer;
+    // ══════════════════════════════════════════════════════════
+    //  LIFECYCLE
+    // ══════════════════════════════════════════════════════════
 
     private void Awake()
     {
         _isPlayer = gameObject.CompareTag("Player");
 
+        // Busca la hitbox automáticamente si no está asignada
         if (frontHitbox == null)
         {
-            Transform hitboxTransform = transform.Find("HitboxFront");
-            if (hitboxTransform != null)
-                frontHitbox = hitboxTransform.GetComponent<Collider2D>();
+            Transform t = transform.Find("HitboxFront");
+            if (t != null) frontHitbox = t.GetComponent<Collider2D>();
         }
 
         if (frontHitbox != null)
             frontHitbox.enabled = false;
         else
-            Debug.LogWarning($"[AttackController] No se encontró la hitbox frontal en {gameObject.name}.");
+            Debug.LogWarning($"[AttackController] No se encontró HitboxFront en {gameObject.name}.");
+
+        // Busca el Animator del ClawVFX automáticamente si no está asignado
+        if (clawVFXAnimator == null)
+        {
+            Transform vfxT = transform.Find("ClawVFX");
+            if (vfxT != null)
+                clawVFXAnimator = vfxT.GetComponent<Animator>();
+        }
+
+        // Cachea el SpriteRenderer y lo oculta al inicio
+        if (clawVFXAnimator != null)
+        {
+            _vfxRenderer = clawVFXAnimator.GetComponent<SpriteRenderer>();
+            if (_vfxRenderer == null)
+                _vfxRenderer = clawVFXAnimator.GetComponentInChildren<SpriteRenderer>();
+
+            if (_vfxRenderer != null)
+                _vfxRenderer.enabled = false;
+        }
     }
 
     private void Update()
@@ -51,13 +105,16 @@ public class AttackController : MonoBehaviour
         if (_cooldownTimer > 0f)
             _cooldownTimer -= Time.deltaTime;
 
-        bool attackPressed = Input.GetKeyDown(attackKey) || Input.GetKeyDown(gamepadAttackKey);
+        bool attackPressed = Input.GetKeyDown(attackKey)
+                          || Input.GetKeyDown(gamepadAttackKey);
 
         if (attackPressed && _cooldownTimer <= 0f)
             StartAttack();
     }
 
-    // ── API Pública ────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    //  API PÚBLICA
+    // ══════════════════════════════════════════════════════════
 
     public void TriggerAttack()
     {
@@ -74,33 +131,109 @@ public class AttackController : MonoBehaviour
     public void AddDamageBonus(float percent)
     {
         _damageBonus += percent;
-        Debug.Log($"[AttackController] Daño aumentado. Bonus total: {_damageBonus * 100f:F0}% | Daño actual: {CurrentDamage:F1}");
+        Debug.Log($"[AttackController] Daño +{percent * 100f:F0}%. " +
+                  $"Total: {CurrentDamage:F1}");
     }
 
-    // ── Ataque ─────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    //  ATAQUE
+    // ══════════════════════════════════════════════════════════
 
     private void StartAttack()
     {
         _cooldownTimer = attackCooldown;
 
-        if (_isPlayer)
-            AudioManager.Instance?.PlayPlayerAttack();
-        else
-            AudioManager.Instance?.PlayEnemyAttack();
+        if (_isPlayer) AudioManager.Instance?.PlayPlayerAttack();
+        else           AudioManager.Instance?.PlayEnemyAttack();
 
         StartCoroutine(AttackRoutine());
     }
 
     private IEnumerator AttackRoutine()
     {
+        // ── 1. Activa la hitbox ───────────────────────────────
         if (frontHitbox != null)
             frontHitbox.enabled = true;
 
+        // ── 2. Posiciona y lanza el VFX ──────────────────────
+        PlayClawVFX();
+
         yield return new WaitForSeconds(hitboxActiveDuration);
 
+        // ── 3. Desactiva la hitbox ────────────────────────────
         if (frontHitbox != null)
             frontHitbox.enabled = false;
+
+        // El VFX sigue corriendo su animación hasta que el
+        // Animator vuelva solo al estado Idle — no lo cortamos.
     }
+
+    // ══════════════════════════════════════════════════════════
+    //  VFX
+    // ══════════════════════════════════════════════════════════
+
+    private void PlayClawVFX()
+    {
+        if (clawVFXAnimator == null) return;
+
+        // Cancela ocultado anterior si el jugador ataca antes de que termine
+        if (_vfxCoroutine != null)
+        {
+            StopCoroutine(_vfxCoroutine);
+            _vfxCoroutine = null;
+        }
+
+        // ── Posiciona ANTES de mostrar ────────────────────────
+        if (snapToHitbox && frontHitbox != null)
+        {
+            clawVFXAnimator.transform.position = frontHitbox.bounds.center;
+            clawVFXAnimator.transform.rotation = transform.rotation;
+        }
+
+        // ── Muestra el renderer ───────────────────────────────
+        if (_vfxRenderer != null)
+            _vfxRenderer.enabled = true;
+
+        // ── Reinicia el Animator desde el frame 0 y dispara ──
+        clawVFXAnimator.Rebind();          // resetea al estado inicial
+        clawVFXAnimator.Update(0f);        // aplica el rebind sin avanzar tiempo
+        clawVFXAnimator.ResetTrigger(vfxTriggerName);
+        clawVFXAnimator.SetTrigger(vfxTriggerName);
+
+        // ── Oculta tras la duración del clip ─────────────────
+        float clipDuration = GetClipDuration(vfxTriggerName);
+        _vfxCoroutine = StartCoroutine(HideVFXAfter(clipDuration));
+    }
+
+    /// Obtiene la duración del clip cuyo nombre coincide (insensible a mayúsculas).
+    /// Si no lo encuentra usa hitboxActiveDuration como fallback.
+    private float GetClipDuration(string clipName)
+    {
+        if (clawVFXAnimator == null) return hitboxActiveDuration;
+
+        foreach (AnimationClip clip in clawVFXAnimator.runtimeAnimatorController.animationClips)
+        {
+            if (clip.name.ToLower().Contains(clipName.ToLower()))
+                return clip.length;
+        }
+
+        // Fallback: duración de la hitbox
+        return hitboxActiveDuration;
+    }
+
+    private IEnumerator HideVFXAfter(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        if (_vfxRenderer != null)
+            _vfxRenderer.enabled = false;
+
+        _vfxCoroutine = null;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  HITBOX CALLBACK
+    // ══════════════════════════════════════════════════════════
 
     public void OnHitboxTriggerEnter(Collider2D other)
     {
@@ -109,23 +242,14 @@ public class AttackController : MonoBehaviour
         HealthSystem health = other.GetComponent<HealthSystem>();
         if (health != null)
         {
-            float dmg    = CurrentDamage;
-            Vector2 hitDir = ((Vector2)other.transform.position - (Vector2)transform.position).normalized;
+            float   dmg    = CurrentDamage;
+            Vector2 hitDir = ((Vector2)other.transform.position
+                            - (Vector2)transform.position).normalized;
 
             bool hit = health.TakeDamage(dmg, hitDir);
             if (hit)
-                Debug.Log($"[AttackController] {gameObject.name} golpeó a {other.name} por {dmg:F1}.");
+                Debug.Log($"[AttackController] {gameObject.name} → " +
+                          $"{other.name} por {dmg:F1} dmg.");
         }
     }
-
-    // ── Debug GUI ──────────────────────────────────────────────
-
-        //private void OnGUI()
-        //{
-        //    if (!_isPlayer) return;
-
-        //    GUI.Label(new Rect(10, 115, 280, 50),
-        //        $"Cooldown ataque: {Mathf.Max(0f, _cooldownTimer):F1}s\n" +
-        //        $"Daño actual: {CurrentDamage:F1} (base {attackDamage} +{_damageBonus * 100f:F0}%)");
-        //}z
 }

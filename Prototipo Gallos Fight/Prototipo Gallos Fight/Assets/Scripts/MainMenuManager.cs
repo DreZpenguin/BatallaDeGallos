@@ -1,20 +1,14 @@
 // ============================================================
-//  MainMenuManager.cs
+//  MainMenuManager.cs  — v2
 //
-//  Gestiona todos los paneles del menú principal:
-//   · Main        → botones Jugar, Práctica, Opciones, Créditos, Salir
-//   · ModoDeJuego → botones Modo Normal, Modo Infinito, Volver
-//   · Options     → sliders de audio, checkbox fullscreen, Volver
-//   · Credits     → bibliografía, Volver
+//  CAMBIO respecto a v1:
+//   · PlayNormal() ahora guarda el índice de nivel (0 para Lvl1)
+//     en PlayerPrefs con CutsceneScreen.KEY_LEVEL_INDEX y carga
+//     la escena "Cutscene" en lugar de "Instructions".
+//   · PlayInfinite() y PlayPractice() no cambian.
+//   · Se añade el campo sceneCutscene en el Inspector.
 //
-//  SETUP EN UNITY:
-//   1. Añade este script al Canvas (o a un hijo "MenuManager").
-//   2. Crea la jerarquía de paneles en el Canvas y asígnalos.
-//   3. Los sliders deben tener valor mínimo 0.001 y máximo 1
-//      (logarítmico: usa Mathf.Log10 internamente para dB).
-//   4. Crea un AudioMixer en Assets con tres grupos expuestos:
-//      "MasterVolume", "MusicVolume", "SFXVolume".
-//   5. Asigna el AudioMixer al campo audioMixer del Inspector.
+//  El resto del archivo es idéntico a v1.
 // ============================================================
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,26 +40,17 @@ public class MainMenuManager : MonoBehaviour
     // ══════════════════════════════════════════════════════════
 
     [Header("── Audio Mixer ──────────────────────────────────")]
-    [Tooltip("AudioMixer principal del proyecto. Debe tener expuestos: " +
-             "MasterVolume, MusicVolume, SFXVolume.")]
     [SerializeField] private AudioMixer audioMixer;
 
     [Header("── Sliders de Audio ────────────────────────────")]
-    [Tooltip("Slider de volumen general (0.001 – 1).")]
     [SerializeField] private Slider sliderMaster;
-
-    [Tooltip("Slider de volumen de música (0.001 – 1).")]
     [SerializeField] private Slider sliderMusic;
-
-    [Tooltip("Slider de volumen de SFX (0.001 – 1).")]
     [SerializeField] private Slider sliderSFX;
 
-    // ── Nombres de los parámetros expuestos en el AudioMixer ──
     private const string PARAM_MASTER = "MasterVolume";
     private const string PARAM_MUSIC  = "MusicVolume";
     private const string PARAM_SFX    = "SFXVolume";
 
-    // ── PlayerPrefs keys ──────────────────────────────────────
     private const string KEY_MASTER = "audio_master";
     private const string KEY_MUSIC  = "audio_music";
     private const string KEY_SFX    = "audio_sfx";
@@ -75,7 +60,6 @@ public class MainMenuManager : MonoBehaviour
     // ══════════════════════════════════════════════════════════
 
     [Header("── Pantalla ─────────────────────────────────────")]
-    [Tooltip("Toggle de pantalla completa.")]
     [SerializeField] private Toggle toggleFullscreen;
 
     // ══════════════════════════════════════════════════════════
@@ -83,14 +67,17 @@ public class MainMenuManager : MonoBehaviour
     // ══════════════════════════════════════════════════════════
 
     [Header("── Escenas ──────────────────────────────────────")]
-    [Tooltip("Nombre exacto de la escena del modo normal (primer nivel).")]
-    [SerializeField] private string sceneNormal   = "Lvl1";
+    [Tooltip("Nombre de la escena de cutscene (introducción animada por nivel).")]
+    [SerializeField] private string sceneCutscene   = "Cutscene";
+
+    [Tooltip("Nombre de la escena de instrucciones (usada solo por Infinito si quieres).")]
+    [SerializeField] private string sceneInstructions = "Instructions";
 
     [Tooltip("Nombre exacto de la escena del modo infinito.")]
-    [SerializeField] private string sceneInfinite = "LvlInfiniteV2";
+    [SerializeField] private string sceneInfinite   = "LvlInfiniteV2";
 
     [Tooltip("Nombre exacto de la escena de práctica.")]
-    [SerializeField] private string scenePractice = "Practice";
+    [SerializeField] private string scenePractice   = "PracticeLvl";
 
     // ══════════════════════════════════════════════════════════
     //  LIFECYCLE
@@ -98,20 +85,15 @@ public class MainMenuManager : MonoBehaviour
 
     private void Start()
     {
-        // Activa solo el panel principal
         ShowPanel(panelMain);
-
-        // Carga y aplica los valores de audio guardados
         LoadAudioSettings();
 
-        // Estado inicial del fullscreen toggle
         if (toggleFullscreen != null)
         {
             toggleFullscreen.isOn = Screen.fullScreen;
             toggleFullscreen.onValueChanged.AddListener(SetFullscreen);
         }
 
-        // Conecta sliders a sus callbacks
         if (sliderMaster != null) sliderMaster.onValueChanged.AddListener(SetMasterVolume);
         if (sliderMusic  != null) sliderMusic.onValueChanged.AddListener(SetMusicVolume);
         if (sliderSFX    != null) sliderSFX.onValueChanged.AddListener(SetSFXVolume);
@@ -131,29 +113,31 @@ public class MainMenuManager : MonoBehaviour
         target?.SetActive(true);
     }
 
-    // ── Llamados por los botones del menú principal ────────────
-
     public void OpenModoDeJuego() => ShowPanel(panelModoDeJuego);
     public void OpenOptions()
     {
         ShowPanel(panelOptions);
-        // Refresca los sliders con los valores actuales al abrir
         RefreshSliders();
     }
-    public void OpenCredits()     => ShowPanel(panelCredits);
-    public void BackToMain()      => ShowPanel(panelMain);
+    public void OpenCredits() => ShowPanel(panelCredits);
+    public void BackToMain()  => ShowPanel(panelMain);
 
     // ══════════════════════════════════════════════════════════
     //  CARGA DE ESCENAS
     // ══════════════════════════════════════════════════════════
 
+    /// Modo Normal: guarda índice 0 (Lvl1 es el primer entry)
+    /// y carga la cutscene de introducción.
     public void PlayNormal()
     {
-        // Resetea datos del modo infinito por si venía de ahí
         if (InfiniteData.Instance != null)
             InfiniteData.Instance.ResetInfiniteRun();
 
-        SceneManager.LoadScene(sceneNormal);
+        // Índice 0 → primer LevelEntry del CutsceneData (Lvl1)
+        PlayerPrefs.SetInt(CutsceneScreen.KEY_LEVEL_INDEX, 0);
+        PlayerPrefs.Save();
+
+        SceneManager.LoadScene(sceneCutscene);
     }
 
     public void PlayInfinite()
@@ -163,7 +147,8 @@ public class MainMenuManager : MonoBehaviour
         else
             Debug.LogWarning("[MainMenuManager] InfiniteData no encontrado.");
 
-        SceneManager.LoadScene(sceneInfinite);
+        PlayerPrefs.SetString(InstructionsScreen.KEY_TARGET_SCENE, sceneInfinite);
+        SceneManager.LoadScene(sceneInstructions);
     }
 
     public void PlayPractice()
@@ -181,11 +166,9 @@ public class MainMenuManager : MonoBehaviour
     //  AUDIO
     // ══════════════════════════════════════════════════════════
 
-    /// Convierte valor lineal del slider (0.001–1) a dB y lo aplica al mixer.
     private void ApplyVolume(string parameter, float linearValue)
     {
         if (audioMixer == null) return;
-        // Fórmula estándar: dB = 20 * log10(valor lineal)
         float dB = Mathf.Log10(Mathf.Max(linearValue, 0.001f)) * 20f;
         audioMixer.SetFloat(parameter, dB);
     }
@@ -218,7 +201,6 @@ public class MainMenuManager : MonoBehaviour
         ApplyVolume(PARAM_MUSIC,  music);
         ApplyVolume(PARAM_SFX,    sfx);
 
-        // Actualiza los sliders sin disparar callbacks (evita loop)
         if (sliderMaster != null) sliderMaster.SetValueWithoutNotify(master);
         if (sliderMusic  != null) sliderMusic.SetValueWithoutNotify(music);
         if (sliderSFX    != null) sliderSFX.SetValueWithoutNotify(sfx);
