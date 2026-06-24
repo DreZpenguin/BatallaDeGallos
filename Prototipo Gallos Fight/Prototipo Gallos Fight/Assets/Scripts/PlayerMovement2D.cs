@@ -52,6 +52,11 @@ public class PlayerMovement2D : MonoBehaviour
     private Rigidbody2D      _rb;
     private AttackController _attackController;
     private Camera           _cam;
+    private Animator         _animator;          // Animator del jugador
+
+    // Hashes de parámetros (más eficiente que strings en Update)
+    private static readonly int _hashIsWalking = Animator.StringToHash("IsWalking");
+    private static readonly int _hashIsDashing = Animator.StringToHash("IsDashing");
 
     private Vector2 _lastInputDir      = Vector2.up;   // para el dash
     private Vector2 _lastAimDir        = Vector2.up;   // última dirección de apuntado válida
@@ -73,6 +78,7 @@ public class PlayerMovement2D : MonoBehaviour
         _rb               = GetComponent<Rigidbody2D>();
         _attackController = GetComponent<AttackController>();
         _cam              = Camera.main;
+        _animator         = GetComponentInChildren<Animator>();
 
         _rb.gravityScale  = 0f;
         _rb.linearDamping = 0f;
@@ -85,6 +91,7 @@ public class PlayerMovement2D : MonoBehaviour
         HandleAim();
         HandleDashInput();
         HandleDashTimer();
+        UpdateAnimator();
     }
 
     private void FixedUpdate()
@@ -230,6 +237,7 @@ public class PlayerMovement2D : MonoBehaviour
             _rb.linearVelocity = Vector2.zero;
             // El dash va en la dirección de MOVIMIENTO, no de apuntado
             _rb.AddForce(_lastInputDir * dashForce, ForceMode2D.Impulse);
+            AudioManager.Instance?.PlayPlayerDash();
         }
     }
 
@@ -244,6 +252,22 @@ public class PlayerMovement2D : MonoBehaviour
             if (_dashActiveTimer <= 0f)
                 _isDashing = false;
         }
+    }
+
+    // ── Animator ───────────────────────────────────────────────
+
+    private void UpdateAnimator()
+    {
+        if (_animator == null) return;
+
+        // IsWalking: hay input de movimiento Y no está dasheando
+        float lx      = Input.GetAxisRaw(horizontalAxis);
+        float ly      = Input.GetAxisRaw(verticalAxis);
+        float dz      = _usingGamepad ? gamepadDeadzone : 0.01f;
+        bool  isMoving = (Mathf.Abs(lx) > dz || Mathf.Abs(ly) > dz) && !_isDashing;
+
+        _animator.SetBool(_hashIsWalking, isMoving);
+        _animator.SetBool(_hashIsDashing, _isDashing);
     }
 
     // ══════════════════════════════════════════════════════════

@@ -31,6 +31,9 @@ public class EnemyAI : MonoBehaviour
     private Rigidbody2D _rb;
     private AttackController _attackController;
     private HealthSystem _healthSystem;
+    private Animator     _animator;
+
+    private static readonly int _hashIsWalking = Animator.StringToHash("IsWalking");
 
     [SerializeField] private GameObject Enemy;
     [SerializeField] private GameObject EnemyInstance;
@@ -43,6 +46,7 @@ public class EnemyAI : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _attackController = GetComponent<AttackController>();
         _healthSystem = GetComponent<HealthSystem>();
+        _animator     = GetComponent<Animator>();  // está en el mismo GameObject
 
        
         _rb.gravityScale = 0f;
@@ -107,6 +111,8 @@ public class EnemyAI : MonoBehaviour
         if (newState != _currentState)
         {
             _currentState = newState;
+            if (_animator != null)
+                _animator.SetBool(_hashIsWalking, _currentState == State.Chasing);
             Debug.Log($"[EnemyAI] {gameObject.name} cambió a estado: {_currentState}");
         }
     }
@@ -159,9 +165,9 @@ public class EnemyAI : MonoBehaviour
     {
         _currentState = State.Dead;
         _rb.linearVelocity = Vector2.zero;
-        _rb.bodyType = RigidbodyType2D.Kinematic; // evita que se mueva tras morir
-
-        // Aquí puedes añadir: animación de muerte, partículas, desactivar colliders, etc.
+        _rb.bodyType = RigidbodyType2D.Kinematic;
+        if (_animator != null)
+            _animator.SetBool(_hashIsWalking, false);
         Debug.Log($"[EnemyAI] {gameObject.name} ha muerto. IA desactivada.");
         gameObject.SetActive(false); 
     }

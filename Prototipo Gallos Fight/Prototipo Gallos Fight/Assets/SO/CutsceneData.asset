@@ -37,8 +37,7 @@ MonoBehaviour:
   - targetScene: LvL4
     playerSprite: {fileID: 21300000, guid: a9089287b2d68ff4a836b5be440b10c0, type: 3}
     enemySprites:
-    - {fileID: 21300000, guid: 6c4046a1295d9734991322270232f3ba, type: 3}
-    - {fileID: 21300000, guid: 96c716a36bd4dda4c9b9ea3f5dd511ac, type: 3}
+    - {fileID: 7670056343871241744, guid: 1293a6252258962438cfefbda440674f, type: 3}
     vsSprite: {fileID: 0}
     backgroundSprite: {fileID: 0}
     levelLabel: 

@@ -1,19 +1,22 @@
 fileFormatVersion: 2
-guid: ecae70ed7fa74854c84a61b3408d2304
+guid: 5184bb7e1a4832a43bc79c54233bba45
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7593719511280997049
-    second: Prota_Caminata_SpriteSheet_0
+      213: -4714484764415347425
+    second: Enemigo03_Walk_SpriteSheet_0
   - first:
-      213: -4697597638258011377
-    second: Prota_Caminata_SpriteSheet_1
+      213: -981122464260251137
+    second: Enemigo03_Walk_SpriteSheet_1
   - first:
-      213: -3505719749799700679
-    second: Prota_Caminata_SpriteSheet_2
+      213: 5653821467204114619
+    second: Enemigo03_Walk_SpriteSheet_2
   - first:
-      213: -4271767753372267061
-    second: Prota_Caminata_SpriteSheet_3
+      213: -9181807399278793188
+    second: Enemigo03_Walk_SpriteSheet_3
+  - first:
+      213: 8378559000922327466
+    second: Enemigo03_Walk_SpriteSheet_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,13 +112,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Prota_Caminata_SpriteSheet_0
+      name: Enemigo03_Walk_SpriteSheet_0
       rect:
         serializedVersion: 2
-        x: 16
-        y: 4
-        width: 31
-        height: 56
+        x: 17
+        y: 6
+        width: 30
+        height: 44
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,20 +127,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 74da4267650bd9690800000000000000
-      internalID: -7593719511280997049
+      spriteID: f15380ec519c29eb0800000000000000
+      internalID: -4714484764415347425
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prota_Caminata_SpriteSheet_1
+      name: Enemigo03_Walk_SpriteSheet_1
       rect:
         serializedVersion: 2
         x: 81
-        y: 3
-        width: 28
-        height: 58
+        y: 7
+        width: 29
+        height: 43
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -146,20 +149,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f03dae146d7ceceb0800000000000000
-      internalID: -4697597638258011377
+      spriteID: ff1ac94215a5262f0800000000000000
+      internalID: -981122464260251137
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prota_Caminata_SpriteSheet_2
+      name: Enemigo03_Walk_SpriteSheet_2
       rect:
         serializedVersion: 2
-        x: 146
-        y: 3
-        width: 26
-        height: 59
+        x: 145
+        y: 8
+        width: 29
+        height: 42
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -168,20 +171,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9371e1f267e295fc0800000000000000
-      internalID: -3505719749799700679
+      spriteID: bb8dd205ba8667e40800000000000000
+      internalID: 5653821467204114619
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prota_Caminata_SpriteSheet_3
+      name: Enemigo03_Walk_SpriteSheet_3
       rect:
         serializedVersion: 2
-        x: 208
-        y: 4
-        width: 31
-        height: 57
+        x: 209
+        y: 7
+        width: 29
+        height: 43
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -190,8 +193,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bcd07417cd1a7b4c0800000000000000
-      internalID: -4271767753372267061
+      spriteID: c1e2fe151daa39080800000000000000
+      internalID: -9181807399278793188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Enemigo03_Walk_SpriteSheet_4
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 6
+        width: 30
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa980a3150f964470800000000000000
+      internalID: 8378559000922327466
       vertices: []
       indices: 
       edges: []
@@ -210,10 +235,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Prota_Caminata_SpriteSheet_0: -7593719511280997049
-      Prota_Caminata_SpriteSheet_1: -4697597638258011377
-      Prota_Caminata_SpriteSheet_2: -3505719749799700679
-      Prota_Caminata_SpriteSheet_3: -4271767753372267061
+      Enemigo03_Walk_SpriteSheet_0: -4714484764415347425
+      Enemigo03_Walk_SpriteSheet_1: -981122464260251137
+      Enemigo03_Walk_SpriteSheet_2: 5653821467204114619
+      Enemigo03_Walk_SpriteSheet_3: -9181807399278793188
+      Enemigo03_Walk_SpriteSheet_4: 8378559000922327466
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

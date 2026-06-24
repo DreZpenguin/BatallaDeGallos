@@ -18,6 +18,14 @@ public class RangedEnemyAI : MonoBehaviour
     [Tooltip("Punto de origen del disparo. Vacío = centro del enemigo.")]
     [SerializeField] private Transform firePoint;
 
+    [Header("── VFX de Disparo ──────────────────────────────")]
+    [Tooltip("Animator del GameObject hijo ShootVFX (igual que ClawVFX en AttackController). " +
+             "Solo necesita el trigger 'Shoot' configurado.")]
+    [SerializeField] private Animator shootVFXAnimator;
+
+    [Tooltip("Nombre del Trigger en el Animator que activa la animación de disparo.")]
+    [SerializeField] private string shootVFXTrigger = "Shoot";
+
     // ──────────────────────────────────────────────────────────
     [Header("── Proyectil ────────────────────────────────────")]
     [SerializeField] private GameObject bulletPrefab;
@@ -68,10 +76,17 @@ public class RangedEnemyAI : MonoBehaviour
 
     private Rigidbody2D  _rb;
     private HealthSystem _healthSystem;
+    private Animator     _animator;
+
+    private static readonly int _hashIsWalking = Animator.StringToHash("IsWalking");
 
     private float   _shootTimer   = 0f;
     private Vector2 _arenaCenter;
     private float   _arenaRadius;
+
+    // VFX de disparo
+    private SpriteRenderer _shootVFXRenderer;
+    private Coroutine      _shootVFXCoroutine;
 
     // Rodeo
     private float _strafeDir      = 1f;   // +1 = derecha del enemigo, -1 = izquierda
@@ -86,11 +101,28 @@ public class RangedEnemyAI : MonoBehaviour
     {
         _rb           = GetComponent<Rigidbody2D>();
         _healthSystem = GetComponent<HealthSystem>();
+        _animator     = GetComponent<Animator>();  // está en el objeto raíz
 
         _rb.gravityScale   = 0f;
         _rb.linearDamping  = 6f;
         _rb.angularDamping = 0f;
         _rb.constraints    = RigidbodyConstraints2D.FreezeRotation;
+
+        // Busca ShootVFX automáticamente si no está asignado
+        if (shootVFXAnimator == null)
+        {
+            Transform vfxT = transform.Find("ShootVFX");
+            if (vfxT != null)
+                shootVFXAnimator = vfxT.GetComponent<Animator>();
+        }
+
+        if (shootVFXAnimator != null)
+        {
+            _shootVFXRenderer = shootVFXAnimator.GetComponent<SpriteRenderer>()
+                             ?? shootVFXAnimator.GetComponentInChildren<SpriteRenderer>();
+            if (_shootVFXRenderer != null)
+                _shootVFXRenderer.enabled = false;
+        }
     }
 
     private void Start()
@@ -215,6 +247,12 @@ public class RangedEnemyAI : MonoBehaviour
     {
         if (_state == next) return;
         _state = next;
+
+        // IsWalking: true cuando se mueve (Active o Strafing), false en Idle/Dead
+        if (_animator != null)
+            _animator.SetBool(_hashIsWalking,
+                              next == State.Active || next == State.Strafing);
+
         Debug.Log($"[RangedEnemyAI] {gameObject.name} → {_state}");
     }
 
@@ -359,6 +397,50 @@ public class RangedEnemyAI : MonoBehaviour
             bc.Init(bulletDamage, bulletSpeed, bulletLifetime, direction, gameObject);
         else
             Debug.LogError("[RangedEnemyAI] El prefab de bala no tiene BulletController.");
+
+        PlayShootVFX();
+        AudioManager.Instance?.PlayRangedAttack();
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  VFX DE DISPARO
+    // ══════════════════════════════════════════════════════════
+
+    private void PlayShootVFX()
+    {
+        if (shootVFXAnimator == null) return;
+
+        if (_shootVFXCoroutine != null)
+        {
+            StopCoroutine(_shootVFXCoroutine);
+            _shootVFXCoroutine = null;
+        }
+
+        if (_shootVFXRenderer != null)
+            _shootVFXRenderer.enabled = true;
+
+        shootVFXAnimator.ResetTrigger(shootVFXTrigger);
+        shootVFXAnimator.SetTrigger(shootVFXTrigger);
+
+        float clipDuration = GetVFXClipDuration();
+        _shootVFXCoroutine = StartCoroutine(HideVFXAfter(clipDuration));
+    }
+
+    private float GetVFXClipDuration()
+    {
+        if (shootVFXAnimator == null) return 0.3f;
+        foreach (AnimationClip clip in shootVFXAnimator.runtimeAnimatorController.animationClips)
+            if (clip.name.ToLower().Contains(shootVFXTrigger.ToLower()))
+                return clip.length;
+        return 0.3f;
+    }
+
+    private System.Collections.IEnumerator HideVFXAfter(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        if (_shootVFXRenderer != null)
+            _shootVFXRenderer.enabled = false;
+        _shootVFXCoroutine = null;
     }
 
     // ══════════════════════════════════════════════════════════
@@ -370,6 +452,8 @@ public class RangedEnemyAI : MonoBehaviour
         _state = State.Dead;
         _rb.linearVelocity = Vector2.zero;
         _rb.bodyType       = RigidbodyType2D.Kinematic;
+        if (_animator != null)
+            _animator.SetBool(_hashIsWalking, false);
         Debug.Log($"[RangedEnemyAI] {gameObject.name} ha muerto.");
         gameObject.SetActive(false);
     }

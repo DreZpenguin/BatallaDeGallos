@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3224279878168824713
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7799962007057141237}
+  - component: {fileID: 5710954989669356588}
+  m_Layer: 0
+  m_Name: CutSceneManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7799962007057141237
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3224279878168824713}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 312.8131, y: 543.81067, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5710954989669356588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3224279878168824713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 391eed1b712de2045932107cd2b40d2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cutsceneData: {fileID: 11400000, guid: c1914738db9d5b34d880858634512b04, type: 2}
+  slideInDuration: 0.9
+  holdDuration: 1000
+  slideOutDuration: 0.5
+  minTimeBeforeSkip: 0.6
+  allowSkip: 1
+  playerSize: {x: 770, y: 770}
+  playerFinalPosition: {x: 0, y: -1}
+  playerEdgeMargin: 0
+  enemy0Size: {x: 770, y: 770}
+  enemy0FinalPosition: {x: -1, y: 320}
+  enemy0EdgeMargin: 0
+  enemy1Size: {x: 180, y: 1000}
+  enemy1FinalPosition: {x: -1, y: 220}
+  enemy1EdgeMargin: 0
+  enemy2Size: {x: 180, y: 180}
+  enemy2FinalPosition: {x: -1, y: 410}
+  enemy2EdgeMargin: 0
+  enemy3Size: {x: 180, y: 180}
+  enemy3FinalPosition: {x: -1, y: 30}
+  enemy3EdgeMargin: 0
+  enemy4Size: {x: 180, y: 180}
+  enemy4FinalPosition: {x: -1, y: 220}
+  enemy4EdgeMargin: 300
+  vsSize: {x: 160, y: 160}
+  vsBounceOvershoot: 1.18
+  vsBounceRatio: 0.25
+  skipHintText: Pulsa cualquier tecla para continuar...
+  skipHintColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  labelColor: {r: 1, g: 0.9, b: 0.2, a: 1}

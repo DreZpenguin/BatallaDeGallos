@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: ecae70ed7fa74854c84a61b3408d2304
+guid: 1293a6252258962438cfefbda440674f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7593719511280997049
-    second: Prota_Caminata_SpriteSheet_0
-  - first:
-      213: -4697597638258011377
-    second: Prota_Caminata_SpriteSheet_1
-  - first:
-      213: -3505719749799700679
-    second: Prota_Caminata_SpriteSheet_2
-  - first:
-      213: -4271767753372267061
-    second: Prota_Caminata_SpriteSheet_3
+      213: 7670056343871241744
+    second: Cutscene-DoubleTrouble_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -33,7 +24,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 0
+  isReadable: 1
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -46,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -109,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Prota_Caminata_SpriteSheet_0
+      name: Cutscene-DoubleTrouble_0
       rect:
         serializedVersion: 2
-        x: 16
-        y: 4
-        width: 31
-        height: 56
+        x: 19
+        y: 0
+        width: 1901
+        height: 2560
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,74 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 74da4267650bd9690800000000000000
-      internalID: -7593719511280997049
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prota_Caminata_SpriteSheet_1
-      rect:
-        serializedVersion: 2
-        x: 81
-        y: 3
-        width: 28
-        height: 58
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f03dae146d7ceceb0800000000000000
-      internalID: -4697597638258011377
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prota_Caminata_SpriteSheet_2
-      rect:
-        serializedVersion: 2
-        x: 146
-        y: 3
-        width: 26
-        height: 59
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9371e1f267e295fc0800000000000000
-      internalID: -3505719749799700679
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prota_Caminata_SpriteSheet_3
-      rect:
-        serializedVersion: 2
-        x: 208
-        y: 4
-        width: 31
-        height: 57
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: bcd07417cd1a7b4c0800000000000000
-      internalID: -4271767753372267061
+      spriteID: 01e3da76b93817a60800000000000000
+      internalID: 7670056343871241744
       vertices: []
       indices: 
       edges: []
@@ -210,10 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Prota_Caminata_SpriteSheet_0: -7593719511280997049
-      Prota_Caminata_SpriteSheet_1: -4697597638258011377
-      Prota_Caminata_SpriteSheet_2: -3505719749799700679
-      Prota_Caminata_SpriteSheet_3: -4271767753372267061
+      Cutscene-DoubleTrouble_0: 7670056343871241744
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

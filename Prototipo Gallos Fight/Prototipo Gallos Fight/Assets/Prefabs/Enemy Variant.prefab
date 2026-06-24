@@ -91,7 +91,7 @@ PrefabInstance:
     - target: {fileID: 5588473078638198134, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 396394072784696322, guid: 2b7b93b07a8aae041aafa7c20eb48a87, type: 3}
+      objectReference: {fileID: -4714484764415347425, guid: 5184bb7e1a4832a43bc79c54233bba45, type: 3}
     - target: {fileID: 5588473078638198134, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: m_Color.b
       value: 1
@@ -171,16 +171,46 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2723383198928369880, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3850294461694745256}
   m_SourcePrefab: {fileID: 100100000, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
 --- !u!114 &3468006275634226143 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8264681061710510466, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
   m_PrefabInstance: {fileID: 4797141703044094557}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 7447186187535753861}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d2eeb90c69842504080d41e5fc4d852e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &7447186187535753861 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2723383198928369880, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+  m_PrefabInstance: {fileID: 4797141703044094557}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &3850294461694745256
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7447186187535753861}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e8dec99f05bf71a4a9ea6f3ed821404a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
