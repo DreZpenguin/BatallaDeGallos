@@ -50,6 +50,11 @@ public class LevelManager : MonoBehaviour
              "cargar la cutscene siguiente.")]
     [SerializeField] private bool isLastLevel = false;
 
+    [Tooltip("Si está activo, al completar el último nivel se muestra el overlay de " +
+             "victoria (DeathScreenOverlay, fade-in dentro del mismo Canvas) en vez de " +
+             "ir directo al menú.")]
+    [SerializeField] private bool useEndGameScreenOnVictory = true;
+
     [Tooltip("Segundos de espera entre que muere el último enemigo y aparece la pantalla de powerup.")]
     [SerializeField] private float delayBeforePowerUp = 0.8f;
 
@@ -126,7 +131,20 @@ public class LevelManager : MonoBehaviour
         {
             Debug.Log("[LevelManager] Último nivel completado. Volviendo al menú.");
             PlayerData.Instance?.ResetAll();
-            SceneManager.LoadScene(0);
+            StatsModal.ClearSavedLevels();
+
+            DeathScreenOverlay overlay = useEndGameScreenOnVictory
+                ? (DeathScreenOverlay.Instance ?? FindFirstObjectByType<DeathScreenOverlay>())
+                : null;
+
+            if (overlay != null)
+            {
+                overlay.Show(DeathScreenOverlay.Result.Victory);   // mismo overlay, sin cambiar escena
+            }
+            else
+            {
+                SceneManager.LoadScene(0);
+            }
             return;
         }
 

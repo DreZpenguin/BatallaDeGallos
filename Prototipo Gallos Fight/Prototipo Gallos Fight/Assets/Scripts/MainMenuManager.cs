@@ -133,6 +133,10 @@ public class MainMenuManager : MonoBehaviour
         if (InfiniteData.Instance != null)
             InfiniteData.Instance.ResetInfiniteRun();
 
+        // Limpia progreso de stats de una run anterior (si quedó interrumpida)
+        StatsModal.ClearSavedLevels();
+        PlayerData.Instance?.ResetAll();
+
         // Índice 0 → primer LevelEntry del CutsceneData (Lvl1)
         PlayerPrefs.SetInt(CutsceneScreen.KEY_LEVEL_INDEX, 0);
         PlayerPrefs.Save();
@@ -177,18 +181,21 @@ public class MainMenuManager : MonoBehaviour
     {
         ApplyVolume(PARAM_MASTER, value);
         PlayerPrefs.SetFloat(KEY_MASTER, value);
+        AudioManager.Instance?.PlaySliderSFX();   // Master engloba ambos, usa el de SFX
     }
 
     public void SetMusicVolume(float value)
     {
         ApplyVolume(PARAM_MUSIC, value);
         PlayerPrefs.SetFloat(KEY_MUSIC, value);
+        AudioManager.Instance?.PlaySliderMusic();
     }
 
     public void SetSFXVolume(float value)
     {
         ApplyVolume(PARAM_SFX, value);
         PlayerPrefs.SetFloat(KEY_SFX, value);
+        AudioManager.Instance?.PlaySliderSFX();
     }
 
     private void LoadAudioSettings()

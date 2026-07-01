@@ -8,6 +8,10 @@ public class RangedEnemyAI : MonoBehaviour
     //  INSPECTOR
     // ══════════════════════════════════════════════════════════
 
+    [Header("── Inactividad inicial ──────────────────────────")]
+    [Tooltip("Segundos que el enemigo permanece inactivo al iniciar la escena.")]
+    [SerializeField] private float startupDelay = 1f;
+
     [Header("── Referencias ──────────────────────────────────")]
     [Tooltip("Transform del jugador. Se busca por tag 'Player' si queda vacío.")]
     [SerializeField] private Transform playerTransform;
@@ -81,6 +85,7 @@ public class RangedEnemyAI : MonoBehaviour
     private static readonly int _hashIsWalking = Animator.StringToHash("IsWalking");
 
     private float   _shootTimer   = 0f;
+    private float   _startupTimer = 0f;
     private Vector2 _arenaCenter;
     private float   _arenaRadius;
 
@@ -151,11 +156,19 @@ public class RangedEnemyAI : MonoBehaviour
             firePoint = transform;
 
         _healthSystem.OnDeath.AddListener(OnDeath);
+
+        _startupTimer = startupDelay;
     }
 
     private void Update()
     {
         if (_state == State.Dead || playerTransform == null) return;
+
+        if (_startupTimer > 0f)
+        {
+            _startupTimer -= Time.deltaTime;
+            return;
+        }
 
         float dist = Vector2.Distance(transform.position, playerTransform.position);
 
@@ -168,6 +181,7 @@ public class RangedEnemyAI : MonoBehaviour
     private void FixedUpdate()
     {
         if (_state == State.Dead) return;
+        if (_startupTimer > 0f) return;
 
         float dist = Vector2.Distance(transform.position, playerTransform.position);
 

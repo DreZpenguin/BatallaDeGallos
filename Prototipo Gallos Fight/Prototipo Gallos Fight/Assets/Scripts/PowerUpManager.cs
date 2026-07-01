@@ -1,12 +1,3 @@
-// ============================================================
-//  PowerUpManager.cs  — v2
-//  Cambios respecto a v1:
-//   · PowerUpType.Range → ya NO modifica la hitbox melee.
-//     Ahora aumenta velocidad + knockback del disparo.
-//   · PowerUpType.Shoot → solo aumenta el daño del disparo.
-//   · Se elimina la referencia a HitboxFront.
-//   · ApplySavedData carga los nuevos stacks separados.
-// ============================================================
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -106,36 +97,36 @@ public class PowerUpManager : MonoBehaviour
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Range,
-                title       = "Disparo potente",
-                description = $"Mejora el proyectil\n+{bulletSpeedBonus:F0} velocidad, +{bulletKnockbackBonus:F1}× knockback",
+                title       = "Pluma",
+                description = $"Mejora el empuje\n+{bulletKnockbackBonus:F1}",
                 hexColor    = "#38D1FF"
             },
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Damage,
                 title       = "Daño",
-                description = $"Aumenta el daño de tu ataque\n+{damageBonus * 100f:F0}% del base",
+                description = $"Aumenta el daño melee en\n+{damageBonus * 100f:F0}",
                 hexColor    = "#FF4D3A"
             },
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Speed,
                 title       = "Velocidad",
-                description = $"Aumenta tu velocidad\n+{speedBonus * 100f:F0}% de la base",
+                description = $"Aumenta tu velocidad\n+{speedBonus * 100f:F0}",
                 hexColor    = "#4DFF66"
             },
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Health,
                 title       = "Vida",
-                description = $"Aumenta tu vida máxima\n+{healthBonus:F0} HP",
+                description = $"Aumenta tu vida máxima en\n+{healthBonus:F0} HP",
                 hexColor    = "#FFD93D"
             },
             new PowerUpUICanvas.PowerUpOption
             {
                 id          = PowerUpType.Shoot,
-                title       = "Daño de bala",
-                description = $"Aumenta el daño del proyectil\n+{bulletDamageBonus:F0} de daño",
+                title       = "Filo",
+                description = $"Aumenta el daño de disparo\n+{bulletDamageBonus:F0}",
                 hexColor    = "#C77DFF"
             }
         };
@@ -165,7 +156,6 @@ public class PowerUpManager : MonoBehaviour
         switch (type)
         {
             case PowerUpType.Range:
-                // Velocidad + knockback del disparo
                 _shootingController?.AddBulletSpeedBonus(bulletSpeedBonus);
                 _shootingController?.AddBulletKnockbackBonus(bulletKnockbackBonus);
                 PlayerData.Instance?.AddBulletRangeStack();
@@ -188,12 +178,14 @@ public class PowerUpManager : MonoBehaviour
                 break;
 
             case PowerUpType.Shoot:
-                // Solo daño de bala
                 _shootingController?.AddBulletDamageBonus(bulletDamageBonus);
                 PlayerData.Instance?.AddBulletUpgrade();
                 Debug.Log($"[PowerUpManager] +Daño bala: {bulletDamageBonus:F0}");
                 break;
         }
+
+        // Notifica al StatsModal para actualizar el nivel de la stat elegida
+        StatsModal.Instance?.RegisterUpgrade(type);
 
         Time.timeScale = 1f;
 

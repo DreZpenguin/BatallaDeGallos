@@ -1,11 +1,13 @@
 // ============================================================
-//  HealthSystem.cs  — v2
+//  HealthSystem.cs  — v3
 //
-//  CAMBIOS respecto a v1:
-//   · Nuevo campo KnockbackResistance (0 = sin resistencia,
-//     1 = completamente inmune). Multiplica la fuerza de knockback
-//     recibida. Configurable por objeto desde el Inspector.
-//     Úsalo en el Toro con valor cercano a 1 (ej. 0.95).
+//  CAMBIOS respecto a v2:
+//   · Nuevo enum EnemyType (Normal, Variant, Ranged, Bull) y
+//     campo serializado enemyType en el Inspector.
+//   · TakeDamage() y OnDeath ahora llaman al método de audio
+//     correspondiente al tipo de enemigo en vez de siempre
+//     PlayEnemyHit() / PlayEnemyDie().
+//   · El jugador no se ve afectado (sigue usando PlayPlayerHit/Die).
 // ============================================================
 using System.Collections;
 using UnityEngine;
@@ -14,6 +16,14 @@ using UnityEngine.SceneManagement;
 
 public class HealthSystem : MonoBehaviour
 {
+    // ── Tipo de enemigo (define qué sonidos usa) ───────────────
+    public enum EnemyType { Normal, Variant, Ranged, Bull }
+
+    [Header("Tipo de enemigo")]
+    [Tooltip("Solo relevante en enemigos. Define qué canal de audio usa al recibir daño " +
+             "o morir. Ignorado si este GameObject tiene el tag 'Player'.")]
+    [SerializeField] private EnemyType enemyType = EnemyType.Normal;
+
     [Header("Vida")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
@@ -38,6 +48,16 @@ public class HealthSystem : MonoBehaviour
     [SerializeField] private Color hitColor         = Color.red;
     [SerializeField] private float hitColorDuration = 0.15f;
 
+    [Header("Partículas de muerte")]
+    [Tooltip("Prefab de efecto de partículas que se instancia al morir " +
+             "(en la posición de este GameObject). Funciona para jugador y enemigos. " +
+             "Deja vacío para no usar partículas.")]
+    [SerializeField] private GameObject deathParticlesPrefab;
+
+    [Tooltip("Segundos que vive el GameObject de partículas antes de destruirse. " +
+             "Debe ser mayor o igual a la duración del efecto.")]
+    [SerializeField] private float deathParticlesLifetime = 2f;
+
     private float _maxHealthBonus  = 0f;
     private bool  _infiniteHealth  = false;  // modo práctica
 
@@ -48,6 +68,12 @@ public class HealthSystem : MonoBehaviour
     private Coroutine      _knockbackCoroutine;
 
     private bool _isPlayer;
+
+    [Header("Pantalla de muerte")]
+    [Tooltip("Si está activo, al morir el jugador se muestra el overlay de muerte " +
+             "(fade-in dentro del mismo Canvas) en vez de ir directo al menú. " +
+             "Requiere un DeathScreenOverlay en la escena. Solo aplica si _isPlayer.")]
+    [SerializeField] private bool useDeathScreenOnDeath = true;
 
     [Header("Eventos")]
     public UnityEvent<float, float> OnHealthChanged;
@@ -100,6 +126,52 @@ public class HealthSystem : MonoBehaviour
         return TakeDamage(amount, hitDirection, 1f);
     }
 
+    /// Aplica daño directo ignorando el cooldown de invencibilidad.
+    /// Usar exclusivamente para daño continuo (DeadZone) donde el
+    /// cooldown de invencibilidad bloquearía el daño real.
+    /// No aplica knockback ni flash de color.
+    public void TakeDamageRaw(float amount)
+    {
+        if (!IsAlive) return;
+
+        currentHealth = Mathf.Max(0f, currentHealth - amount);
+        OnHealthChanged?.Invoke(currentHealth, MaxHealth);
+
+        if (currentHealth <= 0f)
+        {
+            if (_infiniteHealth)
+            {
+                currentHealth = MaxHealth;
+                OnHealthChanged?.Invoke(currentHealth, MaxHealth);
+                return;
+            }
+
+            if (_isPlayer)
+            {
+                AudioManager.Instance?.PlayPlayerDie();
+                SpawnDeathParticles();
+                PlayerData.Instance?.ResetAll();
+                StatsModal.ClearSavedLevels();
+
+                DeathScreenOverlay overlay = useDeathScreenOnDeath
+                    ? (DeathScreenOverlay.Instance ?? FindFirstObjectByType<DeathScreenOverlay>())
+                    : null;
+
+                if (overlay != null)
+                    overlay.Show(DeathScreenOverlay.Result.Defeat);
+                else
+                    SceneManager.LoadScene(0);
+            }
+            else
+            {
+                PlayEnemyDieSound();
+                SpawnDeathParticles();
+            }
+
+            OnDeath?.Invoke();
+        }
+    }
+
     public bool TakeDamage(float amount, Vector2 hitDirection, float knockbackMultiplier)
     {
         if (!IsAlive) return false;
@@ -133,7 +205,7 @@ public class HealthSystem : MonoBehaviour
         if (_isPlayer)
             AudioManager.Instance?.PlayPlayerHit();
         else
-            AudioManager.Instance?.PlayEnemyHit();
+            PlayEnemyHitSound();
 
         OnHealthChanged?.Invoke(currentHealth, MaxHealth);
 
@@ -149,15 +221,43 @@ public class HealthSystem : MonoBehaviour
             if (_isPlayer)
             {
                 AudioManager.Instance?.PlayPlayerDie();
-                SceneManager.LoadScene(0);
+                SpawnDeathParticles();
+                PlayerData.Instance?.ResetAll();
+                StatsModal.ClearSavedLevels();
+
+                DeathScreenOverlay overlay = useDeathScreenOnDeath
+                    ? (DeathScreenOverlay.Instance ?? FindFirstObjectByType<DeathScreenOverlay>())
+                    : null;
+
+                if (overlay != null)
+                {
+                    overlay.Show(DeathScreenOverlay.Result.Defeat);   // fade-in dentro del Canvas actual, sin cambiar escena
+                }
+                else
+                {
+                    SceneManager.LoadScene(0);
+                }
             }
             else
-                AudioManager.Instance?.PlayEnemyDie();
+            {
+                PlayEnemyDieSound();
+                SpawnDeathParticles();
+            }
 
             OnDeath?.Invoke();
         }
 
         return true;
+    }
+
+    // ── Partículas de muerte ─────────────────────────────────
+
+    private void SpawnDeathParticles()
+    {
+        if (deathParticlesPrefab == null) return;
+
+        GameObject fx = Instantiate(deathParticlesPrefab, transform.position, Quaternion.identity);
+        Destroy(fx, deathParticlesLifetime);
     }
 
     // ── Corrutinas ─────────────────────────────────────────────
@@ -263,6 +363,32 @@ public class HealthSystem : MonoBehaviour
         _hpTextStyle.alignment        = TextAnchor.MiddleCenter;
         _hpTextStyle.normal.textColor = Color.white;
     }
+
+    // ── Helpers de audio por tipo de enemigo ───────────────────
+
+    private void PlayEnemyHitSound()
+    {
+        switch (enemyType)
+        {
+            case EnemyType.Variant: AudioManager.Instance?.PlayVariantHit(); break;
+            case EnemyType.Ranged:  AudioManager.Instance?.PlayRangedHit();  break;
+            case EnemyType.Bull:    AudioManager.Instance?.PlayBullHit();    break;
+            default:                AudioManager.Instance?.PlayEnemyHit();   break;
+        }
+    }
+
+    private void PlayEnemyDieSound()
+    {
+        switch (enemyType)
+        {
+            case EnemyType.Variant: AudioManager.Instance?.PlayVariantDie(); break;
+            case EnemyType.Ranged:  AudioManager.Instance?.PlayRangedDie();  break;
+            case EnemyType.Bull:    AudioManager.Instance?.PlayBullDie();    break;
+            default:                AudioManager.Instance?.PlayEnemyDie();   break;
+        }
+    }
+
+    // ── Barra de vida (OnGUI) ──────────────────────────────────
 
     private void OnGUI()
     {

@@ -153,6 +153,10 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8264681061710510466, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: startupDelay
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8264681061710510466, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: detectionRange
       value: 10
       objectReference: {fileID: 0}

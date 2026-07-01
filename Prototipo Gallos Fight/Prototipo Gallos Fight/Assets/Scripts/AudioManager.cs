@@ -101,6 +101,19 @@ public class AudioManager : MonoBehaviour
     [Tooltip("Sonido al seleccionar un powerup (más enfático que el botón de menú).")]
     [SerializeField] private AudioClip powerUpSelectClip;
 
+    [Tooltip("Sonido al aparecer las cartas de mejora en pantalla.")]
+    [SerializeField] private AudioClip cardAppearClip;
+
+    [Tooltip("Sonido al mover un slider de SFX o Master (canal SFX).")]
+    [SerializeField] private AudioClip sliderSFXClip;
+
+    [Tooltip("Sonido al mover el slider de Music.")]
+    [SerializeField] private AudioClip sliderMusicClip;
+
+    [Header("── Cutscene ─────────────────────────────────────")]
+    [Tooltip("Sonido de campana al iniciar la cutscene de introducción de nivel.")]
+    [SerializeField] private AudioClip cutsceneBellClip;
+
     // ══════════════════════════════════════════════════════════
     //  VOLÚMENES — ajustables desde Inspector
     // ══════════════════════════════════════════════════════════
@@ -127,11 +140,24 @@ public class AudioManager : MonoBehaviour
     [Range(0f, 1f)] [SerializeField] private float bulletImpactVolume  = 0.6f;
     [Range(0f, 1f)] [SerializeField] private float uiButtonVolume      = 0.7f;
     [Range(0f, 1f)] [SerializeField] private float powerUpSelectVolume = 0.9f;
+    [Range(0f, 1f)] [SerializeField] private float cardAppearVolume    = 0.8f;
+    [Range(0f, 1f)] [SerializeField] private float sliderSFXVolume     = 0.6f;
+    [Range(0f, 1f)] [SerializeField] private float sliderMusicVolume   = 0.6f;
+    [Range(0f, 1f)] [SerializeField] private float cutsceneBellVolume  = 1.0f;
 
     [Header("── AudioSource pool (se crean automáticamente) ──")]
     [Tooltip("Cuántos AudioSources simultáneos soporta el manager. " +
              "Auméntalo si escuchas cortes de sonido.")]
     [SerializeField] private int audioSourcePoolSize = 8;
+
+    [Header("── Grupos del AudioMixer ──────────────────────")]
+    [Tooltip("Grupo SFX del AudioMixer. Arrastra el grupo 'SFX' aquí. " +
+             "Todos los efectos de sonido se reproducirán por este canal.")]
+    [SerializeField] private UnityEngine.Audio.AudioMixerGroup sfxMixerGroup;
+
+    [Tooltip("Grupo Music del AudioMixer. Arrastra el grupo 'Music' aquí. " +
+             "Úsalo para tu AudioSource de música de fondo (no del pool).")]
+    [SerializeField] private UnityEngine.Audio.AudioMixerGroup musicMixerGroup;
 
     // ── Pool de AudioSources ───────────────────────────────────
     private AudioSource[] _pool;
@@ -164,6 +190,10 @@ public class AudioManager : MonoBehaviour
         {
             _pool[i] = gameObject.AddComponent<AudioSource>();
             _pool[i].playOnAwake = false;
+
+            // Enruta al grupo SFX del mixer si está asignado
+            if (sfxMixerGroup != null)
+                _pool[i].outputAudioMixerGroup = sfxMixerGroup;
         }
     }
 
@@ -287,4 +317,22 @@ public class AudioManager : MonoBehaviour
     /// Selección de powerup — más enfático que un botón de menú.
     public void PlayPowerUpSelect()
         => Play(powerUpSelectClip, powerUpSelectVolume);
+
+    /// Sonido al aparecer las cartas de mejora (slide-down).
+    public void PlayCardAppear()
+        => Play(cardAppearClip, cardAppearVolume);
+
+    /// Sonido al mover el slider de SFX o Master (Master usa el mismo que SFX).
+    public void PlaySliderSFX()
+        => Play(sliderSFXClip, sliderSFXVolume);
+
+    /// Sonido al mover el slider de Music.
+    public void PlaySliderMusic()
+        => Play(sliderMusicClip, sliderMusicVolume);
+
+    // ── Cutscene ───────────────────────────────────────────────
+
+    /// Campana al iniciar la cutscene de introducción de nivel.
+    public void PlayCutsceneBell()
+        => Play(cutsceneBellClip, cutsceneBellVolume);
 }

@@ -47,23 +47,53 @@ MonoBehaviour:
   playerAttackClip: {fileID: 8300000, guid: f785e55713ca6b4478174952bcec9d4a, type: 3}
   playerShootClip: {fileID: 8300000, guid: 2807d916b0ec0304690182ae10bf080d, type: 3}
   playerHitClip: {fileID: 8300000, guid: 37773d6611ee09241bdb9d899b01187e, type: 3}
-  playerDieClip: {fileID: 0}
-  enemyHitClip: {fileID: 0}
-  enemyDieClip: {fileID: 0}
+  playerDieClip: {fileID: 8300000, guid: ebb0a5c6d97dde74ba991dfe55f459e4, type: 3}
+  playerDashClip: {fileID: 0}
+  enemyHitClip: {fileID: 8300000, guid: 37773d6611ee09241bdb9d899b01187e, type: 3}
+  enemyDieClip: {fileID: 8300000, guid: f015ab7621a940640a811cf79e340ae8, type: 3}
   enemyAttackClip: {fileID: 0}
+  variantHitClip: {fileID: 8300000, guid: dcf56874f2464024f9e3fe1209a4ad5d, type: 3}
+  variantDieClip: {fileID: 8300000, guid: f015ab7621a940640a811cf79e340ae8, type: 3}
+  variantAttackClip: {fileID: 0}
+  rangedHitClip: {fileID: 0}
+  rangedDieClip: {fileID: 8300000, guid: f015ab7621a940640a811cf79e340ae8, type: 3}
+  rangedAttackClip: {fileID: 8300000, guid: 2807d916b0ec0304690182ae10bf080d, type: 3}
+  bullHitClip: {fileID: 0}
+  bullDieClip: {fileID: 8300000, guid: 84de1f178e5ecab45af7e00d608b50e0, type: 3}
   bullChargeClip: {fileID: 8300000, guid: 5ff3c324fe36eb04eb910b8e48e89aa8, type: 3}
   bullStunClip: {fileID: 8300000, guid: 87de2e6768faab04d88909995c424299, type: 3}
-  bulletImpactClip: {fileID: 0}
-  powerUpSelectClip: {fileID: 0}
+  bulletImpactClip: {fileID: 8300000, guid: f0aa07f90172bfd428caa390f2d2515a, type: 3}
+  uiButtonClip: {fileID: 8300000, guid: 770c6cac770ff8c4dab2c255328f7c65, type: 3}
+  powerUpSelectClip: {fileID: 8300000, guid: 76aa51cf12ea01c4e980a48ddd913a41, type: 3}
+  cardAppearClip: {fileID: 8300000, guid: d357f5818a2e47f43844c48e8f6ebbad, type: 3}
+  sliderSFXClip: {fileID: 8300000, guid: f785e55713ca6b4478174952bcec9d4a, type: 3}
+  sliderMusicClip: {fileID: 0}
+  cutsceneBellClip: {fileID: 8300000, guid: 8824b9e0b07cd21459219bcadbf930f7, type: 3}
   playerAttackVolume: 0.8
   playerShootVolume: 0.7
   playerHitVolume: 0.9
   playerDieVolume: 1
+  playerDashVolume: 0.8
   enemyHitVolume: 0.7
   enemyDieVolume: 0.9
   enemyAttackVolume: 0.7
+  variantHitVolume: 0.7
+  variantDieVolume: 0.9
+  variantAttackVolume: 0.7
+  rangedHitVolume: 0.7
+  rangedDieVolume: 0.9
+  rangedAttackVolume: 0.7
+  bullHitVolume: 0.8
+  bullDieVolume: 1
   bullChargeVolume: 1
   bullStunVolume: 0.8
   bulletImpactVolume: 0.6
+  uiButtonVolume: 0.7
   powerUpSelectVolume: 0.9
+  cardAppearVolume: 0.8
+  sliderSFXVolume: 0.6
+  sliderMusicVolume: 0.6
+  cutsceneBellVolume: 1
   audioSourcePoolSize: 8
+  sfxMixerGroup: {fileID: -1022048699182263075, guid: 10186b8287e3b324398040be3e167f7f, type: 2}
+  musicMixerGroup: {fileID: 2472133117941872378, guid: 10186b8287e3b324398040be3e167f7f, type: 2}

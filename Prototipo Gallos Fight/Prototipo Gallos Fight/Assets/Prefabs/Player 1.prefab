@@ -356,7 +356,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26dd2b8cb2d90184e9eb74bf15cb10db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackDamage: 25
+  attackDamage: 12
   attackCooldown: 0.4
   frontHitbox: {fileID: 3489858791231758208}
   hitboxActiveDuration: 0.12
@@ -365,6 +365,8 @@ MonoBehaviour:
   snapToHitbox: 1
   attackKey: 323
   gamepadAttackKey: 332
+  gamepadTriggerAxis: RT
+  triggerThreshold: 0.3
 --- !u!114 &8263826441156167171
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,6 +379,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b2430667b522604a8dddb5564aac419, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyType: 0
   maxHealth: 100
   currentHealth: 100
   useInvincibility: 1
@@ -386,6 +389,8 @@ MonoBehaviour:
   knockbackResistance: 0
   hitColor: {r: 1, g: 0, b: 0, a: 1}
   hitColorDuration: 0.15
+  deathParticlesPrefab: {fileID: 6874512615625142901, guid: 5ad9e11ca0ec0d2448b076ac93d4c82f, type: 3}
+  deathParticlesLifetime: 2
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -446,7 +451,7 @@ MonoBehaviour:
   damagePerStack: 5
   speedPerStack: 2
   knockbackPerStack: 0.5
-  shootCooldown: 0.5
+  shootCooldown: 2.5
 --- !u!95 &2995731546906814484
 Animator:
   serializedVersion: 7

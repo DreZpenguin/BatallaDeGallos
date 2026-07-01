@@ -13,38 +13,43 @@ MonoBehaviour:
   m_Name: CutsceneData
   m_EditorClassIdentifier: 
   levelEntries:
-  - targetScene: LvL1
+  - targetScene: Lvl1
     playerSprite: {fileID: 21300000, guid: a9089287b2d68ff4a836b5be440b10c0, type: 3}
     enemySprites:
     - {fileID: 21300000, guid: 96c716a36bd4dda4c9b9ea3f5dd511ac, type: 3}
-    vsSprite: {fileID: 0}
+    enemyInspectorSlot: 0
+    vsSprite: {fileID: -2760984426032676952, guid: 53fa698392c5116468f674e45e6051e9, type: 3}
     backgroundSprite: {fileID: 0}
     levelLabel: 
-  - targetScene: LvL2
+  - targetScene: Lvl2
     playerSprite: {fileID: 21300000, guid: a9089287b2d68ff4a836b5be440b10c0, type: 3}
     enemySprites:
     - {fileID: 21300000, guid: 6c4046a1295d9734991322270232f3ba, type: 3}
-    vsSprite: {fileID: 0}
+    enemyInspectorSlot: 1
+    vsSprite: {fileID: -2760984426032676952, guid: 53fa698392c5116468f674e45e6051e9, type: 3}
     backgroundSprite: {fileID: 0}
     levelLabel: 
-  - targetScene: LvL3
+  - targetScene: Lvl3
     playerSprite: {fileID: 21300000, guid: a9089287b2d68ff4a836b5be440b10c0, type: 3}
     enemySprites:
     - {fileID: 21300000, guid: 7efb9f04da823184fb6908b78964bdf9, type: 3}
-    vsSprite: {fileID: 0}
+    enemyInspectorSlot: 2
+    vsSprite: {fileID: -2760984426032676952, guid: 53fa698392c5116468f674e45e6051e9, type: 3}
     backgroundSprite: {fileID: 0}
     levelLabel: 
-  - targetScene: LvL4
+  - targetScene: Lvl4
     playerSprite: {fileID: 21300000, guid: a9089287b2d68ff4a836b5be440b10c0, type: 3}
     enemySprites:
     - {fileID: 7670056343871241744, guid: 1293a6252258962438cfefbda440674f, type: 3}
-    vsSprite: {fileID: 0}
+    enemyInspectorSlot: 3
+    vsSprite: {fileID: -2760984426032676952, guid: 53fa698392c5116468f674e45e6051e9, type: 3}
     backgroundSprite: {fileID: 0}
     levelLabel: 
-  - targetScene: LvL5
+  - targetScene: Lvl5
     playerSprite: {fileID: 21300000, guid: a9089287b2d68ff4a836b5be440b10c0, type: 3}
     enemySprites:
     - {fileID: 21300000, guid: 081bf77dbd3718640be89e1cb8b0d631, type: 3}
-    vsSprite: {fileID: 0}
+    enemyInspectorSlot: 4
+    vsSprite: {fileID: -2760984426032676952, guid: 53fa698392c5116468f674e45e6051e9, type: 3}
     backgroundSprite: {fileID: 0}
     levelLabel: 

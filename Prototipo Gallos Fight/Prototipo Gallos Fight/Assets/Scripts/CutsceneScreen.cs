@@ -106,9 +106,7 @@ public class CutsceneScreen : MonoBehaviour
     private bool     _guiInitialized = false;
     private bool     _skipped        = false;
 
-    private Vector2[] _enemySizes;
-    private Vector2[] _enemyPositions;
-    private float[]   _enemyMargins;
+    // (arrays de cacheo eliminados — ahora se lee directo de las variables del Inspector)
 
     // ══════════════════════════════════════════════════════════
     //  LIFECYCLE
@@ -116,15 +114,6 @@ public class CutsceneScreen : MonoBehaviour
 
     private void Start()
     {
-        _enemySizes     = new Vector2[] { enemy0Size, enemy1Size, enemy2Size,
-                                          enemy3Size, enemy4Size };
-        _enemyPositions = new Vector2[] { enemy0FinalPosition, enemy1FinalPosition,
-                                          enemy2FinalPosition, enemy3FinalPosition,
-                                          enemy4FinalPosition };
-        _enemyMargins   = new float[]   { enemy0EdgeMargin, enemy1EdgeMargin,
-                                          enemy2EdgeMargin, enemy3EdgeMargin,
-                                          enemy4EdgeMargin };
-
         int index = PlayerPrefs.GetInt(KEY_LEVEL_INDEX, 0);
 
         if (cutsceneData == null || cutsceneData.levelEntries == null
@@ -148,11 +137,17 @@ public class CutsceneScreen : MonoBehaviour
         for (int i = 0; i < enemyCount; i++)
             _enemySprites[i] = _entry.enemySprites[i];
 
+        Debug.Log($"[CutsceneScreen] Level index: {index} | " +
+                  $"Enemy slot: {_entry.enemyInspectorSlot} | " +
+                  $"Enemy count: {enemyCount} | " +
+                  $"Enemy[0] null: {(enemyCount > 0 ? _enemySprites[0] == null : true)}");
+
         _whiteTex = new Texture2D(1, 1);
         _whiteTex.SetPixel(0, 0, Color.white);
         _whiteTex.Apply();
 
         CalculateRects();
+        AudioManager.Instance?.PlayCutsceneBell();
         StartCoroutine(RunCutscene());
     }
 
@@ -184,13 +179,28 @@ public class CutsceneScreen : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            int     slot   = Mathf.Min(i, _enemySizes.Length - 1);
-            Vector2 sz     = _enemySizes[slot];
-            Vector2 pos    = _enemyPositions[slot];
-            float   margin = _enemyMargins[slot];
+            int slotIndex = _entry.enemyInspectorSlot + i;
+            GetEnemySlotConfig(slotIndex, out Vector2 sz, out Vector2 pos, out float margin);
 
             float eX = (pos.x < 0f) ? sw - sz.x - margin : pos.x;
-            _enemyFinalRects[i] = new Rect(eX, pos.y, sz.x, sz.y);
+            // Y < 0 → centinela: automático pegado a borde inferior (igual que el jugador)
+            float eY = (pos.y < 0f) ? sh - sz.y - margin   : pos.y;
+            _enemyFinalRects[i] = new Rect(eX, eY, sz.x, sz.y);
+        }
+    }
+
+    /// Devuelve tamaño, posición final y margen configurados en el Inspector
+    /// para el slot de enemigo indicado (0-4). Si hay más de 5 enemigos,
+    /// reutiliza la configuración del slot 4.
+    private void GetEnemySlotConfig(int index, out Vector2 size, out Vector2 position, out float margin)
+    {
+        switch (Mathf.Min(index, 4))
+        {
+            case 0:  size = enemy0Size; position = enemy0FinalPosition; margin = enemy0EdgeMargin; break;
+            case 1:  size = enemy1Size; position = enemy1FinalPosition; margin = enemy1EdgeMargin; break;
+            case 2:  size = enemy2Size; position = enemy2FinalPosition; margin = enemy2EdgeMargin; break;
+            case 3:  size = enemy3Size; position = enemy3FinalPosition; margin = enemy3EdgeMargin; break;
+            default: size = enemy4Size; position = enemy4FinalPosition; margin = enemy4EdgeMargin; break;
         }
     }
 
@@ -248,7 +258,8 @@ public class CutsceneScreen : MonoBehaviour
         float sh = Screen.height;
 
         // Recalcula rects si cambió resolución
-        if (_playerFinalRect.width <= 0f) CalculateRects();
+        // Recalcula cada frame (permite ajustar valores en el Inspector en Play Mode)
+        CalculateRects();
 
         float t      = (_phase == Phase.SlideIn)
                        ? Mathf.Clamp01(_phaseTimer / slideInDuration)
@@ -363,7 +374,36 @@ public class CutsceneScreen : MonoBehaviour
             texRect.height / tex.height
         );
 
-        GUI.DrawTextureWithTexCoords(screenRect, tex, uvRect, true);
+        // Preserva el aspect ratio del sprite dentro del screenRect
+        // (equivalente a ScaleToFit, centrado)
+        float spriteAspect = texRect.width / texRect.height;
+        float rectAspect   = screenRect.width / screenRect.height;
+
+        Rect fitRect = screenRect;
+        if (spriteAspect > rectAspect)
+        {
+            // El sprite es más ancho proporcionalmente → ajusta por ancho
+            float fitHeight = screenRect.width / spriteAspect;
+            fitRect = new Rect(
+                screenRect.x,
+                screenRect.y + (screenRect.height - fitHeight) * 0.5f,
+                screenRect.width,
+                fitHeight
+            );
+        }
+        else
+        {
+            // El sprite es más alto proporcionalmente → ajusta por alto
+            float fitWidth = screenRect.height * spriteAspect;
+            fitRect = new Rect(
+                screenRect.x + (screenRect.width - fitWidth) * 0.5f,
+                screenRect.y,
+                fitWidth,
+                screenRect.height
+            );
+        }
+
+        GUI.DrawTextureWithTexCoords(fitRect, tex, uvRect, true);
     }
 
     // ══════════════════════════════════════════════════════════

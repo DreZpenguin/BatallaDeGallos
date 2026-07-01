@@ -268,6 +268,94 @@ PrefabInstance:
       propertyPath: m_Name
       value: CutSceneManager
       objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy0Size.x
+      value: 770
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy0Size.y
+      value: 770
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy1Size.x
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy1Size.y
+      value: 1426
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy2Size.x
+      value: 570
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy2Size.y
+      value: 770
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy3Size.x
+      value: 741.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy3Size.y
+      value: 1010
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy4Size.x
+      value: 658
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy4Size.y
+      value: 944
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: playerSize.x
+      value: 760
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: skipHintColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: skipHintColor.b
+      value: 0.7686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: skipHintColor.g
+      value: 0.7686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: skipHintColor.r
+      value: 0.7686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy0FinalPosition.x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy0FinalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy1FinalPosition.x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy1FinalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy2FinalPosition.y
+      value: 290
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: enemy4FinalPosition.y
+      value: 117
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710954989669356588, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
+      propertyPath: playerFinalPosition.x
+      value: -93
+      objectReference: {fileID: 0}
     - target: {fileID: 7799962007057141237, guid: 6a6e9cec04aca124eabbccf3e98b1389, type: 3}
       propertyPath: m_LocalPosition.x
       value: 312.8131

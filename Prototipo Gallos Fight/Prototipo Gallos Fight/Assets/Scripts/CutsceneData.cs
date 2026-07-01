@@ -33,6 +33,11 @@ public class CutsceneData : ScriptableObject
                  "Se despliegan en la esquina superior derecha.")]
         public Sprite[] enemySprites = new Sprite[1];
 
+        [Tooltip("Índice del slot del Inspector de CutsceneScreen que define el " +
+                 "tamaño y posición del enemigo. 0 = Enemigo 1, 1 = Enemigo 2, etc. " +
+                 "Lvl1→0, Lvl2→1, Lvl3→2, Lvl4→3, Lvl5→4")]
+        public int enemyInspectorSlot = 0;
+
         [Tooltip("Sprite del logo VS. Aparece en el centro y hace zoom-in.")]
         public Sprite vsSprite;
 

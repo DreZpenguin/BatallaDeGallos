@@ -81,14 +81,16 @@ public class DeadZone : MonoBehaviour
         // Espera el tiempo de gracia antes de empezar a dañar
         if (_timeOutside < graceTime) return;
 
-        // Acumula daño fraccionario para no depender de framerate
+        // Acumula daño continuo — aplica cada segundo completo
+        // usando TakeDamageRaw para evitar que el cooldown de
+        // invencibilidad bloquee el daño fuera de arena
         _damageAccum += damagePorSegundo * Time.deltaTime;
 
         if (_damageAccum >= 1f)
         {
             float dmg    = Mathf.Floor(_damageAccum);
             _damageAccum -= dmg;
-            _playerHealth.TakeDamage(dmg);
+            _playerHealth.TakeDamageRaw(dmg);   // bypasea invencibilidad
         }
     }
 

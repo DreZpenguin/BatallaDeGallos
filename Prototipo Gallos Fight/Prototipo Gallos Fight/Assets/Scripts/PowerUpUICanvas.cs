@@ -72,6 +72,20 @@ public class PowerUpUICanvas : MonoBehaviour
     [Tooltip("Segundos entre movimientos de navegación (evita saltos rápidos).")]
     [SerializeField] private float navRepeatDelay = 0.25f;
 
+    [Header("── Animación de cartas (slide-down) ──────────────")]
+    [Tooltip("Velocidad del deslizamiento de las cartas en píxeles UI por segundo.")]
+    [SerializeField] private float cardSlideSpeed = 1800f;
+
+    [Tooltip("Transforms de INICIO para cada carta (fuera de pantalla, arriba). " +
+             "Mismo orden que cards[]. Crea un GameObject vacío sobre el Canvas " +
+             "para cada carta y asígnalo aquí.")]
+    [SerializeField] private RectTransform[] cardStartPoints;
+
+    [Tooltip("Transforms de FIN para cada carta (posición final visible). " +
+             "Mismo orden que cards[]. Crea un GameObject vacío en la posición " +
+             "final deseada de cada carta y asígnalo aquí.")]
+    [SerializeField] private RectTransform[] cardEndPoints;
+
     // ── Estado interno ─────────────────────────────────────────
     private PowerUpOption[]     _options;
     private Action<PowerUpType> _onSelected;
@@ -80,6 +94,8 @@ public class PowerUpUICanvas : MonoBehaviour
     private int   _selectedIndex  = 0;
     private float _navTimer       = 0f;
     private bool  _axisWasNeutral = true;
+
+    private Coroutine  _slideCoroutine;
 
     // ── Unity Lifecycle ────────────────────────────────────────
 
@@ -92,6 +108,17 @@ public class PowerUpUICanvas : MonoBehaviour
     private void Update()
     {
         if (rootPanel == null || !rootPanel.activeSelf) return;
+
+        // Asegura que el EventSystem no dispare submit automático
+        var inputModule = FindFirstObjectByType<StandaloneInputModule>();
+        if (inputModule != null && inputModule.submitButton != "")
+        {
+            inputModule.submitButton   = "";
+            inputModule.cancelButton   = "";
+            inputModule.horizontalAxis = "";
+            inputModule.verticalAxis   = "";
+        }
+
         HandleGamepadNavigation();
     }
 
@@ -165,13 +192,25 @@ public class PowerUpUICanvas : MonoBehaviour
         }
 
         rootPanel.SetActive(true);
+
         RefreshGamepadSelection();
+
+        // Anima las cartas desde arriba hacia su posición final
+        if (_slideCoroutine != null) StopCoroutine(_slideCoroutine);
+        _slideCoroutine = StartCoroutine(SlideCardsIn());
+        AudioManager.Instance?.PlayCardAppear();
+
+        // Muestra el StatsModal si existe
+        StatsModal.Instance?.Show();
     }
 
     public void Hide()
     {
         if (rootPanel != null)
             rootPanel.SetActive(false);
+
+        // Oculta el StatsModal al cerrar la selección de powerup
+        StatsModal.Instance?.Hide();
     }
 
     // ── Resolución de sprite por tipo ──────────────────────────
@@ -246,5 +285,61 @@ public class PowerUpUICanvas : MonoBehaviour
         PowerUpType chosen = _options[index].id;
         Hide();
         _onSelected?.Invoke(chosen);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  ANIMACIÓN SLIDE-DOWN DE CARTAS
+    // ══════════════════════════════════════════════════════════
+
+    private System.Collections.IEnumerator SlideCardsIn()
+    {
+        // Valida que haya puntos configurados
+        if (cardStartPoints == null || cardEndPoints == null)
+        {
+            Debug.LogWarning("[PowerUpUICanvas] cardStartPoints o cardEndPoints no asignados.");
+            yield break;
+        }
+
+        // Obtiene RectTransforms de las cartas activas
+        RectTransform[] rts = new RectTransform[cards.Length];
+        for (int i = 0; i < cards.Length; i++)
+        {
+            if (cards[i] == null || !cards[i].activeSelf) continue;
+            rts[i] = cards[i].GetComponent<RectTransform>();
+        }
+
+        // Coloca cada carta en su punto de inicio
+        for (int i = 0; i < cards.Length; i++)
+        {
+            if (rts[i] == null) continue;
+            if (i >= cardStartPoints.Length || cardStartPoints[i] == null) continue;
+            rts[i].position = cardStartPoints[i].position;
+        }
+
+        // Anima hacia el punto final
+        bool allDone = false;
+        while (!allDone)
+        {
+            allDone = true;
+            for (int i = 0; i < cards.Length; i++)
+            {
+                if (rts[i] == null) continue;
+                if (i >= cardEndPoints.Length || cardEndPoints[i] == null) continue;
+
+                Vector3 target = cardEndPoints[i].position;
+                Vector3 next   = Vector3.MoveTowards(
+                    rts[i].position, target,
+                    cardSlideSpeed * Time.unscaledDeltaTime);
+
+                rts[i].position = next;
+
+                if (Vector3.Distance(next, target) > 0.5f)
+                    allDone = false;
+                else
+                    rts[i].position = target;
+            }
+            yield return null;
+        }
+        _slideCoroutine = null;
     }
 }

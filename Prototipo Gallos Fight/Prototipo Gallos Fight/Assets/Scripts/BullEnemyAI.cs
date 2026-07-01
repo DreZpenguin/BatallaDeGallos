@@ -121,13 +121,22 @@ public class BullEnemyAI : MonoBehaviour
     [SerializeField] private AnimationCurve shakeDecayCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
 
     // ──────────────────────────────────────────────────────────
+    [Header("── Inactividad inicial ──────────────────────────")]
+    [Tooltip("Segundos que el toro permanece inactivo al iniciar la escena.")]
+    [SerializeField] private float startupDelay = 1f;
+
     [Header("── Daño de contacto ──────────────────────────────")]
 
-    [Tooltip("Daño al jugador durante la embestida.")]
-    [SerializeField] private float chargeDamage = 30f;
+    [Tooltip("Hitbox hijo del toro (GameObject con BullHitbox.cs). " +
+             "Se busca automáticamente si queda vacío.")]
+    [SerializeField] private BullHitbox bullHitbox;
 
-    [Tooltip("Radio de contacto para detectar al jugador.")]
-    [SerializeField] private float damageRadius = 0.8f;
+    [Tooltip("Daño al jugador durante la embestida.")]
+    [SerializeField] private float chargeDamage   = 30f;
+
+    [Tooltip("Cooldown entre golpes consecutivos (segundos). " +
+             "Evita daño múltiple si el jugador queda dentro del trigger.")]
+    [SerializeField] private float damageCooldownDuration = 0.5f;
 
     // ══════════════════════════════════════════════════════════
     //  ESTADO INTERNO
@@ -165,7 +174,7 @@ public class BullEnemyAI : MonoBehaviour
 
     // Anti-spam de daño
     private float _damageCooldown = 0f;
-    private const float DmgInterval = 0.5f;
+    private float _startupTimer   = 0f;
 
     // ══════════════════════════════════════════════════════════
     //  LIFECYCLE
@@ -177,6 +186,10 @@ public class BullEnemyAI : MonoBehaviour
         _healthSystem   = GetComponent<HealthSystem>();
         _spriteRenderer = GetComponent<SpriteRenderer>()
                        ?? GetComponentInChildren<SpriteRenderer>();
+
+        // Busca BullHitbox en hijos si no está asignada
+        if (bullHitbox == null)
+            bullHitbox = GetComponentInChildren<BullHitbox>();
 
         _rb.gravityScale   = 0f;
         _rb.linearDamping  = 0f;
@@ -218,11 +231,19 @@ public class BullEnemyAI : MonoBehaviour
         _minScanTimer  = minScanTime;
         _noVisionTimer = 0f;
         _healthSystem.OnDeath.AddListener(OnDeath);
+
+        _startupTimer = startupDelay;
     }
 
     private void Update()
     {
         if (_state == State.Dead || playerTransform == null) return;
+
+        if (_startupTimer > 0f)
+        {
+            _startupTimer -= Time.deltaTime;
+            return;
+        }
 
         if (_damageCooldown > 0f)
             _damageCooldown -= Time.deltaTime;
@@ -237,6 +258,7 @@ public class BullEnemyAI : MonoBehaviour
     private void FixedUpdate()
     {
         if (_state == State.Dead) return;
+        if (_startupTimer > 0f) return;
 
         switch (_state)
         {
@@ -325,12 +347,14 @@ public class BullEnemyAI : MonoBehaviour
     {
         _state = State.PreCharge;
 
-        _chargeDir           = transform.up.normalized;
-        _preChargeAnchor     = _rb.position;
-        _distanceFromAnchor  = 0f;
+        _chargeDir          = transform.up.normalized;
+        _preChargeAnchor    = _rb.position;
+        _distanceFromAnchor = 0f;
 
         _rb.linearVelocity = Vector2.zero;
         _rb.constraints    = RigidbodyConstraints2D.FreezeAll;
+
+        bullHitbox?.SetActive(false);  // ← asegura que esté desactivada
 
         Debug.Log($"[BullEnemyAI] {gameObject.name} → PRE-EMBESTIDA ({preChargeDelay}s)");
 
@@ -363,8 +387,6 @@ public class BullEnemyAI : MonoBehaviour
         _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         _activeCoroutine = null;
-        AudioManager.Instance?.PlayBullCharge();
-
         BeginCharge();
     }
 
@@ -374,17 +396,15 @@ public class BullEnemyAI : MonoBehaviour
 
     private void BeginCharge()
     {
-        _state               = State.Charging;
-        _distanceFromAnchor  = 0f;
+        _state              = State.Charging;
+        _distanceFromAnchor = 0f;
 
-        // ── Velocidad instantánea al máximo ───────────────────
-        // Se aplica directamente en BeginCharge sin esperar FixedUpdate,
-        // usando el método de física que garantiza aplicación inmediata.
-
-        _currentSpeed = chargeMaxSpeed;
+        _currentSpeed      = chargeMaxSpeed;
         _rb.linearVelocity = _chargeDir * _currentSpeed;
 
-        //AudioManager.Instance?.PlayBullCharge();
+        bullHitbox?.SetActive(true);   // ← activa el trigger de daño
+
+        AudioManager.Instance?.PlayBullCharge();
         Debug.Log($"[BullEnemyAI] {gameObject.name} → EMBESTIDA explosiva a {chargeMaxSpeed} u/s");
     }
 
@@ -396,8 +416,6 @@ public class BullEnemyAI : MonoBehaviour
             BeginStun();
             return;
         }
-
-        TryDamagePlayer();
     }
 
     private void FixedTickCharging()
@@ -430,9 +448,11 @@ public class BullEnemyAI : MonoBehaviour
 
     private void BeginStun()
     {
-        _state = State.Stunned;
+        _state             = State.Stunned;
         _rb.linearVelocity = Vector2.zero;
         _currentSpeed      = 0f;
+
+        bullHitbox?.SetActive(false);  // ← desactiva el trigger de daño
 
         AudioManager.Instance?.PlayBullStun();
         Debug.Log($"[BullEnemyAI] {gameObject.name} → ATURDIDO ({stunDuration}s)");
@@ -523,23 +543,20 @@ public class BullEnemyAI : MonoBehaviour
     }
 
     // ══════════════════════════════════════════════════════════
-    //  DAÑO DE CONTACTO
+    //  DAÑO DE CONTACTO — llamado desde BullHitbox
     // ══════════════════════════════════════════════════════════
 
-    private void TryDamagePlayer()
+    /// Llamado por BullHitbox cuando el trigger toca al jugador.
+    public void OnHitboxContact(HealthSystem playerHealth, Vector3 contactPosition)
     {
-        if (_damageCooldown > 0f || playerTransform == null) return;
+        if (_damageCooldown > 0f) return;
+        if (_state != State.Charging) return;
 
-        float dist = Vector2.Distance(transform.position, playerTransform.position);
-        if (dist > damageRadius) return;
+        Vector2 hitDir = ((Vector2)contactPosition - (Vector2)transform.position).normalized;
 
-        HealthSystem ph = playerTransform.GetComponent<HealthSystem>();
-        if (ph == null) return;
-
-        Vector2 hitDir = ((Vector2)playerTransform.position - (Vector2)transform.position).normalized;
-        if (ph.TakeDamage(chargeDamage, hitDir))
+        if (playerHealth.TakeDamage(chargeDamage, hitDir))
         {
-            _damageCooldown = DmgInterval;
+            _damageCooldown = damageCooldownDuration;
             Debug.Log($"[BullEnemyAI] Golpeó al jugador: {chargeDamage} dmg.");
         }
     }
@@ -564,6 +581,8 @@ public class BullEnemyAI : MonoBehaviour
         _rb.linearVelocity = Vector2.zero;
         _rb.constraints    = RigidbodyConstraints2D.FreezeRotation;
         _rb.bodyType       = RigidbodyType2D.Kinematic;
+
+        bullHitbox?.SetActive(false);  // ← desactiva el trigger al morir
 
         if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
 
@@ -602,9 +621,7 @@ public class BullEnemyAI : MonoBehaviour
         Gizmos.DrawRay(transform.position, (Vector3)RotateVec(fwd, -rad) * detectionRange);
         Gizmos.DrawRay(transform.position, (Vector3)fwd * detectionRange);
 
-        // Radio de daño
-        Gizmos.color = new Color(1f, 0.1f, 0.1f, 0.5f);
-        Gizmos.DrawWireSphere(transform.position, damageRadius);
+        // Radio de daño — ahora es el collider del BullHitbox hijo
 
         // Zona de frenado y stun en la arena
         if (arenaCollider != null)

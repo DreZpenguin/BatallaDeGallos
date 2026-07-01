@@ -1,0 +1,637 @@
+fileFormatVersion: 2
+guid: 6adcd57a4004f0c4f8b07edbfd462b80
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6400719469985693560
+    second: Efecto Toro_0
+  - first:
+      213: 5137839065831728191
+    second: Efecto Toro_1
+  - first:
+      213: 1390912066443533519
+    second: Efecto Toro_2
+  - first:
+      213: 3346492447162469512
+    second: Efecto Toro_3
+  - first:
+      213: -4939897945020235175
+    second: Efecto Toro_4
+  - first:
+      213: 4393022267641858181
+    second: Efecto Toro_5
+  - first:
+      213: -2188773509707248779
+    second: Efecto Toro_6
+  - first:
+      213: 3975482992997754994
+    second: Efecto Toro_7
+  - first:
+      213: 5902170784069883416
+    second: Efecto Toro_8
+  - first:
+      213: 1286063703839392336
+    second: Efecto Toro_9
+  - first:
+      213: 6055286624993429253
+    second: Efecto Toro_10
+  - first:
+      213: -2781678069523801282
+    second: Efecto Toro_11
+  - first:
+      213: 8242000966155339675
+    second: Efecto Toro_12
+  - first:
+      213: -7687862394770314163
+    second: Efecto Toro_13
+  - first:
+      213: -7151476672577879762
+    second: Efecto Toro_14
+  - first:
+      213: 2945918324909069778
+    second: Efecto Toro_15
+  - first:
+      213: 5115015426015417152
+    second: Efecto Toro_16
+  - first:
+      213: -5414462124539498660
+    second: Efecto Toro_17
+  - first:
+      213: 8325568102298300917
+    second: Efecto Toro_18
+  - first:
+      213: -5998484806860740621
+    second: Efecto Toro_19
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Efecto Toro_0
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 17
+        width: 35
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8808394fd831c27a0800000000000000
+      internalID: -6400719469985693560
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_1
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 17
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f346600b8654d4740800000000000000
+      internalID: 5137839065831728191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_2
+      rect:
+        serializedVersion: 2
+        x: 100
+        y: 17
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fccdb22b7238d4310800000000000000
+      internalID: 1390912066443533519
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_3
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 17
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88c85a47621217e20800000000000000
+      internalID: 3346492447162469512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_4
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 17
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9520360edf4f17bb0800000000000000
+      internalID: -4939897945020235175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_5
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 17
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5888c292a7627fc30800000000000000
+      internalID: 4393022267641858181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_6
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 17
+        width: 11
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57b4d1ce61aef91e0800000000000000
+      internalID: -2188773509707248779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_7
+      rect:
+        serializedVersion: 2
+        x: 178
+        y: 17
+        width: 11
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 278ec3818b0cb2730800000000000000
+      internalID: 3975482992997754994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_8
+      rect:
+        serializedVersion: 2
+        x: 194
+        y: 17
+        width: 12
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8169c2c9e09b8e150800000000000000
+      internalID: 5902170784069883416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_9
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 17
+        width: 12
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 052ced1ff1409d110800000000000000
+      internalID: 1286063703839392336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_10
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 16
+        width: 12
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50748e76a13b80450800000000000000
+      internalID: 6055286624993429253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_11
+      rect:
+        serializedVersion: 2
+        x: 242
+        y: 16
+        width: 12
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3b1a82a88e7569d0800000000000000
+      internalID: -2781678069523801282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_12
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 16
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b978d12f538716270800000000000000
+      internalID: 8242000966155339675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_13
+      rect:
+        serializedVersion: 2
+        x: 276
+        y: 16
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4ca1ad42e93f4590800000000000000
+      internalID: -7687862394770314163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_14
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 16
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e21c08f3bd9d0cc90800000000000000
+      internalID: -7151476672577879762
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_15
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 16
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d5d48dbb1102e820800000000000000
+      internalID: 2945918324909069778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_16
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 16
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 043da40fd6f2cf640800000000000000
+      internalID: 5115015426015417152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_17
+      rect:
+        serializedVersion: 2
+        x: 342
+        y: 16
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5f24018267fbd4b0800000000000000
+      internalID: -5414462124539498660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_18
+      rect:
+        serializedVersion: 2
+        x: 354
+        y: 16
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f130da041c5a8370800000000000000
+      internalID: 8325568102298300917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Efecto Toro_19
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 16
+        width: 103
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f7ec7879d911cca0800000000000000
+      internalID: -5998484806860740621
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Efecto Toro_0: -6400719469985693560
+      Efecto Toro_1: 5137839065831728191
+      Efecto Toro_10: 6055286624993429253
+      Efecto Toro_11: -2781678069523801282
+      Efecto Toro_12: 8242000966155339675
+      Efecto Toro_13: -7687862394770314163
+      Efecto Toro_14: -7151476672577879762
+      Efecto Toro_15: 2945918324909069778
+      Efecto Toro_16: 5115015426015417152
+      Efecto Toro_17: -5414462124539498660
+      Efecto Toro_18: 8325568102298300917
+      Efecto Toro_19: -5998484806860740621
+      Efecto Toro_2: 1390912066443533519
+      Efecto Toro_3: 3346492447162469512
+      Efecto Toro_4: -4939897945020235175
+      Efecto Toro_5: 4393022267641858181
+      Efecto Toro_6: -2188773509707248779
+      Efecto Toro_7: 3975482992997754994
+      Efecto Toro_8: 5902170784069883416
+      Efecto Toro_9: 1286063703839392336
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

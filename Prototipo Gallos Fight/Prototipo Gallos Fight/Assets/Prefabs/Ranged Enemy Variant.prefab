@@ -149,6 +149,10 @@ PrefabInstance:
       value: 0.86415094
       objectReference: {fileID: 0}
     - target: {fileID: 5692956560386035407, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: enemyType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5692956560386035407, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: hitColor.g
       value: 0.0806483
       objectReference: {fileID: 0}
@@ -156,6 +160,10 @@ PrefabInstance:
       propertyPath: knockbackForce
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 5692956560386035407, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
+      propertyPath: deathParticlesPrefab
+      value: 
+      objectReference: {fileID: 6874512615625142901, guid: 5ad9e11ca0ec0d2448b076ac93d4c82f, type: 3}
     - target: {fileID: 5692956560386035407, guid: 344500ddbac17f544b55c5dd0f0a3649, type: 3}
       propertyPath: OnDeath.m_PersistentCalls.m_Calls.Array.size
       value: 0
@@ -252,6 +260,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ace3352601e0ed940b124aff8e295fa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startupDelay: 1
   playerTransform: {fileID: 0}
   arenaCollider: {fileID: 0}
   firePoint: {fileID: 0}

@@ -1,5 +1,19 @@
 // ============================================================
-//  MenuNavigator.cs  — v1
+//  MenuNavigator.cs  — v2
+//
+//  CAMBIOS respecto a v1:
+//   · Paneles identificados por string en vez de enum —
+//     puedes añadir tantos paneles como quieras sin tocar código.
+//   · Se desactiva la navegación automática del EventSystem
+//     (StandaloneInputModule) para evitar que JoystickButton0
+//     active botones por duplicado.
+//   · PressCurrentButton invoca directamente el onClick del
+//     botón en _selectedIndex, sin depender del EventSystem.
+//   · El highlight visual se hace solo con Select() sobre el
+//     botón — sin interferir con la lógica de confirmación.
+//   · Soporte de sliders en paneles de opciones: LB/RB o
+//     flechas izq/der mueven el slider seleccionado.
+// ============================================================
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,35 +21,32 @@ using UnityEngine.EventSystems;
 
 public class MenuNavigator : MonoBehaviour
 {
-    // ── Enum de paneles ────────────────────────────────────────
-    /// Extiende este enum para añadir nuevos menús sin tocar otra lógica.
-    public enum MenuPanel
-    {
-        Main,
-        Options,
-        Credits,
-        // Añade aquí: Pause, Inventory, etc.
-    }
-
     // ── Datos de un panel ──────────────────────────────────────
     [Serializable]
     public class PanelData
     {
-        [Tooltip("Identificador del panel (debe coincidir con el enum MenuPanel).")]
-        public MenuPanel id;
+        [Tooltip("Identificador único del panel. Usa este string en SwitchToPanel().")]
+        public string id;
 
-        [Tooltip("GameObject raíz del panel. Se activa/desactiva al cambiar de panel.")]
+        [Tooltip("GameObject raíz del panel.")]
         public GameObject rootObject;
 
-        [Tooltip("Botones del panel en orden de navegación (arriba→abajo o izq→der).")]
+        [Tooltip("Botones navegables del panel en orden. " +
+                 "Para paneles con sliders, deja este array vacío o solo con el botón de salir.")]
         public Button[] buttons;
 
-        [Tooltip("Dirección de navegación: Vertical (arriba/abajo) u Horizontal (izq/der).")]
+        [Tooltip("Sliders del panel (opcional). Se navegan con arriba/abajo, " +
+                 "se ajustan con izquierda/derecha o LB/RB.")]
+        public Slider[] sliders;
+
+        [Tooltip("Dirección de navegación entre botones.")]
         public NavDirection navDirection = NavDirection.Vertical;
 
-        [Tooltip("Panel al que vuelve el botón B / Escape. Deja vacío para no hacer nada.")]
+        [Tooltip("Activa si este panel puede volver atrás con B/Escape.")]
         public bool hasBackPanel = false;
-        public MenuPanel backPanel = MenuPanel.Main;
+
+        [Tooltip("ID del panel al que vuelve con B/Escape.")]
+        public string backPanelId = "Main";
     }
 
     public enum NavDirection { Vertical, Horizontal }
@@ -46,26 +57,23 @@ public class MenuNavigator : MonoBehaviour
     [SerializeField] private PanelData[] panels;
 
     [Header("Panel inicial")]
-    [SerializeField] private MenuPanel initialPanel = MenuPanel.Main;
+    [SerializeField] private string initialPanelId = "Main";
 
     [Header("Control — Mando Xbox")]
-    [Tooltip("Eje de navegación vertical (D-Pad / stick izq). Configura 'DPadY' en el Input Manager.")]
     [SerializeField] private string navAxisY = "DPadY";
-
-    [Tooltip("Eje de navegación horizontal (D-Pad / stick izq). Para paneles horizontales.")]
     [SerializeField] private string navAxisX = "DPadX";
-
-    [Tooltip("Botón de confirmación del mando (A = joystick button 0).")]
     [SerializeField] private KeyCode gamepadConfirmKey = KeyCode.JoystickButton0;
+    [SerializeField] private KeyCode gamepadBackKey    = KeyCode.JoystickButton1;
 
-    [Tooltip("Botón de cancelar / volver (B = joystick button 1).")]
-    [SerializeField] private KeyCode gamepadBackKey = KeyCode.JoystickButton1;
+    [Tooltip("Eje para ajustar sliders horizontalmente (stick izq horizontal o DPad X).")]
+    [SerializeField] private string sliderAxisX = "DPadX";
 
-    [Tooltip("Umbral del eje para considerar que hay input de navegación.")]
-    [SerializeField, Range(0.1f, 0.9f)] private float navDeadzone = 0.5f;
+    [Tooltip("Cuánto mueve el slider por segundo con el mando.")]
+    [SerializeField] private float sliderStep = 0.5f;
 
-    [Tooltip("Segundos entre cada movimiento de navegación (evita saltos rápidos).")]
-    [SerializeField] private float navRepeatDelay = 0.2f;
+    [SerializeField, Range(0.1f, 0.9f)] private float navDeadzone    = 0.5f;
+    [SerializeField] private float navRepeatDelay  = 0.2f;
+    [SerializeField] private float sliderRepeatDelay = 0.05f;
 
     [Header("Control — Teclado (fallback)")]
     [SerializeField] private KeyCode kbUpKey      = KeyCode.UpArrow;
@@ -76,80 +84,95 @@ public class MenuNavigator : MonoBehaviour
     [SerializeField] private KeyCode kbBackKey    = KeyCode.Escape;
 
     [Header("Opciones")]
-    [Tooltip("Si está activo, al llegar al último botón el cursor salta al primero (y viceversa).")]
     [SerializeField] private bool wrapAround = true;
 
     // ── Estado interno ─────────────────────────────────────────
     private PanelData _currentPanel;
-    private int       _selectedIndex  = 0;
+    private int       _selectedIndex  = 0;   // índice unificado: botones primero, sliders después
     private float     _navTimer       = 0f;
+    private float     _sliderTimer    = 0f;
     private bool      _axisWasNeutral = true;
-    private bool      _isActive       = true;   // permite pausar la navegación externamente
+    private bool      _sliderAxisWasNeutral = true;
+    private bool      _isActive       = true;
 
     // ── Unity Lifecycle ────────────────────────────────────────
 
     private void Start()
     {
-        // Desactiva todos los paneles al inicio y activa el inicial
+        // Desactiva la navegación automática del EventSystem
+        // para evitar que JoystickButton0 active botones por su cuenta
+        DisableEventSystemNavigation();
+
         foreach (var p in panels)
             if (p.rootObject != null)
                 p.rootObject.SetActive(false);
 
-        SwitchToPanel(initialPanel);
+        SwitchToPanel(initialPanelId);
     }
 
     private void Update()
     {
         if (!_isActive || _currentPanel == null) return;
 
-        _navTimer -= Time.unscaledDeltaTime;
+        _navTimer    -= Time.unscaledDeltaTime;
+        _sliderTimer -= Time.unscaledDeltaTime;
 
         HandleNavigationInput();
         HandleConfirmInput();
         HandleBackInput();
+        HandleSliderInput();
+    }
+
+    // ── Desactiva navegación automática del EventSystem ────────
+
+    private void DisableEventSystemNavigation()
+    {
+        // Desactiva el StandaloneInputModule para que no procese
+        // JoystickButton0 como Submit automáticamente
+        var inputModule = FindFirstObjectByType<StandaloneInputModule>();
+        if (inputModule != null)
+        {
+            inputModule.submitButton    = "";   // vacía el botón de submit
+            inputModule.cancelButton    = "";   // vacía el botón de cancel
+            inputModule.horizontalAxis  = "";
+            inputModule.verticalAxis    = "";
+        }
     }
 
     // ── Cambio de panel ────────────────────────────────────────
 
-    /// Cambia al panel indicado. Desactiva el panel actual y activa el nuevo.
-    public void SwitchToPanel(MenuPanel target)
+    public void SwitchToPanel(string targetId)
     {
-        // Desactiva panel actual
         if (_currentPanel != null && _currentPanel.rootObject != null)
             _currentPanel.rootObject.SetActive(false);
 
-        // Busca el nuevo panel
         PanelData found = null;
         foreach (var p in panels)
         {
-            if (p.id == target)
-            {
-                found = p;
-                break;
-            }
+            if (p.id == targetId) { found = p; break; }
         }
 
         if (found == null)
         {
-            Debug.LogWarning($"[MenuNavigator] Panel '{target}' no encontrado en el array 'panels'.");
+            Debug.LogWarning($"[MenuNavigator] Panel '{targetId}' no encontrado.");
             return;
         }
 
-        _currentPanel  = found;
-        _selectedIndex = 0;
-        _navTimer      = 0f;
-        _axisWasNeutral = true;
+        _currentPanel        = found;
+        _selectedIndex       = 0;
+        _navTimer            = 0f;
+        _axisWasNeutral      = true;
+        _sliderAxisWasNeutral = true;
 
         if (_currentPanel.rootObject != null)
             _currentPanel.rootObject.SetActive(true);
 
         RefreshSelection();
-        Debug.Log($"[MenuNavigator] Cambió al panel: {target}");
+        Debug.Log($"[MenuNavigator] → Panel: {targetId}");
     }
 
     // ── Activación externa ─────────────────────────────────────
 
-    /// Activa o pausa la navegación (útil cuando otro sistema toma el control, ej. PowerUpUICanvas).
     public void SetActive(bool active)
     {
         _isActive = active;
@@ -163,7 +186,8 @@ public class MenuNavigator : MonoBehaviour
 
     private void HandleNavigationInput()
     {
-        if (_currentPanel.buttons == null || _currentPanel.buttons.Length == 0) return;
+        int totalItems = TotalItems();
+        if (totalItems == 0) return;
         if (_navTimer > 0f) return;
 
         int dir = 0;
@@ -171,21 +195,17 @@ public class MenuNavigator : MonoBehaviour
         if (_currentPanel.navDirection == NavDirection.Vertical)
         {
             float axisV = GetAxis(navAxisY);
-
-            // Eje analógico
             if (Mathf.Abs(axisV) >= navDeadzone && _axisWasNeutral)
-                dir = axisV > 0f ? -1 : 1;   // eje Y positivo = D-Pad arriba = subir índice
+                dir = axisV > 0f ? -1 : 1;
 
-            // Teclado
             if (Input.GetKeyDown(kbUpKey))   dir = -1;
-            if (Input.GetKeyDown(kbDownKey))  dir =  1;
+            if (Input.GetKeyDown(kbDownKey)) dir =  1;
 
             _axisWasNeutral = Mathf.Abs(axisV) < navDeadzone;
         }
-        else // Horizontal
+        else
         {
             float axisH = GetAxis(navAxisX);
-
             if (Mathf.Abs(axisH) >= navDeadzone && _axisWasNeutral)
                 dir = axisH > 0f ? 1 : -1;
 
@@ -197,11 +217,10 @@ public class MenuNavigator : MonoBehaviour
 
         if (dir == 0) return;
 
-        int count = _currentPanel.buttons.Length;
         if (wrapAround)
-            _selectedIndex = (_selectedIndex + dir + count) % count;
+            _selectedIndex = (_selectedIndex + dir + totalItems) % totalItems;
         else
-            _selectedIndex = Mathf.Clamp(_selectedIndex + dir, 0, count - 1);
+            _selectedIndex = Mathf.Clamp(_selectedIndex + dir, 0, totalItems - 1);
 
         _navTimer = navRepeatDelay;
         RefreshSelection();
@@ -209,48 +228,111 @@ public class MenuNavigator : MonoBehaviour
 
     private void HandleConfirmInput()
     {
-        bool confirm = Input.GetKeyDown(gamepadConfirmKey) || Input.GetKeyDown(kbConfirmKey);
+        bool confirm = Input.GetKeyDown(gamepadConfirmKey)
+                    || Input.GetKeyDown(kbConfirmKey);
         if (!confirm) return;
 
-        PressCurrentButton();
+        // Solo confirma si el índice apunta a un botón (no a un slider)
+        int btnCount = ButtonCount();
+        if (_selectedIndex < btnCount)
+            PressButton(_selectedIndex);
     }
 
     private void HandleBackInput()
     {
-        bool back = Input.GetKeyDown(gamepadBackKey) || Input.GetKeyDown(kbBackKey);
+        bool back = Input.GetKeyDown(gamepadBackKey)
+                 || Input.GetKeyDown(kbBackKey);
         if (!back) return;
 
         if (_currentPanel.hasBackPanel)
         {
-            SwitchToPanel(_currentPanel.backPanel);
-            AudioManager.Instance?.PlayPowerUpSelect(); // reutiliza el sonido de UI
+            SwitchToPanel(_currentPanel.backPanelId);
+            AudioManager.Instance?.PlayUIButton();
         }
     }
 
-    // ── Helpers ────────────────────────────────────────────────
-
-    private void PressCurrentButton()
+    private void HandleSliderInput()
     {
-        if (_currentPanel.buttons == null || _currentPanel.buttons.Length == 0) return;
-        if (_selectedIndex >= _currentPanel.buttons.Length) return;
+        int btnCount    = ButtonCount();
+        int sliderCount = SliderCount();
+        if (sliderCount == 0) return;
 
-        Button btn = _currentPanel.buttons[_selectedIndex];
+        // ¿El índice actual apunta a un slider?
+        int sliderIndex = _selectedIndex - btnCount;
+        if (sliderIndex < 0 || sliderIndex >= sliderCount) return;
+
+        Slider slider = _currentPanel.sliders[sliderIndex];
+        if (slider == null) return;
+
+        float axisH = GetAxis(sliderAxisX);
+        bool  leftDown  = Input.GetKey(kbLeftKey);
+        bool  rightDown = Input.GetKey(kbRightKey);
+
+        float input = 0f;
+        if (Mathf.Abs(axisH) >= navDeadzone) input = axisH;
+        if (leftDown)  input = -1f;
+        if (rightDown) input =  1f;
+
+        if (Mathf.Abs(input) > 0f && _sliderTimer <= 0f)
+        {
+            slider.value = Mathf.Clamp01(slider.value + input * sliderStep * sliderRepeatDelay);
+            _sliderTimer = sliderRepeatDelay;
+        }
+    }
+
+    // ── Helpers de conteo ──────────────────────────────────────
+
+    private int ButtonCount() =>
+        (_currentPanel?.buttons != null) ? _currentPanel.buttons.Length : 0;
+
+    private int SliderCount() =>
+        (_currentPanel?.sliders != null) ? _currentPanel.sliders.Length : 0;
+
+    private int TotalItems() => ButtonCount() + SliderCount();
+
+    // ── Presionar botón ────────────────────────────────────────
+
+    private void PressButton(int index)
+    {
+        if (_currentPanel.buttons == null || index >= _currentPanel.buttons.Length) return;
+
+        Button btn = _currentPanel.buttons[index];
         if (btn != null && btn.interactable)
         {
-            AudioManager.Instance?.PlayPowerUpSelect(); // sonido de confirmación de UI
-            btn.onClick.Invoke();
+            AudioManager.Instance?.PlayUIButton();
+            btn.onClick.Invoke();   // invoca directamente sin pasar por EventSystem
         }
     }
+
+    // ── Highlight visual ───────────────────────────────────────
 
     private void RefreshSelection()
     {
-        if (_currentPanel == null || _currentPanel.buttons == null) return;
+        if (_currentPanel == null) return;
 
-        // Limpia selección anterior
+        // Quita selección del EventSystem (solo visual, no funcional)
         EventSystem.current?.SetSelectedGameObject(null);
 
-        if (_selectedIndex < _currentPanel.buttons.Length && _currentPanel.buttons[_selectedIndex] != null)
-            EventSystem.current?.SetSelectedGameObject(_currentPanel.buttons[_selectedIndex].gameObject);
+        int btnCount = ButtonCount();
+
+        if (_selectedIndex < btnCount)
+        {
+            // Selecciona el botón visualmente
+            Button btn = _currentPanel.buttons[_selectedIndex];
+            if (btn != null)
+                btn.Select();   // solo highlight, no dispara onClick
+        }
+        else
+        {
+            // Selecciona el slider visualmente
+            int sliderIndex = _selectedIndex - btnCount;
+            if (_currentPanel.sliders != null
+                && sliderIndex < _currentPanel.sliders.Length
+                && _currentPanel.sliders[sliderIndex] != null)
+            {
+                _currentPanel.sliders[sliderIndex].Select();
+            }
+        }
     }
 
     private float GetAxis(string axisName)
@@ -259,15 +341,4 @@ public class MenuNavigator : MonoBehaviour
         try   { return Input.GetAxis(axisName); }
         catch { return 0f; }
     }
-
-    // ── ContextMenu (testing rápido desde Editor) ──────────────
-
-    [ContextMenu("Test → Switch to Main")]
-    private void TestMain()    => SwitchToPanel(MenuPanel.Main);
-
-    [ContextMenu("Test → Switch to Options")]
-    private void TestOptions() => SwitchToPanel(MenuPanel.Options);
-
-    [ContextMenu("Test → Switch to Credits")]
-    private void TestCredits() => SwitchToPanel(MenuPanel.Credits);
 }

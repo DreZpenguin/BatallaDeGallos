@@ -196,6 +196,7 @@ public class PauseManager : MonoBehaviour
         // Resetea powerups si sale al menú
         if (PlayerData.Instance != null)
             PlayerData.Instance.ResetAll();
+        StatsModal.ClearSavedLevels();
 
         SceneManager.LoadScene(sceneMenu);
     }
@@ -215,18 +216,21 @@ public class PauseManager : MonoBehaviour
     {
         ApplyVolume(PARAM_MASTER, value);
         PlayerPrefs.SetFloat(KEY_MASTER, value);
+        AudioManager.Instance?.PlaySliderSFX();
     }
 
     public void SetMusicVolume(float value)
     {
         ApplyVolume(PARAM_MUSIC, value);
         PlayerPrefs.SetFloat(KEY_MUSIC, value);
+        AudioManager.Instance?.PlaySliderMusic();
     }
 
     public void SetSFXVolume(float value)
     {
         ApplyVolume(PARAM_SFX, value);
         PlayerPrefs.SetFloat(KEY_SFX, value);
+        AudioManager.Instance?.PlaySliderSFX();
     }
 
     private void LoadAudioSettings()

@@ -16,6 +16,11 @@ public class EnemyAI : MonoBehaviour
     [Tooltip("Distancia a la que el enemigo deja de moverse y comienza a atacar.")]
     [SerializeField] private float attackRange = 1.5f;
 
+    [Header("Inactividad inicial")]
+    [Tooltip("Segundos que el enemigo permanece inactivo al iniciar la escena, " +
+             "antes de empezar a detectar y perseguir al jugador.")]
+    [SerializeField] private float startupDelay = 1f;
+
     [Header("Movimiento")]
     [Tooltip("Velocidad de desplazamiento del enemigo hacia el jugador.")]
     [SerializeField] private float moveSpeed = 3.5f;
@@ -27,6 +32,8 @@ public class EnemyAI : MonoBehaviour
 
     private enum State { Idle, Chasing, Attacking, Dead }
     private State _currentState = State.Idle;
+
+    private float _startupTimer = 0f;
 
     private Rigidbody2D _rb;
     private AttackController _attackController;
@@ -71,11 +78,21 @@ public class EnemyAI : MonoBehaviour
         // Suscribirse al evento de muerte
         if (_healthSystem != null)
             _healthSystem.OnDeath.AddListener(OnDeath);
+
+        _startupTimer = startupDelay;
     }
 
     private void Update()
     {
         if (_currentState == State.Dead) return;
+
+        // Inactividad inicial: no detecta ni persigue durante startupDelay
+        if (_startupTimer > 0f)
+        {
+            _startupTimer -= Time.deltaTime;
+            return;
+        }
+
         if (playerTransform == null) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);

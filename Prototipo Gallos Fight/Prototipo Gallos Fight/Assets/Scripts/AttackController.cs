@@ -48,14 +48,22 @@ public class AttackController : MonoBehaviour
 
     // ── Control — Mando Xbox ───────────────────────────────────
     [Header("Control — Mando Xbox")]
-    [Tooltip("Botón del mando para atacar (X = joystick button 2).")]
-    [SerializeField] private KeyCode gamepadAttackKey = KeyCode.JoystickButton2;
+    [Tooltip("Botón del mando para atacar (se puede dejar en None si usas el gatillo).")]
+    [SerializeField] private KeyCode gamepadAttackKey = KeyCode.None;
+
+    [Tooltip("Eje del gatillo derecho (RT) para atacar. " +
+             "Mismo nombre que en ShootingController. Deja vacío para no usarlo.")]
+    [SerializeField] private string gamepadTriggerAxis = "RT";
+
+    [Tooltip("Umbral del gatillo para considerar que está presionado.")]
+    [SerializeField, Range(0f, 0.99f)] private float triggerThreshold = 0.3f;
 
     // ── Estado interno ─────────────────────────────────────────
     private float   _damageBonus     = 0f;
     private float   _cooldownTimer   = 0f;
     private Vector2 _facingDirection = Vector2.up;
     private bool    _isPlayer;
+    private bool    _triggerWasDown  = false;
 
     public float BaseDamage    => attackDamage;
     public float CurrentDamage => attackDamage * (1f + _damageBonus);
@@ -108,6 +116,13 @@ public class AttackController : MonoBehaviour
         bool attackPressed = Input.GetKeyDown(attackKey)
                           || Input.GetKeyDown(gamepadAttackKey);
 
+        // Gatillo RT — igual que en ShootingController
+        float triggerValue = GetTriggerAxis();
+        bool  triggerDown  = triggerValue >= triggerThreshold;
+        if (triggerDown && !_triggerWasDown)
+            attackPressed = true;
+        _triggerWasDown = triggerDown;
+
         if (attackPressed && _cooldownTimer <= 0f)
             StartAttack();
     }
@@ -133,6 +148,13 @@ public class AttackController : MonoBehaviour
         _damageBonus += percent;
         Debug.Log($"[AttackController] Daño +{percent * 100f:F0}%. " +
                   $"Total: {CurrentDamage:F1}");
+    }
+
+    private float GetTriggerAxis()
+    {
+        if (string.IsNullOrEmpty(gamepadTriggerAxis)) return 0f;
+        try   { return Input.GetAxis(gamepadTriggerAxis); }
+        catch { return 0f; }
     }
 
     // ══════════════════════════════════════════════════════════
