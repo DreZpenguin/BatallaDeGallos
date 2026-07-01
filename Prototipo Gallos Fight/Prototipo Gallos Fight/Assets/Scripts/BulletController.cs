@@ -1,12 +1,4 @@
-// ============================================================
-//  BulletController.cs  — v5
-//  Cambios respecto a v4:
-//   · Init recibe un parámetro knockbackMultiplier.
-//   · Al impactar aplica TakeDamageWithKnockback pasando la
-//     dirección y el multiplicador al HealthSystem.
-//   · Si knockbackMultiplier = 1 el comportamiento es idéntico
-//     a v4 — totalmente retrocompatible.
-// ============================================================
+
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]

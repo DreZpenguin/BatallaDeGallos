@@ -1,13 +1,4 @@
-// ============================================================
-//  CutsceneScreen.cs  — v4
-//
-//  CAMBIOS respecto a v3:
-//   · Eliminada la conversión Sprite→Texture2D completamente.
-//     Ahora se guardan los Sprite directamente y se dibujan
-//     con GUI.DrawTextureWithTexCoords, que calcula el UV rect
-//     del sprite dentro del atlas y lo dibuja sin recuadro negro
-//     ni necesidad de Read/Write Enabled.
-// ============================================================
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;

@@ -1,19 +1,4 @@
-// ============================================================
-//  MenuNavigator.cs  — v2
-//
-//  CAMBIOS respecto a v1:
-//   · Paneles identificados por string en vez de enum —
-//     puedes añadir tantos paneles como quieras sin tocar código.
-//   · Se desactiva la navegación automática del EventSystem
-//     (StandaloneInputModule) para evitar que JoystickButton0
-//     active botones por duplicado.
-//   · PressCurrentButton invoca directamente el onClick del
-//     botón en _selectedIndex, sin depender del EventSystem.
-//   · El highlight visual se hace solo con Select() sobre el
-//     botón — sin interferir con la lógica de confirmación.
-//   · Soporte de sliders en paneles de opciones: LB/RB o
-//     flechas izq/der mueven el slider seleccionado.
-// ============================================================
+
 using System;
 using UnityEngine;
 using UnityEngine.UI;

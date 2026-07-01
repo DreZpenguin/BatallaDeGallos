@@ -1,16 +1,4 @@
-// ============================================================
-//  InfiniteData.cs
-//
-//  Singleton persistente entre escenas para el modo infinito.
-//  Guarda:
-//   · Número de oleada actual
-//   · HP actual del jugador (para no regenerarse entre oleadas)
-//   · Si el modo infinito está activo (para que HealthSystem
-//     y otros sistemas sepan que no deben resetear)
-//
-//  Se destruye a sí mismo cuando el jugador muere o vuelve
-//  al menú (llamando a ResetInfiniteRun()).
-// ============================================================
+
 using UnityEngine;
 
 public class InfiniteData : MonoBehaviour

@@ -1,8 +1,4 @@
-// ============================================================
-//  EnemyScalingConfigV2.cs  — v2 (tabla de oleadas explícita)
-//  Hereda de EnemyScalingConfigBase para ser intercambiable
-//  con EnemyScalingConfig en el InfiniteLevelManager.
-// ============================================================
+
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "BatallaGallos/EnemyScalingConfig V2", fileName = "EnemyScalingConfigV2")]

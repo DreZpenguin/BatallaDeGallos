@@ -1,15 +1,5 @@
-// ============================================================
-//  MainMenuManager.cs  — v2
-//
-//  CAMBIO respecto a v1:
-//   · PlayNormal() ahora guarda el índice de nivel (0 para Lvl1)
-//     en PlayerPrefs con CutsceneScreen.KEY_LEVEL_INDEX y carga
-//     la escena "Cutscene" en lugar de "Instructions".
-//   · PlayInfinite() y PlayPractice() no cambian.
-//   · Se añade el campo sceneCutscene en el Inspector.
-//
-//  El resto del archivo es idéntico a v1.
-// ============================================================
+
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;

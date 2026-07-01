@@ -1,13 +1,4 @@
-// ============================================================
-//  PracticeTarget.cs
-//
-//  Añade este script al prefab del enemigo de práctica.
-//  Se suscribe a OnHealthChanged del HealthSystem y muestra
-//  un popup flotante con el daño recibido cada vez que es golpeado.
-//
-//  El popup sube durante su vida útil y se desvanece.
-//  Múltiples golpes generan múltiples popups independientes.
-// ============================================================
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

@@ -1,14 +1,4 @@
-// ============================================================
-//  HealthSystem.cs  — v3
-//
-//  CAMBIOS respecto a v2:
-//   · Nuevo enum EnemyType (Normal, Variant, Ranged, Bull) y
-//     campo serializado enemyType en el Inspector.
-//   · TakeDamage() y OnDeath ahora llaman al método de audio
-//     correspondiente al tipo de enemigo en vez de siempre
-//     PlayEnemyHit() / PlayEnemyDie().
-//   · El jugador no se ve afectado (sigue usando PlayPlayerHit/Die).
-// ============================================================
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;

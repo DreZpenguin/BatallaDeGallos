@@ -1,18 +1,4 @@
-// ============================================================
-//  AttackController.cs  — v3
-//
-//  CAMBIOS respecto a v2:
-//   · El VFX de garra usa un GameObject PERSISTENTE (hijo del
-//     jugador) con Animator. Ya no se instancia/destruye cada
-//     ataque. Esto permite que la animación corra completa.
-//   · La activación se hace con un Trigger "Attack" en el
-//     Animator. El estado Idle debe tener un sprite vacío/
-//     transparente. No hay idle con sprite visible.
-//   · La posición del VFX usa el Transform del propio collider
-//     de la hitbox (que ya está siempre frente al jugador),
-//     en lugar de calcular un offset rotado manualmente.
-//   · Si no hay clawVFXAnimator asignado, funciona igual que v1.
-// ============================================================
+
 using System.Collections;
 using UnityEngine;
 

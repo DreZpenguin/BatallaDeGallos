@@ -1,17 +1,4 @@
-// ============================================================
-//  ShootingController.cs  — v6
-//  Cambios respecto a v5:
-//   · Se eliminan los _upgradeStacks que subían daño+velocidad+vida juntos.
-//   · Tres bonuses independientes:
-//       _damageBonus    → solo sube el daño de la bala.
-//       _speedBonus     → solo sube la velocidad de la bala.
-//       _knockbackBonus → multiplicador de knockback de la bala.
-//   · AddBulletDamageBonus()    — llamado por PowerUpType.Shoot
-//   · AddBulletSpeedBonus()     — llamado por PowerUpType.Range
-//   · AddBulletKnockbackBonus() — llamado por PowerUpType.Range
-//   · SetBulletUpgradeStacks() se mantiene por retrocompatibilidad
-//     (lo convierte a damageBonus para no romper PlayerData).
-// ============================================================
+
 using UnityEngine;
 
 public class ShootingController : MonoBehaviour

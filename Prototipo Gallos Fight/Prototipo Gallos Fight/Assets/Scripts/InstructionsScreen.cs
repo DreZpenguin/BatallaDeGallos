@@ -1,28 +1,4 @@
-// ============================================================
-//  InstructionsScreen.cs
-//
-//  Muestra una pantalla de instrucciones por un tiempo
-//  configurable antes de cargar la escena destino.
-//
-//  FLUJO:
-//   MainMenu → (elige Normal o Infinito) → Escena "Instructions"
-//   → espera N segundos (o hasta que el jugador pulse cualquier
-//     tecla si skipOnInput = true) → carga la escena destino
-//     que fue guardada por el MainMenuManager.
-//
-//  SETUP EN UNITY:
-//   1. Crea una escena nueva llamada "Instructions" y añádela
-//      al Build Settings ENTRE el menú y Lvl1/LvlInfinite.
-//   2. En la escena coloca:
-//        - Main Camera
-//        - Canvas (Screen Space - Overlay)
-//            └── Image (ocupa toda la pantalla) ← asigna tu PNG aquí
-//        - GameObject vacío "InstructionsManager" con este script
-//   3. Asigna displayTime e indica si quieres skip con input.
-//   4. En MainMenuManager cambia las escenas destino a
-//      "Instructions" en lugar de "Lvl1" / "LvlInfinite".
-//      El nombre de la escena real se pasa via PlayerPrefs.
-// ============================================================
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;

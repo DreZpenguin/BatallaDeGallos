@@ -1,26 +1,4 @@
-// ============================================================
-//  PracticeManager.cs
-//
-//  Modo de práctica. Gestiona:
-//   · Un enemigo estacionario con vida infinita que muestra
-//     el daño recibido como popup flotante en pantalla.
-//   · Tecla configurable para abrir el menú de powerup.
-//   · El jugador conserva todos sus powerups y puede probarlos.
-//
-//  SETUP EN UNITY:
-//   1. Crea una escena "Practice" (duplica Lvl1, elimina enemigos
-//      y el LevelManager).
-//   2. Añade un GameObject vacío "PracticeManager" con este script.
-//   3. Crea un prefab de enemigo "PracticeTarget":
-//      - Sprite del enemigo que quieras usar de saco de golpes.
-//      - Añádele HealthSystem (useInvincibility = false).
-//      - Añádele PracticeTarget.cs (script incluido abajo).
-//      - NO le añadas ninguna IA (EnemyAI, BullEnemyAI, etc.).
-//   4. Asigna el prefab en el campo "targetPrefab".
-//   5. Asigna PowerUpUICanvas (el mismo que usas en los niveles).
-//   6. Coloca un Transform vacío "targetSpawnPoint" en el centro
-//      de la arena y asígnalo.
-// ============================================================
+
 using UnityEngine;
 
 public class PracticeManager : MonoBehaviour

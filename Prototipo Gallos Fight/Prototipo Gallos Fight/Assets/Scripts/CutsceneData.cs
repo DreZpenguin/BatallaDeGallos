@@ -1,17 +1,4 @@
-// ============================================================
-//  CutsceneData.cs
-//
-//  ScriptableObject que almacena los datos visuales de la
-//  cutscene de introducción para cada nivel del modo Normal.
-//
-//  SETUP EN UNITY:
-//   1. Click derecho en Project → BatallaGallos → CutsceneData
-//   2. Crea un asset (ej. "CutsceneLevels").
-//   3. Rellena el array levelEntries con un entry por nivel
-//      (5 entries para Lvl1–Lvl5).
-//   4. Asigna el asset en el campo "cutsceneData" de
-//      CutsceneScreen en la escena Cutscene.
-// ============================================================
+
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "BatallaGallos/CutsceneData", fileName = "CutsceneData")]

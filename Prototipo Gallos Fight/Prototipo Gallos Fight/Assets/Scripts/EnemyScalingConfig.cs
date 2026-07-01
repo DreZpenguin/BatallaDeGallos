@@ -1,8 +1,4 @@
-// ============================================================
-//  EnemyScalingConfig.cs  — v1 (curvas lineales)
-//  Hereda de EnemyScalingConfigBase para ser intercambiable
-//  con EnemyScalingConfigV2 en el InfiniteLevelManager.
-// ============================================================
+
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "BatallaGallos/EnemyScalingConfig", fileName = "EnemyScalingConfig")]

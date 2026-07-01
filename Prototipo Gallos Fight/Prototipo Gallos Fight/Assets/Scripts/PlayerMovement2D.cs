@@ -1,15 +1,4 @@
-// ============================================================
-//  PlayerMovement2D.cs  — v2
-//
-//  CAMBIO respecto a v1:
-//   · La rotación del personaje ya NO depende del stick izquierdo
-//     ni de la dirección de movimiento (WASD).
-//   · Con teclado/ratón: rota hacia el cursor del mouse (igual que antes).
-//   · Con mando: rota SOLO si el stick derecho supera el deadzone.
-//     Si el stick derecho está en reposo, el personaje mantiene
-//     su última dirección de apuntado sin girar hacia el movimiento.
-//   · El movimiento (WASD / stick izquierdo) nunca afecta la rotación.
-// ============================================================
+
 using UnityEngine;
 
 public class PlayerMovement2D : MonoBehaviour

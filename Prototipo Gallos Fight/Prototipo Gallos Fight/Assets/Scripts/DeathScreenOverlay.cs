@@ -1,28 +1,4 @@
-// ============================================================
-//  DeathScreenOverlay.cs  — v2
-//
-//  CAMBIOS respecto a v1:
-//   · Ahora maneja AMBOS resultados (Derrota y Victoria) con
-//     el mismo overlay — solo cambia texto y sonido, igual
-//     fade-in/hold/fade-out, igual Canvas, sin cambiar de escena.
-//   · EndGameScreen.cs ya NO es necesario — se elimina del
-//     proyecto. LevelManager ahora llama a este script para
-//     mostrar la victoria también.
-//   · Show(Result) reemplaza al antiguo Show() sin parámetros.
-//
-//  FLUJO:
-//   HealthSystem (muerte) → DeathScreenOverlay.Instance.Show(Result.Defeat)
-//   LevelManager (último nivel) → DeathScreenOverlay.Instance.Show(Result.Victory)
-//   → fade-in → espera mínima + input/auto-avance → fade-out → carga menú.
-//
-//  SETUP EN UNITY (igual que v1, sin cambios):
-//   Dentro del Canvas YA EXISTENTE de la escena de nivel:
-//     Canvas
-//      └── DeathScreenOverlay (RectTransform, Stretch completo)
-//           ├── Background (Image, alpha inicial 0)
-//           └── MessageText (TextMeshProUGUI, alpha inicial 0)
-//   Añade este script al GameObject "DeathScreenOverlay".
-// ============================================================
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;

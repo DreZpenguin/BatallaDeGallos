@@ -1,11 +1,4 @@
-// ============================================================
-//  EnemyScalingConfigBase.cs
-//
-//  Clase base abstracta que comparten EnemyScalingConfig y
-//  EnemyScalingConfigV2. InfiniteLevelManager referencia esta
-//  base, así acepta cualquiera de las dos en el Inspector
-//  sin necesidad de cambiar código.
-// ============================================================
+
 using UnityEngine;
 
 public abstract class EnemyScalingConfigBase : ScriptableObject

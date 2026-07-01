@@ -1,17 +1,4 @@
-// ============================================================
-//  DeadZone.cs  — v2
-//
-//  CAMBIO respecto a v1:
-//   · En lugar de un timer de 3s que mata instantáneamente,
-//     el jugador pierde dañoPerSegundo de HP cada segundo que
-//     permanezca fuera de la arena.
-//   · El daño es configurable desde el Inspector.
-//   · Se muestra un warning visual en pantalla (OnGUI) con
-//     una barra de cuenta regresiva mientras el jugador está fuera.
-//   · Si el jugador regresa, el daño se detiene inmediatamente.
-//   · El daño se aplica a través de HealthSystem.TakeDamage()
-//     igual que cualquier otro daño del juego.
-// ============================================================
+
 using System.Collections;
 using UnityEngine;
 

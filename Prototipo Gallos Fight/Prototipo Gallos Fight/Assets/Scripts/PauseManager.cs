@@ -1,25 +1,4 @@
-// ============================================================
-//  PauseManager.cs
-//
-//  Gestiona el menú de pausa in-game.
-//  · ESC (o botón de mando configurable) abre/cierra la pausa.
-//  · Panel principal de pausa: Reanudar, Opciones, Menú Principal.
-//  · Subpanel de Opciones: sliders de audio + fullscreen + Volver.
-//  · Usa el mismo AudioMixer que el menú principal.
-//  · Time.timeScale = 0 mientras está pausado.
-//
-//  SETUP EN UNITY:
-//   1. Añade este script a un GameObject en la escena de juego.
-//   2. Crea en el Canvas de la escena:
-//        Canvas
-//         └── PauseRoot (desactivado por defecto)
-//              ├── PausePanel      → botones Reanudar, Opciones, Menú Principal
-//              └── PauseOptions    → sliders, toggle fullscreen, botón Volver
-//   3. Asigna todos los campos del Inspector.
-//   4. Asigna el mismo AudioMixer que usa MainMenuManager.
-//   5. Solo activa este script en escenas de juego
-//      (Lvl1–Lvl5, LvlInfinite, Practice).
-// ============================================================
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;

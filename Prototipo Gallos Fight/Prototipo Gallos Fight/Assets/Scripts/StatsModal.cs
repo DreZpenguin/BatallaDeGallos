@@ -1,22 +1,4 @@
-// ============================================================
-//  StatsModal.cs  — v2
-//
-//  CAMBIOS respecto a v1:
-//   · Los niveles de cada stat ahora persisten entre escenas
-//     vía PlayerPrefs (igual que PlayerData / InfiniteData),
-//     en vez de vivir solo en memoria del componente.
-//   · El componente YA NO usa DontDestroyOnLoad — cada escena
-//     tiene su propio StatsModal con su propio Canvas/UI, pero
-//     todos leen y escriben los mismos PlayerPrefs.
-//   · Nuevo método estático ClearSavedLevels() para borrar el
-//     progreso guardado. Debe llamarse:
-//       - Al volver al menú principal (PauseManager / LevelManager)
-//       - Al morir el jugador (HealthSystem)
-//       - Al iniciar una nueva partida del modo Normal (MainMenuManager.PlayNormal)
-//   · RefreshAllLevels() ahora se llama en Start() leyendo
-//     siempre desde PlayerPrefs, así que cada nueva escena
-//     muestra el progreso acumulado correctamente.
-// ============================================================
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;

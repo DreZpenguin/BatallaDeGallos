@@ -1,21 +1,4 @@
-// ============================================================
-//  BullEnemyAI.cs  — v4
-//
-//  CAMBIOS respecto a v3:
-//   · Embestida explosiva: se elimina la aceleración gradual.
-//     El toro sale a chargeMaxSpeed en el primer FixedUpdate.
-//     Se añade chargeImpulseDelay (frames de espera tras soltar
-//     constraints) para asegurar que el motor de física procese
-//     el cambio antes de aplicar velocidad.
-//   · Camera shake al chocar con el borde (BeginStun).
-//     Implementado como corrutina interna que mueve el Transform
-//     de la cámara. No requiere paquetes externos.
-//     Parámetros: shakeDuration, shakeMagnitude, shakeFrequency.
-//   · Se mantiene toda la personalización de v3.
-//
-//  ESTADOS:
-//   ESCANEO → PRE_CHARGE → EMBESTIDA → ATURDIDO → ESCANEO
-// ============================================================
+
 using System.Collections;
 using UnityEngine;
 

@@ -1,23 +1,4 @@
-// ============================================================
-//  AudioManager.cs  — v2
-//
-//  CAMBIOS respecto a v1:
-//   · Jugador: añadido playerDashClip / PlayPlayerDash().
-//   · Enemigos diferenciados:
-//       - EnemyAI (normal):   usa enemyHit/Die/AttackClip    (sin cambio)
-//       - EnemyAI (variante): usa variantHit/Die/AttackClip
-//       - RangedEnemyAI:      usa rangedHit/Die/AttackClip
-//       - BullEnemyAI:        ya usaba bullCharge/StunClip   (sin cambio)
-//         + añadido bullHitClip / bullDieClip
-//   · UI: añadido uiButtonClip / PlayUIButton() separado de
-//     PlayPowerUpSelect(). Los botones de menú usan PlayUIButton().
-//
-//  SETUP EN UNITY:
-//   1. Crea un GameObject vacío "AudioManager" en la primera escena.
-//   2. Añade este script.
-//   3. Arrastra tus AudioClips a los campos del Inspector.
-//   4. El GameObject sobrevive entre escenas automáticamente.
-// ============================================================
+
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour

@@ -1,24 +1,4 @@
-// ============================================================
-//  LevelManager.cs  — v2
-//
-//  CAMBIO respecto a v1:
-//   · Al completar un nivel (no el último), en lugar de cargar
-//     la escena siguiente directamente, guarda el índice del
-//     siguiente LevelEntry en PlayerPrefs y carga la escena
-//     "Cutscene" para mostrar la animación de introducción.
-//   · Para el último nivel el comportamiento no cambia
-//     (vuelve al menú).
-//   · Se añade el campo sceneCutscene y nextLevelEntryIndex
-//     en el Inspector.
-//
-//  SETUP:
-//   · nextLevelEntryIndex: índice del LevelEntry en CutsceneData
-//     que corresponde al nivel SIGUIENTE (0-based).
-//     Ejemplo: LevelManager del Lvl1 → nextLevelEntryIndex = 1
-//              LevelManager del Lvl2 → nextLevelEntryIndex = 2
-//              ...
-//              LevelManager del Lvl5 → isLastLevel = true (no usa este campo)
-// ============================================================
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;

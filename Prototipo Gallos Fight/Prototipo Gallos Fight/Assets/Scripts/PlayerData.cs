@@ -1,15 +1,4 @@
-// ============================================================
-//  PlayerData.cs  — v2
-//  Cambios respecto a v1:
-//   · RangeBonus ahora guarda stacks del powerup de Rango
-//     (velocidad + knockback del disparo), no el tamaño de hitbox.
-//   · ExtraBullets ahora guarda stacks del powerup de Disparo
-//     (solo daño de bala).
-//   · Se elimina la llave KEY_RANGE antigua y se añade
-//     KEY_BULLET_RANGE para los stacks de rango del disparo.
-//   · Retrocompatibilidad: si existía un RangeBonus guardado
-//     como float (hitbox), se ignora y empieza en 0.
-// ============================================================
+
 using UnityEngine;
 
 public class PlayerData : MonoBehaviour

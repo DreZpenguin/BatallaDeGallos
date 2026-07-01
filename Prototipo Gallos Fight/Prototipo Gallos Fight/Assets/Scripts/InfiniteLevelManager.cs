@@ -1,32 +1,4 @@
-// ============================================================
-//  InfiniteLevelManager.cs
-//
-//  Reemplaza al LevelManager en la escena "LvlInfinite".
-//  Funciona en una sola escena que se recarga a sí misma
-//  cada vez que el jugador supera una oleada.
-//
-//  FLUJO:
-//   1. Al Start: lee InfiniteData para saber en qué oleada va
-//      y restaura el HP del jugador si hay uno guardado.
-//   2. Spawnea los enemigos de esta oleada con stats escaladas
-//      según EnemyScalingConfig.
-//   3. Cuando mueren todos: muestra pantalla de powerup,
-//      guarda el HP actual, avanza oleada y recarga la escena.
-//   4. Si el jugador muere: InfiniteData.ResetInfiniteRun()
-//      y carga la escena del menú.
-//
-//  SETUP EN UNITY:
-//   1. Duplica cualquier escena de nivel existente como
-//      "LvlInfinite" y elimina los enemigos colocados a mano.
-//   2. Añade un GameObject vacío "InfiniteLevelManager"
-//      con este script.
-//   3. Crea el ScriptableObject EnemyScalingConfig y asígnalo.
-//   4. Asigna los prefabs de cada tipo de enemigo.
-//   5. Define los SpawnPoints (GameObjects vacíos en la arena).
-//   6. Asegúrate de que la escena esté en Build Settings.
-//   7. Añade el GameObject "InfiniteData" a la escena del Menú
-//      con el script InfiniteData.cs (se hace DontDestroyOnLoad).
-// ============================================================
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

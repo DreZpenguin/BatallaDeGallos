@@ -1,17 +1,4 @@
-// ============================================================
-//  PowerUpUI.cs  — v2
-//  Cambios respecto a v1:
-//   · Cada PowerUpType tiene una Texture2D asignable desde el
-//     Inspector (sección "Iconos por tipo de powerup").
-//   · Al renderizar cada tarjeta, se busca la textura
-//     correspondiente al PowerUpType.id con GetTextureForType().
-//   · Si hay textura asignada: se dibuja el icono con color blanco
-//     (sin tinte) para respetar los colores originales del sprite.
-//   · Si NO hay textura: comportamiento de fallback idéntico a v1
-//     (rectángulo de color sólido con hexColor).
-//   · El campo useColorTintOnIcon permite teñir el icono con el
-//     hexColor aunque tenga textura asignada (opcional).
-// ============================================================
+
 using System;
 using UnityEngine;
 
